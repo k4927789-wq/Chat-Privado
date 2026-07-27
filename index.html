@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Mando Bluetooth Pro + Joystick</title>
+  <title>Mando Web Multi-Dispositivo</title>
+  <!-- Librería PeerJS para conectar 2 celulares por WebRTC sin servidor -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
     :root {
-      --bg-color: #0b0c10;
-      --card-bg: #1f2833;
-      --accent: #66fcf1;
-      --accent-glow: rgba(102, 252, 241, 0.4);
-      --btn-bg: #2d3748;
-      --btn-border: #4a5568;
+      --bg-color: #0a0b0e;
+      --card-bg: #161b22;
+      --accent: #00f2fe;
+      --btn-bg: #21262d;
+      --btn-border: #30363d;
       --text: #ffffff;
-      --subtext: #c5c6c7;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'Segoe UI', system-ui, sans-serif;
       user-select: none;
       -webkit-user-select: none;
       touch-action: manipulation;
@@ -37,299 +37,201 @@
       padding: 10px;
     }
 
-    /* BARRA DE CONFIGURACIÓN Y ESTADO */
-    .top-bar {
-      width: 100%;
-      max-width: 950px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: space-between;
-      align-items: center;
-      background: #121821;
-      border: 1px solid #2d3748;
-      padding: 12px 18px;
-      border-radius: 16px;
-      margin-bottom: 15px;
-    }
-
-    .config-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex: 1;
-      min-width: 260px;
-    }
-
-    .config-group input {
-      background: #0b0c10;
-      border: 1px solid var(--btn-border);
-      color: #fff;
-      padding: 8px 12px;
-      border-radius: 8px;
-      flex: 1;
-      font-size: 0.9rem;
-      outline: none;
-    }
-
-    .status-badge {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: #1f2833;
-      padding: 8px 14px;
+    /* PANTALLA DE SELECCIÓN DE MODO */
+    .mode-selector {
+      background: var(--card-bg);
+      border: 2px solid var(--btn-border);
       border-radius: 20px;
-      font-size: 0.85rem;
-      border: 1px solid #2d3748;
-    }
-
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background-color: #ff5252;
-    }
-
-    .status-dot.online {
-      background-color: var(--accent);
-      box-shadow: 0 0 10px var(--accent);
-    }
-
-    .btn-action {
-      background: #45f3c4;
-      color: #0b0c10;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: transform 0.1s, background 0.2s;
-    }
-
-    .btn-action:active {
-      transform: scale(0.96);
-    }
-
-    /* ESTRUCTURA PRINCIPAL DEL MANDO */
-    .gamepad-body {
-      background: linear-gradient(145deg, #18202a, #0f141c);
-      border: 3px solid #2d3748;
-      border-radius: 50px;
-      padding: 25px 20px;
+      padding: 25px;
+      max-width: 400px;
       width: 100%;
-      max-width: 950px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 2px 4px rgba(255,255,255,0.05);
-      display: grid;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .mode-selector h2 {
+      color: var(--accent);
+      font-size: 1.3rem;
+    }
+
+    .input-code {
+      background: #0d1117;
+      border: 1px solid var(--accent);
+      color: #fff;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      text-align: center;
+      letter-spacing: 2px;
+      outline: none;
+      width: 100%;
+    }
+
+    .btn-main {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .btn-main:active { opacity: 0.8; }
+
+    /* MANDO PRO */
+    .gamepad-body {
+      display: none; /* Oculto hasta conectar */
+      background: linear-gradient(145deg, #1c2128, #0d1117);
+      border: 3px solid #30363d;
+      border-radius: 40px;
+      padding: 20px;
+      width: 100%;
+      max-width: 900px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.8);
       grid-template-columns: 1fr;
       gap: 20px;
     }
 
     @media (min-width: 768px) {
-      .gamepad-body {
-        grid-template-columns: 1.2fr 1.5fr 1.2fr;
-      }
+      .gamepad-body { grid-template-columns: 1.2fr 1.4fr 1.2fr; }
     }
 
-    /* COLUMNAS DEL MANDO */
     .pad-column {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: space-around;
-      gap: 20px;
+      gap: 15px;
     }
 
-    /* TOUCHPAD / RATÓN CENTRAL */
-    .touchpad-container {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
+    .touchpad-box { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 
     .touchpad {
       width: 100%;
-      height: 160px;
-      background: radial-gradient(circle, #121821 0%, #0b0c10 100%);
+      height: 140px;
+      background: radial-gradient(circle, #161b22 0%, #0d1117 100%);
       border: 2px solid var(--accent);
-      border-radius: 20px;
+      border-radius: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--subtext);
+      color: #8b949e;
       font-size: 0.85rem;
       text-align: center;
-      box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 0 10px rgba(102, 252, 241, 0.15);
       touch-action: none;
       cursor: crosshair;
     }
 
-    .mouse-click-btns {
-      display: flex;
-      gap: 10px;
-      width: 100%;
-    }
+    .mouse-btns { display: flex; gap: 10px; width: 100%; }
 
     .btn-mouse {
-      flex: 1;
-      padding: 12px;
-      background: var(--btn-bg);
-      border: 1px solid var(--btn-border);
-      color: #fff;
-      border-radius: 10px;
-      font-weight: bold;
-      cursor: pointer;
+      flex: 1; padding: 10px; background: var(--btn-bg);
+      border: 1px solid var(--btn-border); color: #fff;
+      border-radius: 8px; font-weight: bold; cursor: pointer;
     }
 
-    /* BOTONES DE MENÚ Y NAVEGACIÓN */
-    .menu-buttons-row {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      width: 100%;
-      margin-top: 5px;
+    .menu-row { display: flex; gap: 8px; width: 100%; justify-content: center; }
+
+    .btn-menu {
+      background: #21262d; border: 1px solid #30363d;
+      color: #fff; padding: 8px 12px; border-radius: 12px;
+      font-size: 0.75rem; font-weight: bold; cursor: pointer;
     }
 
-    .btn-system {
-      background: #1a232e;
-      border: 1px solid #3b4859;
-      color: #fff;
-      padding: 10px 16px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
-
-    .btn-system:active {
-      background: var(--accent);
-      color: #000;
-    }
-
-    /* CRUCETA (D-PAD) AUMENTADA */
-    .dpad {
-      display: grid;
-      grid-template-columns: repeat(3, 65px);
-      grid-template-rows: repeat(3, 65px);
-      gap: 6px;
-    }
+    .dpad { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(3, 60px); gap: 5px; }
 
     .btn-ctrl {
-      background: var(--btn-bg);
-      border: 2px solid var(--btn-border);
-      color: var(--text);
-      border-radius: 14px;
-      font-weight: bold;
-      font-size: 1.4rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 5px 0 #121821;
+      background: var(--btn-bg); border: 2px solid var(--btn-border);
+      color: var(--text); border-radius: 12px; font-weight: bold;
+      font-size: 1.3rem; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; box-shadow: 0 4px 0 #0d1117;
     }
 
     .btn-ctrl:active {
-      transform: translateY(3px);
-      box-shadow: 0 2px 0 #121821;
-      background: var(--accent);
-      color: #000;
+      transform: translateY(2px); box-shadow: 0 2px 0 #0d1117;
+      background: var(--accent); color: #000;
     }
 
-    /* PERILLA (JOYSTICK ANALÓGICO) */
     .joystick-outer {
-      width: 130px;
-      height: 130px;
-      background: radial-gradient(circle, #222c37 0%, #0d1117 100%);
-      border: 3px solid #3b4859;
-      border-radius: 50%;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: inset 0 5px 10px rgba(0,0,0,0.7);
-      touch-action: none;
+      width: 120px; height: 120px;
+      background: radial-gradient(circle, #21262d 0%, #0d1117 100%);
+      border: 3px solid var(--btn-border); border-radius: 50%;
+      position: relative; display: flex; align-items: center;
+      justify-content: center; touch-action: none;
     }
 
     .joystick-stick {
-      width: 60px;
-      height: 60px;
-      background: radial-gradient(circle, #4a5568 0%, #1a202c 100%);
-      border: 2px solid var(--accent);
-      border-radius: 50%;
-      position: absolute;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.6);
-      transition: transform 0.05s ease-out;
+      width: 55px; height: 55px;
+      background: radial-gradient(circle, #30363d 0%, #161b22 100%);
+      border: 2px solid var(--accent); border-radius: 50%;
+      position: absolute; box-shadow: 0 4px 8px rgba(0,0,0,0.5);
     }
 
-    /* BOTONES DE ACCIÓN (A, B, X, Y) AUMENTADOS */
-    .action-btns {
-      display: grid;
-      grid-template-columns: repeat(3, 65px);
-      grid-template-rows: repeat(3, 65px);
-      gap: 6px;
-    }
+    .action-btns { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(3, 60px); gap: 5px; }
+    .btn-act { border-radius: 50%; font-size: 1.1rem; }
+    .btn-a { background: #238636; border-color: #2ea043; }
+    .btn-b { background: #da3633; border-color: #f85149; }
+    .btn-x { background: #1f6feb; border-color: #388bfd; }
+    .btn-y { background: #d29922; border-color: #e3b341; color: #fff; }
 
-    .btn-act {
-      border-radius: 50%;
-      font-size: 1.2rem;
-    }
-
-    .btn-a { background: #38a169; border-color: #2f855a; }
-    .btn-b { background: #e53e3e; border-color: #c53030; }
-    .btn-x { background: #3182ce; border-color: #2b6cb0; }
-    .btn-y { background: #d69e2e; border-color: #b7791f; color: #fff; }
-
-    /* LOGS CONSOLA */
-    .console-log {
-      margin-top: 15px;
-      background: #080a0d;
-      border: 1px solid #1f2833;
-      border-radius: 12px;
-      padding: 10px;
+    /* CONSOLA DE RECEPTION EN PANTALLA RECEPTORA */
+    .receiver-box {
+      display: none;
+      background: var(--card-bg);
+      border: 1px solid var(--btn-border);
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 500px;
       width: 100%;
-      max-width: 950px;
-      height: 70px;
-      overflow-y: auto;
-      font-family: monospace;
-      font-size: 0.75rem;
-      color: #718096;
+      text-align: center;
+    }
+
+    .console-log {
+      margin-top: 15px; background: #0d1117;
+      border: 1px solid #30363d; border-radius: 10px;
+      padding: 10px; height: 150px; overflow-y: auto;
+      font-family: monospace; font-size: 0.8rem; color: var(--accent);
+      text-align: left;
     }
   </style>
 </head>
 <body>
 
-  <!-- BARRA DE CONFIGURACIÓN -->
-  <div class="top-bar">
-    <div class="config-group">
-      <input type="text" id="controllerName" value="Mando-GamePad-Pro" placeholder="Nombre del Mando">
-      <button class="btn-action" id="saveNameBtn">Guardar</button>
-    </div>
+  <!-- PANTALLA DE INICIO (ELEGIR ROL) -->
+  <div class="mode-selector" id="setupScreen">
+    <h2>🎮 Mando Web Conexión</h2>
+    <p style="font-size: 0.85rem; color: #8b949e;">Elige la función de este celular:</p>
 
-    <div class="status-badge">
-      <div class="status-dot" id="statusDot"></div>
-      <span id="deviceIcon">📱</span>
-      <span id="statusText">Desconectado</span>
-    </div>
+    <button class="btn-main" style="background:#21262d; color:#fff;" id="btnHostMode">📱 Celular 1: RECIBIR (Pantalla/Juego)</button>
 
-    <button class="btn-action" id="connectBt">Sincronizar Bluetooth</button>
+    <hr style="border-color: #30363d; margin: 5px 0;">
+
+    <p style="font-size: 0.85rem; color: #8b949e;">O ingresar código para ser el Mando:</p>
+    <input type="text" class="input-code" id="joinCodeInput" placeholder="CÓDIGO (Ej: 4821)" maxlength="6">
+    <button class="btn-main" id="btnJoinMode">🕹️ Celular 2: UNIRSE COMO MANDO</button>
   </div>
 
-  <!-- CUERPO DEL MANDO -->
-  <div class="gamepad-body">
+  <!-- MODO RECEPCTOR (CELULAR 1) -->
+  <div class="receiver-box" id="receiverScreen">
+    <h3 style="color: var(--accent);">Código de Sala:</h3>
+    <h1 id="roomCodeDisplay" style="font-size: 2.5rem; letter-spacing: 4px; margin: 10px 0;">----</h1>
+    <p style="font-size: 0.85rem; color: #8b949e;">Ingresa este código en el otro celular para conectarlo como mando.</p>
+    <div class="console-log" id="receiverLog">> Esperando que el mando se conecte...</div>
+  </div>
 
-    <!-- IZQUIERDA: JOYSTICK + CRUCETA -->
+  <!-- MODO MANDO (CELULAR 2) -->
+  <div class="gamepad-body" id="gamepadScreen">
+
+    <!-- IZQUIERDA: PERILLA Y CRUCETA -->
     <div class="pad-column">
-      <!-- PERILLA / JOYSTICK ANALÓGICO -->
       <div class="joystick-outer" id="joystickLeft">
         <div class="joystick-stick" id="stickLeft"></div>
       </div>
 
-      <!-- CRUCETA MÁS GRANDE -->
       <div class="dpad">
         <div></div>
         <button class="btn-ctrl" data-cmd="UP">▲</button>
@@ -343,28 +245,27 @@
       </div>
     </div>
 
-    <!-- CENTRO: RATÓN TOUCHPAD + BOTONES MENÚ -->
+    <!-- CENTRO: MOUSE Y MENÚS -->
     <div class="pad-column">
-      <div class="touchpad-container">
+      <div class="touchpad-box">
         <div class="touchpad" id="touchpad">
-          <span>🖱️ Mouse Touchpad<br><small>Desliza tu dedo aquí</small></span>
+          🖱️ Mouse Touchpad<br><small>Desliza tu dedo aquí</small>
         </div>
-        <div class="mouse-click-btns">
+        <div class="mouse-btns">
           <button class="btn-mouse" data-cmd="CLICK_LEFT">Clic Izq.</button>
           <button class="btn-mouse" data-cmd="CLICK_RIGHT">Clic Der.</button>
         </div>
       </div>
 
-      <!-- BOTONES DE MENÚ ABAJO DEL RATÓN -->
-      <div class="menu-buttons-row">
-        <button class="btn-system" data-cmd="SELECT">SELECT</button>
-        <button class="btn-system" data-cmd="HOME">🏠 HOME</button>
-        <button class="btn-system" data-cmd="MENU">☰ MENÚ</button>
-        <button class="btn-system" data-cmd="START">START</button>
+      <div class="menu-row">
+        <button class="btn-menu" data-cmd="SELECT">SELECT</button>
+        <button class="btn-menu" data-cmd="HOME">🏠 HOME</button>
+        <button class="btn-menu" data-cmd="MENU">☰ MENÚ</button>
+        <button class="btn-menu" data-cmd="START">START</button>
       </div>
     </div>
 
-    <!-- DERECHA: BOTONES DE ACCIÓN (A,B,X,Y) -->
+    <!-- DERECHA: BOTONES DE ACCIÓN -->
     <div class="pad-column">
       <div class="action-btns">
         <div></div>
@@ -381,80 +282,90 @@
 
   </div>
 
-  <div class="console-log" id="logBox">
-    > Mando iniciado. Esperando conexión...
-  </div>
-
   <script>
-    let btDevice;
-    const connectBt = document.getElementById('connectBt');
-    const statusDot = document.getElementById('statusDot');
-    const statusText = document.getElementById('statusText');
-    const deviceIcon = document.getElementById('deviceIcon');
-    const logBox = document.getElementById('logBox');
-    const touchpad = document.getElementById('touchpad');
+    let peer = null;
+    let conn = null;
 
-    const controllerNameInput = document.getElementById('controllerName');
-    const saveNameBtn = document.getElementById('saveNameBtn');
+    const setupScreen = document.getElementById('setupScreen');
+    const receiverScreen = document.getElementById('receiverScreen');
+    const gamepadScreen = document.getElementById('gamepadScreen');
 
-    // Cargar nombre
-    if (localStorage.getItem('custom_pad_name')) {
-      controllerNameInput.value = localStorage.getItem('custom_pad_name');
+    const roomCodeDisplay = document.getElementById('roomCodeDisplay');
+    const receiverLog = document.getElementById('receiverLog');
+    const joinCodeInput = document.getElementById('joinCodeInput');
+
+    // Generador de código aleatorio corto de 4 números
+    function generateShortId() {
+      return Math.floor(1000 + Math.random() * 9000).toString();
     }
 
-    saveNameBtn.addEventListener('click', () => {
-      localStorage.setItem('custom_pad_name', controllerNameInput.value);
-      printLog(`Nombre cambiado a: "${controllerNameInput.value}"`);
+    // --- OPCIÓN 1: SER LA PANTALLA RECEPTORA (CELULAR 1) ---
+    document.getElementById('btnHostMode').addEventListener('click', () => {
+      const roomCode = generateShortId();
+      peer = new Peer(`mando-room-${roomCode}`);
+
+      setupScreen.style.display = 'none';
+      receiverScreen.style.display = 'block';
+      roomCodeDisplay.innerText = roomCode;
+
+      peer.on('open', (id) => {
+        receiverLog.innerHTML += `<br>> Sala creada con éxito. ID: ${roomCode}`;
+      });
+
+      peer.on('connection', (connection) => {
+        conn = connection;
+        receiverLog.innerHTML += `<br><b>> ¡MANDO CONECTADO Y LISTO!</b>`;
+
+        conn.on('data', (data) => {
+          // Aquí recibes todos los eventos transmitidos desde el mando
+          receiverLog.innerHTML += `<br>> Recibido: ${JSON.stringify(data)}`;
+          receiverLog.scrollTop = receiverLog.scrollHeight;
+        });
+      });
     });
 
-    function printLog(msg) {
-      logBox.innerHTML += `<br>> ${msg}`;
-      logBox.scrollTop = logBox.scrollHeight;
-    }
-
-    function sendSignal(type, data) {
-      const payload = JSON.stringify({
-        sender: controllerNameInput.value,
-        type: type,
-        ...data
-      });
-      printLog(payload);
-
-      if (navigator.vibrate) navigator.vibrate(20);
-    }
-
-    // --- BLUETOOTH ---
-    connectBt.addEventListener('click', async () => {
-      if (!navigator.bluetooth) {
-        alert("Tu navegador no soporta Web Bluetooth API");
+    // --- OPCIÓN 2: SER EL MANDO (CELULAR 2) ---
+    document.getElementById('btnJoinMode').addEventListener('click', () => {
+      const code = joinCodeInput.value.trim();
+      if (!code || code.length < 4) {
+        alert("Ingresa el código numérico de 4 dígitos generado en la otra pantalla.");
         return;
       }
 
-      try {
-        printLog("Buscando dispositivos...");
-        btDevice = await navigator.bluetooth.requestDevice({
-          acceptAllDevices: true,
-          optionalServices: ['generic_access', 'human_interface_device']
+      peer = new Peer();
+
+      peer.on('open', () => {
+        conn = peer.connect(`mando-room-${code}`);
+
+        conn.on('open', () => {
+          setupScreen.style.display = 'none';
+          gamepadScreen.style.display = 'grid';
+          if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
         });
 
-        statusText.innerText = btDevice.name || "Conectado";
-        statusDot.classList.add('online');
-        await btDevice.gatt.connect();
-        printLog(`¡Vinculado con ${btDevice.name}!`);
-      } catch (err) {
-        printLog(`Error: ${err.message}`);
-      }
-    });
-
-    // --- BOTONES ESTÁNDAR Y SISTEMA ---
-    document.querySelectorAll('[data-cmd]').forEach(btn => {
-      btn.addEventListener('pointerdown', () => {
-        const cmd = btn.getAttribute('data-cmd');
-        sendSignal('BTN_PRESS', { key: cmd });
+        conn.on('error', (err) => {
+          alert("No se pudo conectar a ese código. Revisa que la otra pantalla siga abierta.");
+        });
       });
     });
 
-    // --- MOUSE TOUCHPAD ---
+    // FUNCIÓN PARA TRANSMITIR DATOS AL CELULAR 1
+    function sendSignal(type, data) {
+      if (conn && conn.open) {
+        conn.send({ type, ...data });
+      }
+      if (navigator.vibrate) navigator.vibrate(20);
+    }
+
+    // --- EVENTOS DEL MANDO (BOTONES, TOUCHPAD, JOYSTICK) ---
+    document.querySelectorAll('[data-cmd]').forEach(btn => {
+      btn.addEventListener('pointerdown', () => {
+        sendSignal('BTN_PRESS', { key: btn.getAttribute('data-cmd') });
+      });
+    });
+
+    // TOUCHPAD MOUSE
+    const touchpad = document.getElementById('touchpad');
     let startX = 0, startY = 0, isTouching = false;
 
     touchpad.addEventListener('pointerdown', (e) => {
@@ -481,57 +392,53 @@
       touchpad.releasePointerCapture(e.pointerId);
     });
 
-    // --- LÓGICA DE LA PERILLA / JOYSTICK ANALÓGICO ---
+    // PERILLA ANALÓGICA
     const joystick = document.getElementById('joystickLeft');
     const stick = document.getElementById('stickLeft');
     let joyActive = false;
-    const maxDistance = 35; // Límite del radio de la perilla en px
+    const maxRadius = 30;
 
     joystick.addEventListener('pointerdown', (e) => {
       joyActive = true;
       joystick.setPointerCapture(e.pointerId);
-      moveJoystick(e);
+      updateJoystick(e);
     });
 
     joystick.addEventListener('pointermove', (e) => {
-      if (joyActive) moveJoystick(e);
+      if (joyActive) updateJoystick(e);
     });
 
-    function stopJoystick(e) {
+    function resetJoystick() {
       if (!joyActive) return;
       joyActive = false;
       stick.style.transform = `translate(0px, 0px)`;
       sendSignal('JOYSTICK_MOVE', { x: 0, y: 0 });
     }
 
-    joystick.addEventListener('pointerup', stopJoystick);
-    joystick.addEventListener('pointercancel', stopJoystick);
+    joystick.addEventListener('pointerup', resetJoystick);
+    joystick.addEventListener('pointercancel', resetJoystick);
 
-    function moveJoystick(e) {
+    function updateJoystick(e) {
       const rect = joystick.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
 
-      let deltaX = e.clientX - centerX;
-      let deltaY = e.clientY - centerY;
+      let dx = e.clientX - centerX;
+      let dy = e.clientY - centerY;
+      const dist = Math.hypot(dx, dy);
 
-      const distance = Math.hypot(deltaX, deltaY);
-
-      if (distance > maxDistance) {
-        const angle = Math.atan2(deltaY, deltaX);
-        deltaX = Math.cos(angle) * maxDistance;
-        deltaY = Math.sin(angle) * maxDistance;
+      if (dist > maxRadius) {
+        const angle = Math.atan2(dy, dx);
+        dx = Math.cos(angle) * maxRadius;
+        dy = Math.sin(angle) * maxRadius;
       }
 
-      stick.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-
-      // Normalizar valores entre -1 y 1 para los juegos
-      const normalizedX = (deltaX / maxDistance).toFixed(2);
-      const normalizedY = (deltaY / maxDistance).toFixed(2);
-
-      sendSignal('JOYSTICK_MOVE', { x: parseFloat(normalizedX), y: parseFloat(normalizedY) });
+      stick.style.transform = `translate(${dx}px, ${dy}px)`;
+      sendSignal('JOYSTICK_MOVE', { 
+        x: parseFloat((dx / maxRadius).toFixed(2)), 
+        y: parseFloat((dy / maxRadius).toFixed(2)) 
+      });
     }
   </script>
 </body>
 </html>
-
