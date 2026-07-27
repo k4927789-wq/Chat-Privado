@@ -31,9 +31,10 @@
     .app-logo { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 10px auto; border: 2px solid var(--accent-glow); }
     .screen { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); display: flex; flex-direction: column; padding: 20px; z-index: 10; overflow-y: auto; }
     .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 20px; width: 100%; text-align: center; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin: auto 0; }
-    input[type="text"] { background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 12px; font-size: 1rem; outline: none; width: 100%; }
+    input[type="text"], input[type="tel"] { background: #0d1117; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 12px; font-size: 1rem; outline: none; width: 100%; }
     .btn { background: linear-gradient(135deg, var(--accent), var(--accent-glow)); color: #fff; border: none; padding: 12px; border-radius: 12px; font-weight: bold; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .btn-secondary { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); }
+    .btn-danger { background: #da3633; }
     .avatar-upload { width: 80px; height: 80px; border-radius: 50%; background: var(--border); margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; border: 2px dashed var(--accent-glow); }
     .avatar-upload img { width: 100%; height: 100%; object-fit: cover; }
     .main-nav { display: flex; border-bottom: 1px solid var(--border); margin-top: 35px; background: var(--card-bg); border-radius: 12px; padding: 4px; }
@@ -78,10 +79,16 @@
     .swipe-hint { text-align: center; font-size: 0.7rem; color: #8b949e; margin-top: 5px; }
     .call-btn-inline { background: transparent; border: none; color: var(--accent-glow); cursor: pointer; padding: 6px; display: flex; align-items: center; justify-content: center; }
     .status-reaction-badge { position: absolute; bottom: 8px; right: 8px; background: #ff4d6d; color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; display: flex; align-items: center; gap: 2px; }
+    .number-display { font-size: 1.5rem; font-weight: bold; color: var(--accent-glow); letter-spacing: 2px; background: rgba(157, 78, 221, 0.1); padding: 10px 20px; border-radius: 12px; border: 1px dashed var(--accent); }
+    .profile-header-click { cursor: pointer; display: flex; align-items: center; gap: 10px; }
+    .profile-header-click:hover { opacity: 0.8; }
+    .cooldown-text { font-size: 0.75rem; color: #8b949e; margin-top: 4px; }
+    .share-number-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
+    .share-number-btn:hover { background: var(--border); }
+    .contact-number { font-size: 0.7rem; color: #8b949e; }
   </style>
 </head>
 <body>
-
   <div class="app-container">
     <div class="device-switcher">
       <button class="device-btn active" id="btnModeAndroid"><i data-lucide="smartphone" style="width:14px;"></i> Android</button>
@@ -92,25 +99,27 @@
     <div class="screen" id="profileScreen">
       <div class="card">
         <img src="https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg" alt="Logo" class="app-logo">
-        <h2>Perfil Inicial</h2>
-        <p style="font-size: 0.8rem; color: #8b949e;">Configura tu foto y nombre para chatear</p>
+        <h2>Crear Perfil</h2>
+        <p style="font-size: 0.8rem; color: #8b949e;">Configura tu foto y nombre. Tu numero se generara automaticamente.</p>
         <label class="avatar-upload">
           <i data-lucide="camera" id="cameraIcon"></i>
           <img id="myAvatarImg" class="hidden">
           <input type="file" id="profilePicInput" accept="image/*" style="display: none;">
         </label>
         <input type="text" id="usernameInput" placeholder="Nombre de Usuario" maxlength="15">
-        <button class="btn" id="btnSaveProfile"><i data-lucide="check"></i> Continuar</button>
-        <button class="btn btn-secondary" id="btnQuickReconnect"><i data-lucide="refresh-cw"></i> Reconectar Último Chat</button>
+        <button class="btn" id="btnSaveProfile"><i data-lucide="check"></i> Crear Perfil</button>
       </div>
     </div>
 
     <!-- 2. PANTALLA PRINCIPAL -->
     <div class="screen hidden" id="mainScreen">
       <div class="chats-header">
-        <div style="display: flex; align-items: center; gap: 10px;">
+        <div class="profile-header-click" id="profileHeaderClick">
           <img id="mainProfileAvatar" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
-          <h3 id="mainProfileName">Chats</h3>
+          <div>
+            <h3 id="mainProfileName" style="font-size: 1rem;">Chats</h3>
+            <div id="mainProfileNumber" class="contact-number"></div>
+          </div>
         </div>
         <button class="btn" id="btnNewChat" style="padding: 6px 12px; font-size: 0.8rem;"><i data-lucide="plus"></i> Nuevo Chat</button>
       </div>
@@ -130,7 +139,7 @@
             <div id="myStatusText" style="font-size:0.75rem; color:#8b949e;">Toca para subir un estado</div>
           </div>
           <i data-lucide="plus-circle" style="color: var(--accent-glow);"></i>
-          <button class="delete-status-btn hidden" id="btnDeleteMyStatus">×</button>
+          <button class="delete-status-btn hidden" id="btnDeleteMyStatus">&times;</button>
         </div>
         <h4 style="font-size:0.8rem; color:#8b949e; margin: 15px 0 10px 0;">ESTADOS RECIENTES</h4>
         <div id="statusesListContainer"></div>
@@ -142,16 +151,15 @@
       </div>
     </div>
 
-    <!-- 3. CONEXIÓN -->
-    <div class="screen hidden" id="connectScreen">
+    <!-- 3. AGREGAR CONTACTO (NUEVO CHAT) -->
+    <div class="screen hidden" id="addContactScreen">
       <div class="card">
-        <button class="icon-btn" id="btnBackToMain" style="align-self: flex-start;"><i data-lucide="arrow-left"></i> Volver</button>
-        <h2>Conectar Dispositivos</h2>
-        <p style="font-size: 0.8rem; color: #8b949e;">Genera un código o ingresa el del otro dispositivo</p>
-        <button class="btn" id="btnGenCode"><i data-lucide="qr-code"></i> Generar Código</button>
-        <hr style="border-color: var(--border);">
-        <input type="text" id="joinCodeInput" placeholder="Código (Ej: 5821)" maxlength="10">
-        <button class="btn btn-secondary" id="btnJoin"><i data-lucide="link"></i> Conectar / Reconectar Chat</button>
+        <button class="icon-btn" id="btnBackFromAdd" style="align-self: flex-start;"><i data-lucide="arrow-left"></i> Volver</button>
+        <h2>Agregar Contacto</h2>
+        <p style="font-size: 0.8rem; color: #8b949e;">Ingresa el numero del usuario para chatear</p>
+        <input type="tel" id="contactNumberInput" placeholder="Numero (Ej: 5512345678)" maxlength="15">
+        <input type="text" id="contactNameInput" placeholder="Nombre del contacto (opcional)" maxlength="20">
+        <button class="btn" id="btnSaveContact"><i data-lucide="user-plus"></i> Guardar y Chatear</button>
       </div>
     </div>
 
@@ -257,22 +265,66 @@
       </div>
     </div>
 
+    <!-- MODAL MI PERFIL -->
+    <div class="modal hidden" id="myProfileModal">
+      <div class="card" style="max-width: 320px;">
+        <img id="modalMyAvatar" style="width: 80px; height: 80px; border-radius: 50%; margin: 0 auto; object-fit: cover; border: 2px solid var(--accent-glow);">
+        <h3 id="modalMyName">Tu Nombre</h3>
+        <div class="number-display" id="modalMyNumber"></div>
+        <button class="share-number-btn" id="btnShareMyNumber"><i data-lucide="share-2"></i> Compartir mi numero</button>
+        <button class="btn btn-secondary" id="btnEditProfile"><i data-lucide="edit-3"></i> Editar Perfil</button>
+        <button class="btn btn-secondary" id="btnChangeNumber"><i data-lucide="refresh-cw"></i> Cambiar Numero</button>
+        <div class="cooldown-text hidden" id="numberCooldownText"></div>
+        <button class="btn" style="background: transparent;" id="btnCloseMyProfile">Cerrar</button>
+      </div>
+    </div>
+
+    <!-- MODAL EDITAR PERFIL -->
+    <div class="modal hidden" id="editProfileModal">
+      <div class="card" style="max-width: 320px;">
+        <h3>Editar Perfil</h3>
+        <label class="avatar-upload" style="margin: 10px auto;">
+          <i data-lucide="camera" id="editCameraIcon"></i>
+          <img id="editAvatarImg" class="hidden" style="width:100%;height:100%;object-fit:cover;">
+          <input type="file" id="editPicInput" accept="image/*" style="display: none;">
+        </label>
+        <input type="text" id="editNameInput" placeholder="Nuevo nombre" maxlength="15">
+        <button class="btn" id="btnSaveEditProfile"><i data-lucide="check"></i> Guardar Cambios</button>
+        <button class="btn" style="background: transparent;" id="btnCancelEdit">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- MODAL CAMBIAR NUMERO -->
+    <div class="modal hidden" id="changeNumberModal">
+      <div class="card" style="max-width: 320px;">
+        <h3>Cambiar Numero</h3>
+        <p style="font-size: 0.8rem; color: #8b949e;">Solo puedes cambiar tu numero cada 7 dias.</p>
+        <div class="number-display" id="currentNumberDisplay"></div>
+        <input type="tel" id="newNumberInput" placeholder="Nuevo numero" maxlength="15">
+        <div class="cooldown-text" id="changeNumberCooldown"></div>
+        <button class="btn" id="btnConfirmChangeNumber"><i data-lucide="check"></i> Cambiar Numero</button>
+        <button class="btn" style="background: transparent;" id="btnCancelChangeNumber">Cancelar</button>
+      </div>
+    </div>
+
     <!-- MODAL CONTACTO -->
     <div class="modal hidden" id="contactModal">
       <div class="card" style="max-width: 280px;">
         <img id="modalContactAvatar" style="width: 60px; height: 60px; border-radius: 50%; margin: 0 auto; object-fit: cover;">
         <h3 id="modalContactName">Contacto</h3>
+        <div class="contact-number" id="modalContactNumber"></div>
         <button class="btn" style="background: #21262d; border: 1px solid var(--border);" id="btnClearChatHistory"><i data-lucide="trash-2"></i> Borrar Chat</button>
-        <button class="btn" style="background: #da3633;" id="btnBlockContact"><i data-lucide="shield-alert"></i> Eliminar</button>
+        <button class="btn btn-danger" id="btnBlockContact"><i data-lucide="shield-alert"></i> Eliminar</button>
         <button class="btn" style="background: transparent;" id="btnCloseModal">Cerrar</button>
       </div>
     </div>
+
   </div>
 
   <script>
     lucide.createIcons();
 
-    // MODO DISPOSITIVO
+    // ===== MODO DISPOSITIVO =====
     document.getElementById('btnModeAndroid').onclick = function() {
       document.body.classList.remove('pc-mode');
       this.classList.add('active');
@@ -284,7 +336,7 @@
       document.getElementById('btnModeAndroid').classList.remove('active');
     };
 
-    // SONIDO
+    // ===== SONIDO =====
     function playSound(type) {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -298,32 +350,30 @@
       } catch(e) {}
     }
 
-    // DATOS LOCALES
-    let myProfile = JSON.parse(localStorage.getItem('user_profile') || '{"name":"","avatar":""}');
+    // ===== DATOS LOCALES =====
+    let myProfile = JSON.parse(localStorage.getItem('user_profile') || '{"name":"","avatar":"","number":""}');
     let savedContacts = JSON.parse(localStorage.getItem('saved_contacts') || '{}');
     let savedStickers = JSON.parse(localStorage.getItem('saved_stickers') || '[]');
-    let lastChatPeerId = localStorage.getItem('last_chat_peer_id') || '';
-    let myPeerId = localStorage.getItem('my_peer_id') || '';
     let myStatus = JSON.parse(localStorage.getItem('my_status') || 'null');
-    let statusAnalytics = JSON.parse(localStorage.getItem('status_analytics') || '{"views":[],"reactions":[],"comments":[]}');
+    let statusAnalytics = JSON.parse(localStorage.getItem('status_analytics') || '{"views":[],"reactions":[]}');
+    let numberChangeCooldown = parseInt(localStorage.getItem('number_change_cooldown') || '0');
 
     let peer = null;
-    let conn = null;
+    let activeConnections = {}; // peerId -> DataConnection
     let currentCall = null;
     let localStream = null;
     let currentChatId = null;
-    let incomingCallPeerId = null;
+    let currentViewingStatusPeerId = null;
+    let isViewingOwnStatus = false;
 
-    // Generar peer ID persistente
-    function getPersistentPeerId() {
-      if (!myPeerId) {
-        myPeerId = 'peer-user-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
-        localStorage.setItem('my_peer_id', myPeerId);
-      }
-      return myPeerId;
+    // ===== UTILIDADES =====
+    function generateNumber() {
+      return Math.floor(1000000000 + Math.random() * 9000000000).toString();
     }
 
-    if (myProfile.name && myProfile.avatar) showMainScreen();
+    function getPeerIdFromNumber(number) {
+      return 'peer-num-' + number;
+    }
 
     function processFile(file, callback) {
       const reader = new FileReader();
@@ -331,7 +381,230 @@
       reader.readAsDataURL(file);
     }
 
-    // PERFIL
+    function formatNumber(num) {
+      if (num.length === 10) return num.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
+      return num;
+    }
+
+    // ===== INICIALIZACIÓN =====
+    if (myProfile.name && myProfile.avatar && myProfile.number) {
+      initApp();
+    }
+
+    function initApp() {
+      setupPeer();
+      showMainScreen();
+      // Reconectar automáticamente a todos los contactos guardados
+      setTimeout(() => {
+        Object.keys(savedContacts).forEach(peerId => {
+          connectToPeer(peerId);
+        });
+      }, 1500);
+    }
+
+    // ===== PEERJS =====
+    function setupPeer() {
+      if (peer) { try { peer.destroy(); } catch(e) {} }
+
+      const myPeerId = getPeerIdFromNumber(myProfile.number);
+
+      peer = new Peer(myPeerId, {
+        debug: 0,
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+          ]
+        }
+      });
+
+      peer.on('open', () => {
+        console.log('Peer abierto con ID:', myPeerId);
+      });
+
+      peer.on('connection', (c) => { 
+        bindConnEvents(c); 
+      });
+
+      peer.on('call', (call) => {
+        if (confirm("Llamada entrante de " + (savedContacts[call.peer]?.name || "Contacto") + ". Contestar?")) {
+          navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+            localStream = stream;
+            call.answer(stream);
+            currentCall = call;
+            const contact = savedContacts[call.peer];
+            showCallScreen(contact?.name || "Contacto", contact?.avatar || "");
+            call.on('stream', (remoteStream) => {
+              document.getElementById('remoteAudio').srcObject = remoteStream;
+            });
+            call.on('close', () => endCallUI());
+          }).catch(() => alert("No se pudo acceder al microfono."));
+        } else {
+          call.close();
+        }
+      });
+
+      peer.on('error', (err) => {
+        console.error('Peer error:', err);
+        if (err.type === 'unavailable-id') {
+          // ID en uso, generar nuevo numero
+          myProfile.number = generateNumber();
+          localStorage.setItem('user_profile', JSON.stringify(myProfile));
+          setupPeer();
+        }
+      });
+
+      peer.on('disconnected', () => {
+        console.log('Peer desconectado, reconectando...');
+        setTimeout(() => { if (peer && !peer.destroyed) peer.reconnect(); }, 3000);
+      });
+    }
+
+    function connectToPeer(peerId) {
+      if (!peer || peer.disconnected || peer.destroyed) {
+        setupPeer();
+        setTimeout(() => doConnect(peerId), 1000);
+      } else {
+        doConnect(peerId);
+      }
+    }
+
+    function doConnect(peerId) {
+      if (activeConnections[peerId] && activeConnections[peerId].open) return;
+      if (peerId === getPeerIdFromNumber(myProfile.number)) return;
+
+      try {
+        const c = peer.connect(peerId, { reliable: true });
+        bindConnEvents(c);
+      } catch(e) {
+        console.error('Error conectando a', peerId, e);
+      }
+    }
+
+    function bindConnEvents(c) {
+      c.on('open', () => {
+        activeConnections[c.peer] = c;
+        c.send({ type: 'HANDSHAKE', profile: myProfile });
+
+        // Enviar mi estado si existe
+        if (myStatus) {
+          c.send({ type: 'STATUS_UPDATE', status: myStatus });
+        }
+
+        updateConnectionStatus(c.peer, true);
+      });
+
+      c.on('data', (data) => {
+        handleIncomingData(data, c.peer);
+      });
+
+      c.on('close', () => {
+        delete activeConnections[c.peer];
+        updateConnectionStatus(c.peer, false);
+      });
+
+      c.on('error', (err) => {
+        console.error('Conn error:', err);
+        delete activeConnections[c.peer];
+        updateConnectionStatus(c.peer, false);
+      });
+    }
+
+    function handleIncomingData(data, fromPeerId) {
+      if (data.type === 'HANDSHAKE') {
+        if (!savedContacts[fromPeerId]) {
+          savedContacts[fromPeerId] = {
+            name: data.profile.name,
+            avatar: data.profile.avatar,
+            number: data.profile.number,
+            messages: []
+          };
+        } else {
+          savedContacts[fromPeerId].name = data.profile.name;
+          savedContacts[fromPeerId].avatar = data.profile.avatar;
+          savedContacts[fromPeerId].number = data.profile.number;
+        }
+        localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
+        renderContactsList();
+        renderStatusesList();
+      }
+
+      if (data.type === 'STATUS_UPDATE') {
+        if (savedContacts[fromPeerId]) {
+          savedContacts[fromPeerId].status = data.status;
+          localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
+          renderStatusesList();
+        }
+      }
+
+      if (data.type === 'STATUS_DELETED') {
+        if (savedContacts[fromPeerId]) {
+          savedContacts[fromPeerId].status = { deleted: true };
+          localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
+          renderStatusesList();
+        }
+      }
+
+      if (data.type === 'STATUS_VIEW') {
+        if (!statusAnalytics.views.find(v => v.peerId === data.viewerId)) {
+          statusAnalytics.views.push({
+            peerId: data.viewerId,
+            name: data.viewerName,
+            avatar: data.viewerAvatar,
+            time: new Date().toISOString()
+          });
+          localStorage.setItem('status_analytics', JSON.stringify(statusAnalytics));
+        }
+      }
+
+      if (data.type === 'STATUS_REACTION') {
+        if (!statusAnalytics.reactions.find(r => r.peerId === data.reactorId)) {
+          statusAnalytics.reactions.push({
+            peerId: data.reactorId,
+            name: data.reactorName,
+            avatar: data.reactorAvatar,
+            time: new Date().toISOString()
+          });
+          localStorage.setItem('status_analytics', JSON.stringify(statusAnalytics));
+        }
+        if (savedContacts[fromPeerId]) {
+          savedContacts[fromPeerId].status = savedContacts[fromPeerId].status || {};
+          savedContacts[fromPeerId].status.reaction = true;
+          localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
+          renderStatusesList();
+        }
+      }
+
+      if (data.type === 'TEXT') {
+        appendMessage(data.text, 'other');
+        saveMessageToHistory(fromPeerId, data.text, 'other');
+        playSound('receive');
+      }
+
+      if (data.type === 'MEDIA') {
+        appendMedia(data.src, data.mediaType, 'other', data.isSticker);
+        saveMessageToHistory(fromPeerId, data.src, 'other', data.isSticker, data.mediaType);
+        playSound('receive');
+      }
+    }
+
+    function updateConnectionStatus(peerId, isConnected) {
+      if (currentChatId === peerId) {
+        const statusEl = document.getElementById('activeContactStatus');
+        if (statusEl) {
+          statusEl.innerText = isConnected ? 'Conectado' : 'Desconectado';
+          statusEl.style.color = isConnected ? '#2ea043' : '#da3633';
+        }
+      }
+    }
+
+    function broadcastToAll(data) {
+      Object.values(activeConnections).forEach(c => {
+        if (c.open) c.send(data);
+      });
+    }
+
+    // ===== PERFIL INICIAL =====
     document.getElementById('profilePicInput').onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -348,20 +621,17 @@
       const name = document.getElementById('usernameInput').value.trim();
       if (!name || !myProfile.avatar) return alert('Sube una foto y escribe un nombre.');
       myProfile.name = name;
+      myProfile.number = generateNumber();
       localStorage.setItem('user_profile', JSON.stringify(myProfile));
-      getPersistentPeerId();
       document.getElementById('profileScreen').classList.add('hidden');
-      showMainScreen();
+      initApp();
     };
 
-    document.getElementById('btnQuickReconnect').onclick = () => {
-      if (!lastChatPeerId) return alert('No hay ningun chat guardado para reconectar.');
-      reconnectToPeer(lastChatPeerId);
-    };
-
+    // ===== PANTALLA PRINCIPAL =====
     function showMainScreen() {
       document.getElementById('mainProfileName').innerText = myProfile.name;
       document.getElementById('mainProfileAvatar').src = myProfile.avatar;
+      document.getElementById('mainProfileNumber').innerText = formatNumber(myProfile.number);
       document.getElementById('myStatusAvatar').src = myProfile.avatar;
       document.getElementById('mainScreen').classList.remove('hidden');
       renderContactsList();
@@ -383,53 +653,223 @@
       document.getElementById(sectionId).classList.remove('hidden');
     }
 
+    // ===== MI PERFIL (al picar header) =====
+    document.getElementById('profileHeaderClick').onclick = () => {
+      document.getElementById('modalMyAvatar').src = myProfile.avatar;
+      document.getElementById('modalMyName').innerText = myProfile.name;
+      document.getElementById('modalMyNumber').innerText = formatNumber(myProfile.number);
+
+      // Verificar cooldown
+      const now = Date.now();
+      const daysSinceChange = (now - numberChangeCooldown) / (1000 * 60 * 60 * 24);
+      const cooldownEl = document.getElementById('numberCooldownText');
+      if (daysSinceChange < 7 && numberChangeCooldown > 0) {
+        const daysLeft = Math.ceil(7 - daysSinceChange);
+        cooldownEl.innerText = 'Puedes cambiar tu numero en ' + daysLeft + ' dias';
+        cooldownEl.classList.remove('hidden');
+      } else {
+        cooldownEl.classList.add('hidden');
+      }
+
+      document.getElementById('myProfileModal').classList.remove('hidden');
+    };
+
+    document.getElementById('btnCloseMyProfile').onclick = () => {
+      document.getElementById('myProfileModal').classList.add('hidden');
+    };
+
+    document.getElementById('btnShareMyNumber').onclick = () => {
+      const text = 'Hola! Mi numero de PeerChat Pro es: ' + myProfile.number;
+      if (navigator.share) {
+        navigator.share({ title: 'Mi numero PeerChat', text: text });
+      } else {
+        navigator.clipboard.writeText(myProfile.number).then(() => {
+          alert('Numero copiado al portapapeles: ' + myProfile.number);
+        });
+      }
+    };
+
+    // ===== EDITAR PERFIL =====
+    document.getElementById('btnEditProfile').onclick = () => {
+      document.getElementById('myProfileModal').classList.add('hidden');
+      document.getElementById('editAvatarImg').src = myProfile.avatar;
+      document.getElementById('editAvatarImg').classList.remove('hidden');
+      document.getElementById('editCameraIcon').classList.add('hidden');
+      document.getElementById('editNameInput').value = myProfile.name;
+      document.getElementById('editProfileModal').classList.remove('hidden');
+    };
+
+    document.getElementById('editPicInput').onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        processFile(file, (data) => {
+          document.getElementById('editAvatarImg').src = data;
+          document.getElementById('editAvatarImg').classList.remove('hidden');
+          document.getElementById('editCameraIcon').classList.add('hidden');
+        });
+      }
+    };
+
+    document.getElementById('btnSaveEditProfile').onclick = () => {
+      const newName = document.getElementById('editNameInput').value.trim();
+      const newAvatar = document.getElementById('editAvatarImg').src;
+      if (!newName) return alert('El nombre no puede estar vacio');
+
+      myProfile.name = newName;
+      myProfile.avatar = newAvatar;
+      localStorage.setItem('user_profile', JSON.stringify(myProfile));
+
+      // Notificar a todos los contactos del cambio
+      broadcastToAll({ type: 'HANDSHAKE', profile: myProfile });
+
+      document.getElementById('editProfileModal').classList.add('hidden');
+      showMainScreen();
+      alert('Perfil actualizado');
+    };
+
+    document.getElementById('btnCancelEdit').onclick = () => {
+      document.getElementById('editProfileModal').classList.add('hidden');
+    };
+
+    // ===== CAMBIAR NUMERO =====
+    document.getElementById('btnChangeNumber').onclick = () => {
+      const now = Date.now();
+      const daysSinceChange = (now - numberChangeCooldown) / (1000 * 60 * 60 * 24);
+
+      if (daysSinceChange < 7 && numberChangeCooldown > 0) {
+        const daysLeft = Math.ceil(7 - daysSinceChange);
+        alert('Debes esperar ' + daysLeft + ' dias para cambiar tu numero.');
+        return;
+      }
+
+      document.getElementById('myProfileModal').classList.add('hidden');
+      document.getElementById('currentNumberDisplay').innerText = formatNumber(myProfile.number);
+      document.getElementById('changeNumberModal').classList.remove('hidden');
+    };
+
+    document.getElementById('btnConfirmChangeNumber').onclick = () => {
+      const newNum = document.getElementById('newNumberInput').value.trim().replace(/\D/g, '');
+      if (!newNum || newNum.length < 5) return alert('Ingresa un numero valido (minimo 5 digitos)');
+
+      // Verificar que no exista ya
+      const exists = Object.values(savedContacts).some(c => c.number === newNum);
+      if (exists && newNum !== myProfile.number) {
+        // No podemos verificar globalmente, pero al menos localmente
+      }
+
+      myProfile.number = newNum;
+      numberChangeCooldown = Date.now();
+      localStorage.setItem('user_profile', JSON.stringify(myProfile));
+      localStorage.setItem('number_change_cooldown', numberChangeCooldown);
+
+      // Reiniciar peer con nuevo numero
+      setupPeer();
+
+      // Reconectar a todos
+      setTimeout(() => {
+        Object.keys(savedContacts).forEach(peerId => connectToPeer(peerId));
+      }, 1500);
+
+      document.getElementById('changeNumberModal').classList.add('hidden');
+      showMainScreen();
+      alert('Numero cambiado a: ' + formatNumber(newNum));
+    };
+
+    document.getElementById('btnCancelChangeNumber').onclick = () => {
+      document.getElementById('changeNumberModal').classList.add('hidden');
+    };
+
+    // ===== AGREGAR CONTACTO =====
+    document.getElementById('btnNewChat').onclick = () => {
+      document.getElementById('mainScreen').classList.add('hidden');
+      document.getElementById('addContactScreen').classList.remove('hidden');
+    };
+
+    document.getElementById('btnBackFromAdd').onclick = () => {
+      document.getElementById('addContactScreen').classList.add('hidden');
+      document.getElementById('mainScreen').classList.remove('hidden');
+    };
+
+    document.getElementById('btnSaveContact').onclick = () => {
+      const number = document.getElementById('contactNumberInput').value.trim().replace(/\D/g, '');
+      const name = document.getElementById('contactNameInput').value.trim() || ('Contacto ' + number);
+
+      if (!number) return alert('Ingresa un numero valido');
+      if (number === myProfile.number) return alert('No puedes agregarte a ti mismo');
+
+      const peerId = getPeerIdFromNumber(number);
+
+      // Guardar contacto
+      if (!savedContacts[peerId]) {
+        savedContacts[peerId] = {
+          name: name,
+          avatar: 'https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg',
+          number: number,
+          messages: []
+        };
+      } else {
+        savedContacts[peerId].name = name;
+        savedContacts[peerId].number = number;
+      }
+      localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
+
+      // Limpiar inputs
+      document.getElementById('contactNumberInput').value = '';
+      document.getElementById('contactNameInput').value = '';
+
+      // Conectar y abrir chat
+      document.getElementById('addContactScreen').classList.add('hidden');
+      connectToPeer(peerId);
+      setTimeout(() => {
+        openChat(peerId, savedContacts[peerId].name, savedContacts[peerId].avatar);
+      }, 800);
+    };
+
+    // ===== LISTA DE CHATS =====
     function renderContactsList() {
       const container = document.getElementById('chatsListContainer');
       container.innerHTML = '';
       const keys = Object.keys(savedContacts);
       if (keys.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#8b949e; margin-top:20px;">Sin chats. Toca "+ Nuevo Chat"</p>';
+        container.innerHTML = '<p style="text-align:center; color:#8b949e; margin-top:20px;">Sin chats. Toca "+ Nuevo Chat" para agregar un contacto</p>';
         return;
       }
-      keys.forEach(id => {
-        const c = savedContacts[id];
+      keys.forEach(peerId => {
+        const c = savedContacts[peerId];
+        const isConnected = activeConnections[peerId] && activeConnections[peerId].open;
         const item = document.createElement('div');
         item.className = 'chat-item';
         item.innerHTML = `
           <img src="${c.avatar}" class="chat-item-avatar">
           <div style="flex:1;">
             <div style="font-weight:bold; font-size:0.9rem;">${c.name}</div>
-            <div style="font-size:0.75rem; color:#8b949e;">Abrir historial o reconectar</div>
+            <div class="contact-number">${formatNumber(c.number || '')} ${isConnected ? '<span style="color:#2ea043;">●</span>' : '<span style="color:#da3633;">●</span>'}</div>
           </div>
           <div style="display:flex; gap:6px; align-items:center;">
-            <button class="call-btn-inline" onclick="event.stopPropagation(); startCallFromList('${id}')" title="Llamar">
+            <button class="call-btn-inline" onclick="event.stopPropagation(); startCallToPeer('${peerId}')" title="Llamar">
               <i data-lucide="phone" style="width:20px; height:20px;"></i>
-            </button>
-            <button class="btn btn-secondary" style="padding:6px 10px; font-size:0.75rem;" onclick="event.stopPropagation(); reconnectToPeer('${id}')">
-              <i data-lucide="refresh-cw"></i> Reconectar
             </button>
           </div>
         `;
-        item.onclick = () => { openChat(id, c.name, c.avatar); };
+        item.onclick = () => { openChat(peerId, c.name, c.avatar); };
         container.appendChild(item);
       });
       lucide.createIcons();
     }
 
+    // ===== MI ESTADO =====
     function renderMyStatus() {
       const btnMyStatus = document.getElementById('btnMyStatus');
       const myStatusText = document.getElementById('myStatusText');
       const btnDelete = document.getElementById('btnDeleteMyStatus');
 
-      // Limpiar dots existentes
       const existingDots = btnMyStatus.querySelector('.status-dots');
       if (existingDots) existingDots.remove();
 
       if (myStatus) {
         myStatusText.innerText = myStatus.text || 'Ver mi estado';
         btnDelete.classList.remove('hidden');
-        let dotsHtml = '<div class="status-dots"><div class="status-dot"></div></div>';
-        btnMyStatus.insertAdjacentHTML('afterbegin', dotsHtml);
+        btnMyStatus.insertAdjacentHTML('afterbegin', '<div class="status-dots"><div class="status-dot"></div></div>');
       } else {
         myStatusText.innerText = 'Toca para subir un estado';
         btnDelete.classList.add('hidden');
@@ -446,22 +886,13 @@
       broadcastToAll({ type: 'STATUS_DELETED' });
     };
 
-    function broadcastToAll(data) {
-      Object.keys(savedContacts).forEach(contactId => {
-        if (peer && peer.connections[contactId]) {
-          peer.connections[contactId].forEach(c => {
-            if (c.open) c.send(data);
-          });
-        }
-      });
-    }
-
+    // ===== ESTADOS DE CONTACTOS =====
     function renderStatusesList() {
       const container = document.getElementById('statusesListContainer');
       container.innerHTML = '';
       let count = 0;
-      Object.keys(savedContacts).forEach(id => {
-        const c = savedContacts[id];
+      Object.keys(savedContacts).forEach(peerId => {
+        const c = savedContacts[peerId];
         if (c.status && !c.status.deleted) {
           count++;
           const hasReaction = c.status.reaction;
@@ -476,254 +907,15 @@
             </div>
             ${hasReaction ? '<div class="status-reaction-badge"><span style="font-size:10px;">&#10084;</span></div>' : ''}
           `;
-          item.onclick = () => viewStatus(c.name, c.avatar, c.status, id);
+          item.onclick = () => viewStatus(c.name, c.avatar, c.status, peerId);
           container.appendChild(item);
         }
       });
       if (count === 0) container.innerHTML = '<p style="text-align:center; color:#8b949e;">No hay estados recientes</p>';
     }
 
-    document.getElementById('btnNewChat').onclick = () => {
-      document.getElementById('mainScreen').classList.add('hidden');
-      document.getElementById('connectScreen').classList.remove('hidden');
-    };
-
-    document.getElementById('btnBackToMain').onclick = () => {
-      document.getElementById('connectScreen').classList.add('hidden');
-      document.getElementById('mainScreen').classList.remove('hidden');
-    };
-
-    // CONEXIoN Y RECONEXIoN PEERJS CON ID PERSISTENTE
-    document.getElementById('btnGenCode').onclick = () => {
-      const code = Math.floor(1000 + Math.random() * 9000).toString();
-      const myId = getPersistentPeerId();
-      setupPeer(myId, code);
-    };
-
-    document.getElementById('btnJoin').onclick = () => {
-      const code = document.getElementById('joinCodeInput').value.trim();
-      if (!code) return alert("Ingresa el codigo del chat o el ID guardado.");
-      const targetId = code.startsWith('peer-room-') || code.startsWith('peer-user-') ? code : `peer-room-${code}`;
-      reconnectToPeer(targetId);
-    };
-
-    function reconnectToPeer(peerId) {
-      localStorage.setItem('last_chat_peer_id', peerId);
-      lastChatPeerId = peerId;
-      const myId = getPersistentPeerId();
-      setupPeer(myId, null, true, peerId);
-    }
-
-    function setupPeer(customId, codeOrPeerId, isDirectPeerId = false, targetPeerId = null) {
-      if (peer) {
-        try { peer.destroy(); } catch(e) {}
-      }
-
-      peer = new Peer(customId, {
-        debug: 0,
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
-          ]
-        }
-      });
-
-      peer.on('open', (id) => {
-        if (codeOrPeerId && !isDirectPeerId) {
-          alert(`Codigo generado: ${codeOrPeerId}\nTu ID: ${id}\nComparte este codigo con la otra persona.`);
-        } else if (targetPeerId) {
-          conn = peer.connect(targetPeerId, { reliable: true });
-          bindConnEvents();
-        }
-      });
-
-      peer.on('connection', (c) => { 
-        conn = c; 
-        bindConnEvents(); 
-      });
-
-      peer.on('call', (call) => {
-        incomingCallPeerId = call.peer;
-        if (confirm("Llamada entrante. Deseas contestar?")) {
-          navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-            localStream = stream;
-            call.answer(stream);
-            currentCall = call;
-            const callerName = savedContacts[call.peer]?.name || "Contacto";
-            const callerAvatar = savedContacts[call.peer]?.avatar || "";
-            showCallScreen(callerName, callerAvatar);
-            call.on('stream', (remoteStream) => {
-              document.getElementById('remoteAudio').srcObject = remoteStream;
-            });
-            call.on('close', () => endCallUI());
-          }).catch(() => alert("No se pudo acceder al microfono."));
-        } else {
-          call.close();
-        }
-      });
-
-      peer.on('error', (err) => {
-        console.error('Peer error:', err);
-        if (err.type === 'unavailable-id') {
-          const newId = 'peer-user-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
-          localStorage.setItem('my_peer_id', newId);
-          myPeerId = newId;
-          setupPeer(newId, codeOrPeerId, isDirectPeerId, targetPeerId);
-        }
-      });
-
-      peer.on('disconnected', () => {
-        console.log('Peer desconectado, intentando reconectar...');
-        setTimeout(() => {
-          if (peer && !peer.destroyed) {
-            peer.reconnect();
-          }
-        }, 3000);
-      });
-    }
-
-    function bindConnEvents() {
-      conn.on('open', () => {
-        conn.send({ type: 'HANDSHAKE', profile: myProfile, peerId: getPersistentPeerId() });
-        const targetPeerId = conn.peer;
-        localStorage.setItem('last_chat_peer_id', targetPeerId);
-        lastChatPeerId = targetPeerId;
-
-        const statusEl = document.getElementById('activeContactStatus');
-        if (statusEl) {
-          statusEl.innerText = 'Conectado';
-          statusEl.style.color = '#2ea043';
-        }
-
-        if (myStatus) {
-          conn.send({ type: 'STATUS_UPDATE', status: myStatus });
-        }
-      });
-
-      conn.on('data', (data) => {
-        if (data.type === 'HANDSHAKE') {
-          const contactId = conn.peer;
-          savedContacts[contactId] = { 
-            name: data.profile.name, 
-            avatar: data.profile.avatar, 
-            messages: savedContacts[contactId]?.messages || [],
-            status: savedContacts[contactId]?.status || null
-          };
-          localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
-          document.getElementById('connectScreen').classList.add('hidden');
-          openChat(contactId, data.profile.name, data.profile.avatar);
-          renderContactsList();
-        }
-
-        if (data.type === 'STATUS_UPDATE') {
-          if (savedContacts[conn.peer]) {
-            savedContacts[conn.peer].status = data.status;
-            localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
-            renderStatusesList();
-          }
-        }
-
-        if (data.type === 'STATUS_DELETED') {
-          if (savedContacts[conn.peer]) {
-            savedContacts[conn.peer].status = { deleted: true };
-            localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
-            renderStatusesList();
-          }
-        }
-
-        if (data.type === 'STATUS_VIEW') {
-          if (!statusAnalytics.views.find(v => v.peerId === data.viewerId)) {
-            statusAnalytics.views.push({
-              peerId: data.viewerId,
-              name: data.viewerName,
-              avatar: data.viewerAvatar,
-              time: new Date().toISOString()
-            });
-            localStorage.setItem('status_analytics', JSON.stringify(statusAnalytics));
-          }
-        }
-
-        if (data.type === 'STATUS_REACTION') {
-          if (!statusAnalytics.reactions.find(r => r.peerId === data.reactorId)) {
-            statusAnalytics.reactions.push({
-              peerId: data.reactorId,
-              name: data.reactorName,
-              avatar: data.reactorAvatar,
-              time: new Date().toISOString()
-            });
-            localStorage.setItem('status_analytics', JSON.stringify(statusAnalytics));
-          }
-          if (savedContacts[conn.peer]) {
-            savedContacts[conn.peer].status = savedContacts[conn.peer].status || {};
-            savedContacts[conn.peer].status.reaction = true;
-            localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
-            renderStatusesList();
-          }
-        }
-
-        if (data.type === 'TEXT') {
-          appendMessage(data.text, 'other');
-          saveMessageToHistory(currentChatId || conn.peer, data.text, 'other');
-          playSound('receive');
-        }
-
-        if (data.type === 'MEDIA') {
-          appendMedia(data.src, data.mediaType, 'other', data.isSticker);
-          saveMessageToHistory(currentChatId || conn.peer, data.src, 'other', data.isSticker, data.mediaType);
-          playSound('receive');
-        }
-      });
-
-      conn.on('close', () => {
-        const statusEl = document.getElementById('activeContactStatus');
-        if (statusEl) {
-          statusEl.innerText = 'Desconectado';
-          statusEl.style.color = '#da3633';
-        }
-      });
-
-      conn.on('error', (err) => {
-        console.error('Connection error:', err);
-      });
-    }
-
-    document.getElementById('btnReconnectChat').onclick = () => {
-      if (currentChatId) reconnectToPeer(currentChatId);
-      else alert('No hay un chat activo seleccionado');
-    };
-
-    // LLAMADA DESDE LISTA
-    window.startCallFromList = function(peerId) {
-      if (!savedContacts[peerId]) return alert("Contacto no encontrado");
-      reconnectToPeer(peerId);
-      setTimeout(() => {
-        if (conn && conn.open) {
-          startCallWithPeer(peerId);
-        } else {
-          alert("No se pudo conectar. Intenta reconectar primero.");
-        }
-      }, 2000);
-    };
-
-    function startCallWithPeer(peerId) {
-      if (!peer) return alert("Peer no inicializado");
-      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-        localStream = stream;
-        currentCall = peer.call(peerId, stream);
-        const contact = savedContacts[peerId];
-        showCallScreen(contact?.name || "Contacto", contact?.avatar || "");
-        currentCall.on('stream', (remoteStream) => {
-          document.getElementById('remoteAudio').srcObject = remoteStream;
-        });
-        currentCall.on('close', () => endCallUI());
-      }).catch(() => alert("No se pudo acceder al microfono."));
-    }
-
-    // SUBIR Y VER ESTADOS
+    // ===== SUBIR ESTADO =====
     let tempStatusMedia = null, tempStatusType = 'text';
-    let currentViewingStatusPeerId = null;
-    let isViewingOwnStatus = false;
 
     document.getElementById('btnMyStatus').onclick = () => {
       if (myStatus) {
@@ -740,7 +932,7 @@
         tempStatusType = file.type.startsWith('video') ? 'video' : 'image';
         processFile(file, (data) => {
           tempStatusMedia = data;
-          document.getElementById('statusMediaPreview').innerText = `Archivo cargado (${tempStatusType})`;
+          document.getElementById('statusMediaPreview').innerText = 'Archivo cargado (' + tempStatusType + ')';
         });
       }
     };
@@ -762,6 +954,7 @@
       tempStatusType = 'text';
     };
 
+    // ===== VER ESTADO =====
     function viewStatus(name, avatar, status, peerId, isOwn) {
       currentViewingStatusPeerId = peerId;
       isViewingOwnStatus = isOwn;
@@ -769,9 +962,9 @@
       document.getElementById('statusUserAvatar').src = avatar;
       const area = document.getElementById('statusContentArea');
       area.innerHTML = '';
-      if (status.type === 'image' && status.media) area.innerHTML = `<img src="${status.media}">`;
-      else if (status.type === 'video' && status.media) area.innerHTML = `<video src="${status.media}" controls autoplay></video>`;
-      else area.innerHTML = `<h2 style="color:#fff;">${status.text || ''}</h2>`;
+      if (status.type === 'image' && status.media) area.innerHTML = '<img src="' + status.media + '">';
+      else if (status.type === 'video' && status.media) area.innerHTML = '<video src="' + status.media + '" controls autoplay></video>';
+      else area.innerHTML = '<h2 style="color:#fff;">' + (status.text || '') + '</h2>';
       document.getElementById('statusViewContainer').classList.remove('hidden');
 
       const swipeHint = document.getElementById('swipeHint');
@@ -780,10 +973,10 @@
         renderStatusViewers();
       } else {
         swipeHint.classList.add('hidden');
-        if (peerId && conn && conn.open && conn.peer === peerId) {
-          conn.send({
+        if (peerId && activeConnections[peerId] && activeConnections[peerId].open) {
+          activeConnections[peerId].send({
             type: 'STATUS_VIEW',
-            viewerId: getPersistentPeerId(),
+            viewerId: getPeerIdFromNumber(myProfile.number),
             viewerName: myProfile.name,
             viewerAvatar: myProfile.avatar
           });
@@ -791,7 +984,7 @@
       }
     }
 
-    // Swipe up para ver viewers
+    // Swipe up
     let touchStartY = 0;
     document.getElementById('statusViewContainer').addEventListener('touchstart', (e) => {
       touchStartY = e.touches[0].clientY;
@@ -815,7 +1008,6 @@
       document.getElementById('statusViewContainer').classList.add('hidden');
       document.getElementById('statusViewersPanel').classList.remove('open');
     };
-
     document.getElementById('btnCloseViewersPanel').onclick = () => {
       document.getElementById('statusViewersPanel').classList.remove('open');
     };
@@ -848,10 +1040,10 @@
     }
 
     document.getElementById('btnHeartStatus').onclick = () => {
-      if (conn && conn.open && currentViewingStatusPeerId && conn.peer === currentViewingStatusPeerId) {
-        conn.send({
+      if (currentViewingStatusPeerId && activeConnections[currentViewingStatusPeerId] && activeConnections[currentViewingStatusPeerId].open) {
+        activeConnections[currentViewingStatusPeerId].send({
           type: 'STATUS_REACTION',
-          reactorId: getPersistentPeerId(),
+          reactorId: getPeerIdFromNumber(myProfile.number),
           reactorName: myProfile.name,
           reactorAvatar: myProfile.avatar
         });
@@ -867,9 +1059,9 @@
       const input = document.getElementById('statusCommentInput');
       const text = input.value.trim();
       if (!text) return;
-      if (conn && conn.open && currentViewingStatusPeerId && conn.peer === currentViewingStatusPeerId) {
-        const msgText = `Respuesta a tu estado: ${text}`;
-        conn.send({ type: 'TEXT', text: msgText });
+      if (currentViewingStatusPeerId && activeConnections[currentViewingStatusPeerId] && activeConnections[currentViewingStatusPeerId].open) {
+        const msgText = 'Respuesta a tu estado: ' + text;
+        activeConnections[currentViewingStatusPeerId].send({ type: 'TEXT', text: msgText });
         appendMessage(msgText, 'me');
         saveMessageToHistory(currentViewingStatusPeerId, msgText, 'me');
         input.value = '';
@@ -881,15 +1073,44 @@
       }
     };
 
-    // LLAMADAS
+    // ===== LLAMADAS =====
     document.getElementById('btnStartCall').onclick = () => {
-      if (!conn || !conn.open) return alert("Debes reconectar el chat con tu contacto primero.");
-      startCallWithPeer(conn.peer);
+      if (!currentChatId) return alert('No hay chat activo');
+      startCallToPeer(currentChatId);
     };
 
+    window.startCallToPeer = function(peerId) {
+      if (!peer) return alert('Peer no inicializado');
+      if (!activeConnections[peerId] || !activeConnections[peerId].open) {
+        connectToPeer(peerId);
+        setTimeout(() => {
+          if (activeConnections[peerId] && activeConnections[peerId].open) {
+            doStartCall(peerId);
+          } else {
+            alert('No se pudo conectar con el contacto');
+          }
+        }, 2000);
+      } else {
+        doStartCall(peerId);
+      }
+    };
+
+    function doStartCall(peerId) {
+      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+        localStream = stream;
+        currentCall = peer.call(peerId, stream);
+        const contact = savedContacts[peerId];
+        showCallScreen(contact?.name || 'Contacto', contact?.avatar || '');
+        currentCall.on('stream', (remoteStream) => {
+          document.getElementById('remoteAudio').srcObject = remoteStream;
+        });
+        currentCall.on('close', () => endCallUI());
+      }).catch(() => alert('No se pudo acceder al microfono.'));
+    }
+
     function showCallScreen(name, avatar) {
-      document.getElementById('callName').innerText = name || "Contacto";
-      document.getElementById('callAvatar').src = avatar || "";
+      document.getElementById('callName').innerText = name || 'Contacto';
+      document.getElementById('callAvatar').src = avatar || '';
       document.getElementById('callScreen').classList.remove('hidden');
     }
 
@@ -918,23 +1139,26 @@
       }
     };
 
-    function openChat(id, name, avatar) {
-      currentChatId = id;
+    // ===== CHAT ACTIVO =====
+    function openChat(peerId, name, avatar) {
+      currentChatId = peerId;
       document.getElementById('activeContactName').innerText = name;
       document.getElementById('activeContactAvatar').src = avatar;
-      const isConnected = conn && conn.open && conn.peer === id;
+      const isConnected = activeConnections[peerId] && activeConnections[peerId].open;
       const statusEl = document.getElementById('activeContactStatus');
-      statusEl.innerText = isConnected ? 'Conectado' : 'Desconectado (Toca reconectar)';
+      statusEl.innerText = isConnected ? 'Conectado' : 'Desconectado (Reconectando...)';
       statusEl.style.color = isConnected ? '#2ea043' : '#da3633';
       document.getElementById('mainScreen').classList.add('hidden');
       document.getElementById('chatView').classList.remove('hidden');
       const chatBody = document.getElementById('chatBody');
       chatBody.innerHTML = '';
-      const history = savedContacts[id]?.messages || [];
+      const history = savedContacts[peerId]?.messages || [];
       history.forEach(m => {
         if (m.mediaType) appendMedia(m.content, m.mediaType, m.sender, m.isSticker);
         else appendMessage(m.content, m.sender);
       });
+      // Asegurar conexion
+      if (!isConnected) connectToPeer(peerId);
     }
 
     document.getElementById('btnLeaveChat').onclick = () => {
@@ -942,7 +1166,11 @@
       showMainScreen();
     };
 
-    // MENSAJES Y ARCHIVOS
+    document.getElementById('btnReconnectChat').onclick = () => {
+      if (currentChatId) connectToPeer(currentChatId);
+    };
+
+    // ===== MENSAJES =====
     document.getElementById('btnSend').onclick = sendText;
     document.getElementById('messageInput').onkeypress = (e) => { if(e.key === 'Enter') sendText(); };
 
@@ -950,7 +1178,13 @@
       const input = document.getElementById('messageInput');
       const text = input.value.trim();
       if (!text) return;
-      if (conn && conn.open) conn.send({ type: 'TEXT', text });
+      if (currentChatId && activeConnections[currentChatId] && activeConnections[currentChatId].open) {
+        activeConnections[currentChatId].send({ type: 'TEXT', text });
+      } else {
+        alert('No hay conexion activa. Intentando reconectar...');
+        connectToPeer(currentChatId);
+        return;
+      }
       appendMessage(text, 'me');
       saveMessageToHistory(currentChatId, text, 'me');
       input.value = '';
@@ -960,7 +1194,7 @@
     function appendMessage(text, sender) {
       const chatBody = document.getElementById('chatBody');
       const msg = document.createElement('div');
-      msg.className = `msg ${sender}`;
+      msg.className = 'msg ' + sender;
       msg.innerText = text;
       chatBody.appendChild(msg);
       chatBody.scrollTop = chatBody.scrollHeight;
@@ -977,32 +1211,46 @@
     document.getElementById('stickerInput').onchange = (e) => handleMediaSend(e.target.files[0], 'image', true);
 
     function handleMediaSend(file, type, isSticker) {
-      if (file) {
-        processFile(file, (src) => {
-          if (conn && conn.open) conn.send({ type: 'MEDIA', src, mediaType: type, isSticker });
-          appendMedia(src, type, 'me', isSticker);
-          saveMessageToHistory(currentChatId, src, 'me', isSticker, type);
-          if (isSticker && !savedStickers.includes(src)) {
-            savedStickers.push(src);
-            localStorage.setItem('saved_stickers', JSON.stringify(savedStickers));
-          }
-          playSound('send');
-          document.getElementById('plusPanel').classList.add('hidden');
-        });
+      if (!file) return;
+      if (!currentChatId) return;
+      if (!activeConnections[currentChatId] || !activeConnections[currentChatId].open) {
+        alert('No hay conexion activa');
+        connectToPeer(currentChatId);
+        return;
       }
+      processFile(file, (src) => {
+        activeConnections[currentChatId].send({ type: 'MEDIA', src, mediaType: type, isSticker });
+        appendMedia(src, type, 'me', isSticker);
+        saveMessageToHistory(currentChatId, src, 'me', isSticker, type);
+        if (isSticker && !savedStickers.includes(src)) {
+          savedStickers.push(src);
+          localStorage.setItem('saved_stickers', JSON.stringify(savedStickers));
+        }
+        playSound('send');
+        document.getElementById('plusPanel').classList.add('hidden');
+      });
     }
 
     function appendMedia(src, type, sender, isSticker) {
       const chatBody = document.getElementById('chatBody');
       const msg = document.createElement('div');
-      msg.className = `msg ${sender} msg-media ${isSticker ? 'sticker-msg' : ''}`;
-      if (type === 'image') msg.innerHTML = `<img src="${src}">`;
-      else if (type === 'video') msg.innerHTML = `<video src="${src}" controls style="width:100%; border-radius:12px;"></video>`;
+      msg.className = 'msg ' + sender + ' msg-media' + (isSticker ? ' sticker-msg' : '');
+      if (type === 'image') msg.innerHTML = '<img src="' + src + '">';
+      else if (type === 'video') msg.innerHTML = '<video src="' + src + '" controls style="width:100%; border-radius:12px;"></video>';
       chatBody.appendChild(msg);
       chatBody.scrollTop = chatBody.scrollHeight;
     }
 
-    // MUCHOS EMOJIS
+    function saveMessageToHistory(peerId, content, sender, isSticker, mediaType) {
+      if (!peerId) return;
+      if (!savedContacts[peerId]) {
+        savedContacts[peerId] = { name: 'Contacto', avatar: 'https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg', number: '', messages: [] };
+      }
+      savedContacts[peerId].messages.push({ content, sender, isSticker: !!isSticker, mediaType });
+      localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
+    }
+
+    // ===== EMOJIS =====
     const ALL_EMOJIS = [
       "&#128512;","&#128513;","&#128514;","&#128515;","&#128516;","&#128517;","&#128518;","&#128519;","&#128520;","&#128521;",
       "&#128522;","&#128523;","&#128524;","&#128525;","&#128526;","&#128527;","&#128528;","&#128529;","&#128530;","&#128531;",
@@ -1017,135 +1265,135 @@
       "&#128076;","&#9996;","&#129311;","&#9757;","&#128072;","&#128073;","&#128170;","&#128074;","&#129308;","&#129309;",
       "&#9994;","&#9995;","&#128064;","&#128066;","&#128067;","&#128068;","&#128069;","&#128118;","&#128124;","&#129328;",
       "&#128131;","&#128378;","&#127881;","&#127882;","&#127880;","&#127879;","&#127878;","&#127873;","&#127872;","&#127874;",
-      "&#127875;","&#127876;","&#127877;","&#127878;","&#127879;","&#127880;","&#127881;","&#127882;","&#127883;","&#127884;",
-      "&#127885;","&#127886;","&#127887;","&#127888;","&#127889;","&#127890;","&#127891;","&#127892;","&#127893;","&#127894;",
-      "&#127895;","&#127896;","&#127897;","&#127898;","&#127899;","&#127900;","&#127901;","&#127902;","&#127903;","&#127904;",
-      "&#127905;","&#127906;","&#127907;","&#127908;","&#127909;","&#127910;","&#127911;","&#127912;","&#127913;","&#127914;",
-      "&#127915;","&#127916;","&#127917;","&#127918;","&#127919;","&#127920;","&#127921;","&#127922;","&#127923;","&#127924;",
-      "&#127925;","&#127926;","&#127927;","&#127928;","&#127929;","&#127930;","&#127931;","&#127932;","&#127933;","&#127934;",
-      "&#127935;","&#127936;","&#127937;","&#127938;","&#127939;","&#127940;","&#127941;","&#127942;","&#127943;","&#127944;",
-      "&#127945;","&#127946;","&#127947;","&#127948;","&#127949;","&#127950;","&#127951;","&#127952;","&#127953;","&#127954;",
-      "&#127955;","&#127956;","&#127957;","&#127958;","&#127959;","&#127960;","&#127961;","&#127962;","&#127963;","&#127964;",
-      "&#127965;","&#127966;","&#127967;","&#127968;","&#127969;","&#127970;","&#127971;","&#127972;","&#127973;","&#127974;",
-      "&#127975;","&#127976;","&#127977;","&#127978;","&#127979;","&#127980;","&#127981;","&#127982;","&#127983;","&#127984;",
-      "&#127985;","&#127986;","&#127987;","&#127988;","&#127989;","&#127990;","&#127991;","&#127992;","&#127993;","&#127994;",
-      "&#127995;","&#127996;","&#127997;","&#127998;","&#127999;","&#128000;","&#128001;","&#128002;","&#128003;","&#128004;",
-      "&#128005;","&#128006;","&#128007;","&#128008;","&#128009;","&#128010;","&#128011;","&#128012;","&#128013;","&#128014;",
-      "&#128015;","&#128016;","&#128017;","&#128018;","&#128019;","&#128020;","&#128021;","&#128022;","&#128023;","&#128024;",
-      "&#128025;","&#128026;","&#128027;","&#128028;","&#128029;","&#128030;","&#128031;","&#128032;","&#128033;","&#128034;",
-      "&#128035;","&#128036;","&#128037;","&#128038;","&#128039;","&#128040;","&#128041;","&#128042;","&#128043;","&#128044;",
-      "&#128045;","&#128046;","&#128047;","&#128048;","&#128049;","&#128050;","&#128051;","&#128052;","&#128053;","&#128054;",
-      "&#128055;","&#128056;","&#128057;","&#128058;","&#128059;","&#128060;","&#128061;","&#128062;","&#128063;","&#128064;",
-      "&#128065;","&#128066;","&#128067;","&#128068;","&#128069;","&#128070;","&#128071;","&#128072;","&#128073;","&#128074;",
-      "&#128075;","&#128076;","&#128077;","&#128078;","&#128079;","&#128080;","&#128081;","&#128082;","&#128083;","&#128084;",
-      "&#128085;","&#128086;","&#128087;","&#128088;","&#128089;","&#128090;","&#128091;","&#128092;","&#128093;","&#128094;",
-      "&#128095;","&#128096;","&#128097;","&#128098;","&#128099;","&#128100;","&#128101;","&#128102;","&#128103;","&#128104;",
-      "&#128105;","&#128106;","&#128107;","&#128108;","&#128109;","&#128110;","&#128111;","&#128112;","&#128113;","&#128114;",
-      "&#128115;","&#128116;","&#128117;","&#128118;","&#128119;","&#128120;","&#128121;","&#128122;","&#128123;","&#128124;",
-      "&#128125;","&#128126;","&#128127;","&#128128;","&#128129;","&#128130;","&#128131;","&#128132;","&#128133;","&#128134;",
-      "&#128135;","&#128136;","&#128137;","&#128138;","&#128139;","&#128140;","&#128141;","&#128142;","&#128143;","&#128144;",
-      "&#128145;","&#128146;","&#128147;","&#128148;","&#128149;","&#128150;","&#128151;","&#128152;","&#128153;","&#128154;",
-      "&#128155;","&#128156;","&#128157;","&#128158;","&#128159;","&#128160;","&#128161;","&#128162;","&#128163;","&#128164;",
-      "&#128165;","&#128166;","&#128167;","&#128168;","&#128169;","&#128170;","&#128171;","&#128172;","&#128173;","&#128174;",
-      "&#128175;","&#128176;","&#128177;","&#128178;","&#128179;","&#128180;","&#128181;","&#128182;","&#128183;","&#128184;",
-      "&#128185;","&#128186;","&#128187;","&#128188;","&#128189;","&#128190;","&#128191;","&#128192;","&#128193;","&#128194;",
-      "&#128195;","&#128196;","&#128197;","&#128198;","&#128199;","&#128200;","&#128201;","&#128202;","&#128203;","&#128204;",
-      "&#128205;","&#128206;","&#128207;","&#128208;","&#128209;","&#128210;","&#128211;","&#128212;","&#128213;","&#128214;",
-      "&#128215;","&#128216;","&#128217;","&#128218;","&#128219;","&#128220;","&#128221;","&#128222;","&#128223;","&#128224;",
-      "&#128225;","&#128226;","&#128227;","&#128228;","&#128229;","&#128230;","&#128231;","&#128232;","&#128233;","&#128234;",
-      "&#128235;","&#128236;","&#128237;","&#128238;","&#128239;","&#128240;","&#128241;","&#128242;","&#128243;","&#128244;",
-      "&#128245;","&#128246;","&#128247;","&#128248;","&#128249;","&#128250;","&#128251;","&#128252;","&#128253;","&#128254;",
-      "&#128255;","&#128256;","&#128257;","&#128258;","&#128259;","&#128260;","&#128261;","&#128262;","&#128263;","&#128264;",
-      "&#128265;","&#128266;","&#128267;","&#128268;","&#128269;","&#128270;","&#128271;","&#128272;","&#128273;","&#128274;",
-      "&#128275;","&#128276;","&#128277;","&#128278;","&#128279;","&#128280;","&#128281;","&#128282;","&#128283;","&#128284;",
-      "&#128285;","&#128286;","&#128287;","&#128288;","&#128289;","&#128290;","&#128291;","&#128292;","&#128293;","&#128294;",
-      "&#128295;","&#128296;","&#128297;","&#128298;","&#128299;","&#128300;","&#128301;","&#128302;","&#128303;","&#128304;",
-      "&#128305;","&#128306;","&#128307;","&#128308;","&#128309;","&#128310;","&#128311;","&#128312;","&#128313;","&#128314;",
-      "&#128315;","&#128316;","&#128317;","&#128329;","&#128330;","&#128331;","&#128332;","&#128333;","&#128334;","&#128335;",
-      "&#128336;","&#128337;","&#128338;","&#128339;","&#128340;","&#128341;","&#128342;","&#128343;","&#128344;","&#128345;",
-      "&#128346;","&#128347;","&#128348;","&#128349;","&#128350;","&#128351;","&#128352;","&#128353;","&#128354;","&#128355;",
-      "&#128356;","&#128357;","&#128358;","&#128359;","&#128640;","&#128641;","&#128642;","&#128643;","&#128644;","&#128645;",
-      "&#128646;","&#128647;","&#128648;","&#128649;","&#128650;","&#128651;","&#128652;","&#128653;","&#128654;","&#128655;",
-      "&#128656;","&#128657;","&#128658;","&#128659;","&#128660;","&#128661;","&#128662;","&#128663;","&#128664;","&#128665;",
-      "&#128666;","&#128667;","&#128668;","&#128669;","&#128670;","&#128671;","&#128672;","&#128673;","&#128674;","&#128675;",
-      "&#128676;","&#128677;","&#128678;","&#128679;","&#128680;","&#128681;","&#128682;","&#128683;","&#128684;","&#128685;",
-      "&#128686;","&#128687;","&#128688;","&#128689;","&#128690;","&#128691;","&#128692;","&#128693;","&#128694;","&#128695;",
-      "&#128696;","&#128697;","&#128698;","&#128699;","&#128700;","&#128701;","&#128702;","&#128703;","&#128704;","&#128705;",
-      "&#128706;","&#128707;","&#128708;","&#128709;","&#128716;","&#128721;","&#128722;","&#128723;","&#128724;","&#128725;",
-      "&#128726;","&#128727;","&#128728;","&#128729;","&#128730;","&#128731;","&#128732;","&#128733;","&#128734;","&#128735;",
-      "&#128736;","&#128737;","&#128738;","&#128739;","&#128740;","&#128741;","&#128742;","&#128743;","&#128744;","&#128745;",
-      "&#128746;","&#128747;","&#128748;","&#128749;","&#128750;","&#128751;","&#128752;","&#128753;","&#128754;","&#128755;",
-      "&#128756;","&#128757;","&#128758;","&#128759;","&#128760;","&#128761;","&#128762;","&#128763;","&#128764;","&#128765;",
-      "&#128766;","&#128767;","&#129302;","&#129303;","&#129304;","&#129305;","&#129306;","&#129307;","&#129308;","&#129309;",
-      "&#129310;","&#129311;","&#129312;","&#129313;","&#129314;","&#129315;","&#129316;","&#129317;","&#129318;","&#129319;",
-      "&#129320;","&#129321;","&#129322;","&#129323;","&#129324;","&#129325;","&#129326;","&#129327;","&#129328;","&#129329;",
-      "&#129330;","&#129331;","&#129332;","&#129333;","&#129334;","&#129335;","&#129336;","&#129337;","&#129338;","&#129339;",
-      "&#129340;","&#129341;","&#129342;","&#129343;","&#129344;","&#129345;","&#129346;","&#129347;","&#129348;","&#129349;",
-      "&#129350;","&#129351;","&#129352;","&#129353;","&#129354;","&#129355;","&#129356;","&#129357;","&#129358;","&#129359;",
-      "&#129360;","&#129361;","&#129362;","&#129363;","&#129364;","&#129365;","&#129366;","&#129367;","&#129368;","&#129369;",
-      "&#129370;","&#129371;","&#129372;","&#129373;","&#129374;","&#129375;","&#129376;","&#129377;","&#129378;","&#129379;",
-      "&#129380;","&#129381;","&#129382;","&#129383;","&#129384;","&#129385;","&#129386;","&#129387;","&#129388;","&#129389;",
-      "&#129390;","&#129391;","&#129392;","&#129393;","&#129394;","&#129395;","&#129396;","&#129397;","&#129398;","&#129399;",
-      "&#129400;","&#129401;","&#129402;","&#129403;","&#129404;","&#129405;","&#129406;","&#129407;","&#129408;","&#129409;",
-      "&#129410;","&#129411;","&#129412;","&#129413;","&#129414;","&#129415;","&#129416;","&#129417;","&#129418;","&#129419;",
-      "&#129420;","&#129421;","&#129422;","&#129423;","&#129424;","&#129425;","&#129426;","&#129427;","&#129428;","&#129429;",
-      "&#129430;","&#129431;","&#129432;","&#129433;","&#129434;","&#129435;","&#129436;","&#129437;","&#129438;","&#129439;",
-      "&#129440;","&#129441;","&#129442;","&#129443;","&#129444;","&#129445;","&#129446;","&#129447;","&#129448;","&#129449;",
-      "&#129450;","&#129451;","&#129452;","&#129453;","&#129454;","&#129455;","&#129456;","&#129457;","&#129458;","&#129459;",
-      "&#129460;","&#129461;","&#129462;","&#129463;","&#129464;","&#129465;","&#129466;","&#129467;","&#129468;","&#129469;",
-      "&#129470;","&#129471;","&#129472;","&#129473;","&#129474;","&#129475;","&#129476;","&#129477;","&#129478;","&#129479;",
-      "&#129480;","&#129481;","&#129482;","&#129483;","&#129484;","&#129485;","&#129486;","&#129487;","&#129488;","&#129489;",
-      "&#129490;","&#129491;","&#129492;","&#129493;","&#129494;","&#129495;","&#129496;","&#129497;","&#129498;","&#129499;",
-      "&#129500;","&#129501;","&#129502;","&#129503;","&#129504;","&#129505;","&#129506;","&#129507;","&#129508;","&#129509;",
-      "&#129510;","&#129511;","&#129512;","&#129513;","&#129514;","&#129515;","&#129516;","&#129517;","&#129518;","&#129519;",
-      "&#129520;","&#129521;","&#129522;","&#129523;","&#129524;","&#129525;","&#129526;","&#129527;","&#129528;","&#129529;",
-      "&#129530;","&#129531;","&#129532;","&#129533;","&#129534;","&#129535;","&#129536;","&#129537;","&#129538;","&#129539;",
-      "&#129540;","&#129541;","&#129542;","&#129543;","&#129544;","&#129545;","&#129546;","&#129547;","&#129548;","&#129549;",
-      "&#129550;","&#129551;","&#129552;","&#129553;","&#129554;","&#129555;","&#129556;","&#129557;","&#129558;","&#129559;",
-      "&#129560;","&#129561;","&#129562;","&#129563;","&#129564;","&#129565;","&#129566;","&#129567;","&#129568;","&#129569;",
-      "&#129570;","&#129571;","&#129572;","&#129573;","&#129574;","&#129575;","&#129576;","&#129577;","&#129578;","&#129579;",
-      "&#129580;","&#129581;","&#129582;","&#129583;","&#129584;","&#129585;","&#129586;","&#129587;","&#129588;","&#129589;",
-      "&#129590;","&#129591;","&#129592;","&#129593;","&#129594;","&#129595;","&#129596;","&#129597;","&#129598;","&#129599;",
-      "&#129600;","&#129601;","&#129602;","&#129603;","&#129604;","&#129605;","&#129606;","&#129607;","&#129608;","&#129609;",
-      "&#129610;","&#129611;","&#129612;","&#129613;","&#129614;","&#129615;","&#129616;","&#129617;","&#129618;","&#129619;",
-      "&#129620;","&#129621;","&#129622;","&#129623;","&#129624;","&#129625;","&#129626;","&#129627;","&#129628;","&#129629;",
-      "&#129630;","&#129631;","&#129632;","&#129633;","&#129634;","&#129635;","&#129636;","&#129637;","&#129638;","&#129639;",
-      "&#129640;","&#129641;","&#129642;","&#129643;","&#129644;","&#129645;","&#129646;","&#129647;","&#129648;","&#129649;",
-      "&#129650;","&#129651;","&#129652;","&#129653;","&#129654;","&#129655;","&#129656;","&#129657;","&#129658;","&#129659;",
-      "&#129660;","&#129661;","&#129662;","&#129663;","&#129664;","&#129665;","&#129666;","&#129667;","&#129668;","&#129669;",
-      "&#129670;","&#129671;","&#129672;","&#129673;","&#129674;","&#129675;","&#129676;","&#129677;","&#129678;","&#129679;",
-      "&#129680;","&#129681;","&#129682;","&#129683;","&#129684;","&#129685;","&#129686;","&#129687;","&#129688;","&#129689;",
-      "&#129690;","&#129691;","&#129692;","&#129693;","&#129694;","&#129695;","&#129696;","&#129697;","&#129698;","&#129699;",
-      "&#129700;","&#129701;","&#129702;","&#129703;","&#129704;","&#129705;","&#129706;","&#129707;","&#129708;","&#129709;",
-      "&#129710;","&#129711;","&#129712;","&#129713;","&#129714;","&#129715;","&#129716;","&#129717;","&#129718;","&#129719;",
-      "&#129720;","&#129721;","&#129722;","&#129723;","&#129724;","&#129725;","&#129726;","&#129727;","&#129728;","&#129729;",
-      "&#129730;","&#129731;","&#129732;","&#129733;","&#129734;","&#129735;","&#129736;","&#129737;","&#129738;","&#129739;",
-      "&#129740;","&#129741;","&#129742;","&#129743;","&#129744;","&#129745;","&#129746;","&#129747;","&#129748;","&#129749;",
-      "&#129750;","&#129751;","&#129752;","&#129753;","&#129754;","&#129755;","&#129756;","&#129757;","&#129758;","&#129759;",
-      "&#129760;","&#129761;","&#129762;","&#129763;","&#129764;","&#129765;","&#129766;","&#129767;","&#129768;","&#129769;",
-      "&#129770;","&#129771;","&#129772;","&#129773;","&#129774;","&#129775;","&#129776;","&#129777;","&#129778;","&#129779;",
-      "&#129780;","&#129781;","&#129782;","&#129783;","&#129784;","&#129785;","&#129786;","&#129787;","&#129788;","&#129789;",
-      "&#129790;","&#129791;","&#129792;","&#129793;","&#129794;","&#129795;","&#129796;","&#129797;","&#129798;","&#129799;",
-      "&#129800;","&#129801;","&#129802;","&#129803;","&#129804;","&#129805;","&#129806;","&#129807;","&#129808;","&#129809;",
-      "&#129810;","&#129811;","&#129812;","&#129813;","&#129814;","&#129815;","&#129816;","&#129817;","&#129818;","&#129819;",
-      "&#129820;","&#129821;","&#129822;","&#129823;","&#129824;","&#129825;","&#129826;","&#129827;","&#129828;","&#129829;",
-      "&#129830;","&#129831;","&#129832;","&#129833;","&#129834;","&#129835;","&#129836;","&#129837;","&#129838;","&#129839;",
-      "&#129840;","&#129841;","&#129842;","&#129843;","&#129844;","&#129845;","&#129846;","&#129847;","&#129848;","&#129849;",
-      "&#129850;","&#129851;","&#129852;","&#129853;","&#129854;","&#129855;","&#129856;","&#129857;","&#129858;","&#129859;",
-      "&#129860;","&#129861;","&#129862;","&#129863;","&#129864;","&#129865;","&#129866;","&#129867;","&#129868;","&#129869;",
-      "&#129870;","&#129871;","&#129872;","&#129873;","&#129874;","&#129875;","&#129876;","&#129877;","&#129878;","&#129879;",
-      "&#129880;","&#129881;","&#129882;","&#129883;","&#129884;","&#129885;","&#129886;","&#129887;","&#129888;","&#129889;",
-      "&#129890;","&#129891;","&#129892;","&#129893;","&#129894;","&#129895;","&#129896;","&#129897;","&#129898;","&#129899;",
-      "&#129900;","&#129901;","&#129902;","&#129903;","&#129904;","&#129905;","&#129906;","&#129907;","&#129908;","&#129909;",
-      "&#129910;","&#129911;","&#129912;","&#129913;","&#129914;","&#129915;","&#129916;","&#129917;","&#129918;","&#129919;",
-      "&#129920;","&#129921;","&#129922;","&#129923;","&#129924;","&#129925;","&#129926;","&#129927;","&#129928;","&#129929;",
-      "&#129930;","&#129931;","&#129932;","&#129933;","&#129934;","&#129935;","&#129936;","&#129937;","&#129938;","&#129939;",
-      "&#129940;","&#129941;","&#129942;","&#129943;","&#129944;","&#129945;","&#129946;","&#129947;","&#129948;","&#129949;",
-      "&#129950;","&#129951;","&#129952;","&#129953;","&#129954;","&#129955;","&#129956;","&#129957;","&#129958;","&#129959;",
-      "&#129960;","&#129961;","&#129962;","&#129963;","&#129964;","&#129965;","&#129966;","&#129967;","&#129968;","&#129969;",
-      "&#129970;","&#129971;","&#129972;","&#129973;","&#129974;","&#129975;","&#129976;","&#129977;","&#129978;","&#129979;",
-      "&#129980;","&#129981;","&#129982;","&#129983;","&#129984;","&#129985;","&#129986;","&#129987;","&#129988;","&#129989;",
-      "&#129990;","&#129991;","&#129992;","&#129993;","&#129994;","&#129995;","&#129996;","&#129997;","&#129998;","&#129999;"
+      "&#127875;","&#127876;","&#127877;","&#127882;","&#127883;","&#127884;","&#127885;","&#127886;","&#127887;","&#127888;",
+      "&#127889;","&#127890;","&#127891;","&#127892;","&#127893;","&#127894;","&#127895;","&#127896;","&#127897;","&#127898;",
+      "&#127899;","&#127900;","&#127901;","&#127902;","&#127903;","&#127904;","&#127905;","&#127906;","&#127907;","&#127908;",
+      "&#127909;","&#127910;","&#127911;","&#127912;","&#127913;","&#127914;","&#127915;","&#127916;","&#127917;","&#127918;",
+      "&#127919;","&#127920;","&#127921;","&#127922;","&#127923;","&#127924;","&#127925;","&#127926;","&#127927;","&#127928;",
+      "&#127929;","&#127930;","&#127931;","&#127932;","&#127933;","&#127934;","&#127935;","&#127936;","&#127937;","&#127938;",
+      "&#127939;","&#127940;","&#127941;","&#127942;","&#127943;","&#127944;","&#127945;","&#127946;","&#127947;","&#127948;",
+      "&#127949;","&#127950;","&#127951;","&#127952;","&#127953;","&#127954;","&#127955;","&#127956;","&#127957;","&#127958;",
+      "&#127959;","&#127960;","&#127961;","&#127962;","&#127963;","&#127964;","&#127965;","&#127966;","&#127967;","&#127968;",
+      "&#127969;","&#127970;","&#127971;","&#127972;","&#127973;","&#127974;","&#127975;","&#127976;","&#127977;","&#127978;",
+      "&#127979;","&#127980;","&#127981;","&#127982;","&#127983;","&#127984;","&#127985;","&#127986;","&#127987;","&#127988;",
+      "&#127989;","&#127990;","&#127991;","&#127992;","&#127993;","&#127994;","&#127995;","&#127996;","&#127997;","&#127998;",
+      "&#127999;","&#128000;","&#128001;","&#128002;","&#128003;","&#128004;","&#128005;","&#128006;","&#128007;","&#128008;",
+      "&#128009;","&#128010;","&#128011;","&#128012;","&#128013;","&#128014;","&#128015;","&#128016;","&#128017;","&#128018;",
+      "&#128019;","&#128020;","&#128021;","&#128022;","&#128023;","&#128024;","&#128025;","&#128026;","&#128027;","&#128028;",
+      "&#128029;","&#128030;","&#128031;","&#128032;","&#128033;","&#128034;","&#128035;","&#128036;","&#128037;","&#128038;",
+      "&#128039;","&#128040;","&#128041;","&#128042;","&#128043;","&#128044;","&#128045;","&#128046;","&#128047;","&#128048;",
+      "&#128049;","&#128050;","&#128051;","&#128052;","&#128053;","&#128054;","&#128055;","&#128056;","&#128057;","&#128058;",
+      "&#128059;","&#128060;","&#128061;","&#128062;","&#128063;","&#128064;","&#128065;","&#128066;","&#128067;","&#128068;",
+      "&#128069;","&#128070;","&#128071;","&#128072;","&#128073;","&#128074;","&#128075;","&#128076;","&#128077;","&#128078;",
+      "&#128079;","&#128080;","&#128081;","&#128082;","&#128083;","&#128084;","&#128085;","&#128086;","&#128087;","&#128088;",
+      "&#128089;","&#128090;","&#128091;","&#128092;","&#128093;","&#128094;","&#128095;","&#128096;","&#128097;","&#128098;",
+      "&#128099;","&#128100;","&#128101;","&#128102;","&#128103;","&#128104;","&#128105;","&#128106;","&#128107;","&#128108;",
+      "&#128109;","&#128110;","&#128111;","&#128112;","&#128113;","&#128114;","&#128115;","&#128116;","&#128117;","&#128118;",
+      "&#128119;","&#128120;","&#128121;","&#128122;","&#128123;","&#128124;","&#128125;","&#128126;","&#128127;","&#128128;",
+      "&#128129;","&#128130;","&#128131;","&#128132;","&#128133;","&#128134;","&#128135;","&#128136;","&#128137;","&#128138;",
+      "&#128139;","&#128140;","&#128141;","&#128142;","&#128143;","&#128144;","&#128145;","&#128146;","&#128147;","&#128148;",
+      "&#128149;","&#128150;","&#128151;","&#128152;","&#128153;","&#128154;","&#128155;","&#128156;","&#128157;","&#128158;",
+      "&#128159;","&#128160;","&#128161;","&#128162;","&#128163;","&#128164;","&#128165;","&#128166;","&#128167;","&#128168;",
+      "&#128169;","&#128170;","&#128171;","&#128172;","&#128173;","&#128174;","&#128175;","&#128176;","&#128177;","&#128178;",
+      "&#128179;","&#128180;","&#128181;","&#128182;","&#128183;","&#128184;","&#128185;","&#128186;","&#128187;","&#128188;",
+      "&#128189;","&#128190;","&#128191;","&#128192;","&#128193;","&#128194;","&#128195;","&#128196;","&#128197;","&#128198;",
+      "&#128199;","&#128200;","&#128201;","&#128202;","&#128203;","&#128204;","&#128205;","&#128206;","&#128207;","&#128208;",
+      "&#128209;","&#128210;","&#128211;","&#128212;","&#128213;","&#128214;","&#128215;","&#128216;","&#128217;","&#128218;",
+      "&#128219;","&#128220;","&#128221;","&#128222;","&#128223;","&#128224;","&#128225;","&#128226;","&#128227;","&#128228;",
+      "&#128229;","&#128230;","&#128231;","&#128232;","&#128233;","&#128234;","&#128235;","&#128236;","&#128237;","&#128238;",
+      "&#128239;","&#128240;","&#128241;","&#128242;","&#128243;","&#128244;","&#128245;","&#128246;","&#128247;","&#128248;",
+      "&#128249;","&#128250;","&#128251;","&#128252;","&#128253;","&#128254;","&#128255;","&#128256;","&#128257;","&#128258;",
+      "&#128259;","&#128260;","&#128261;","&#128262;","&#128263;","&#128264;","&#128265;","&#128266;","&#128267;","&#128268;",
+      "&#128269;","&#128270;","&#128271;","&#128272;","&#128273;","&#128274;","&#128275;","&#128276;","&#128277;","&#128278;",
+      "&#128279;","&#128280;","&#128281;","&#128282;","&#128283;","&#128284;","&#128285;","&#128286;","&#128287;","&#128288;",
+      "&#128289;","&#128290;","&#128291;","&#128292;","&#128293;","&#128294;","&#128295;","&#128296;","&#128297;","&#128298;",
+      "&#128299;","&#128300;","&#128301;","&#128302;","&#128303;","&#128304;","&#128305;","&#128306;","&#128307;","&#128308;",
+      "&#128309;","&#128310;","&#128311;","&#128312;","&#128313;","&#128314;","&#128315;","&#128316;","&#128317;","&#128329;",
+      "&#128330;","&#128331;","&#128332;","&#128333;","&#128334;","&#128335;","&#128336;","&#128337;","&#128338;","&#128339;",
+      "&#128340;","&#128341;","&#128342;","&#128343;","&#128344;","&#128345;","&#128346;","&#128347;","&#128348;","&#128349;",
+      "&#128350;","&#128351;","&#128352;","&#128353;","&#128354;","&#128355;","&#128356;","&#128357;","&#128358;","&#128359;",
+      "&#128640;","&#128641;","&#128642;","&#128643;","&#128644;","&#128645;","&#128646;","&#128647;","&#128648;","&#128649;",
+      "&#128650;","&#128651;","&#128652;","&#128653;","&#128654;","&#128655;","&#128656;","&#128657;","&#128658;","&#128659;",
+      "&#128660;","&#128661;","&#128662;","&#128663;","&#128664;","&#128665;","&#128666;","&#128667;","&#128668;","&#128669;",
+      "&#128670;","&#128671;","&#128672;","&#128673;","&#128674;","&#128675;","&#128676;","&#128677;","&#128678;","&#128679;",
+      "&#128680;","&#128681;","&#128682;","&#128683;","&#128684;","&#128685;","&#128686;","&#128687;","&#128688;","&#128689;",
+      "&#128690;","&#128691;","&#128692;","&#128693;","&#128694;","&#128695;","&#128696;","&#128697;","&#128698;","&#128699;",
+      "&#128700;","&#128701;","&#128702;","&#128703;","&#128704;","&#128705;","&#128706;","&#128707;","&#128708;","&#128709;",
+      "&#128716;","&#128721;","&#128722;","&#128723;","&#128724;","&#128725;","&#128726;","&#128727;","&#128728;","&#128729;",
+      "&#128730;","&#128731;","&#128732;","&#128733;","&#128734;","&#128735;","&#128736;","&#128737;","&#128738;","&#128739;",
+      "&#128740;","&#128741;","&#128742;","&#128743;","&#128744;","&#128745;","&#128746;","&#128747;","&#128748;","&#128749;",
+      "&#128750;","&#128751;","&#128752;","&#128753;","&#128754;","&#128755;","&#128756;","&#128757;","&#128758;","&#128759;",
+      "&#128760;","&#128761;","&#128762;","&#128763;","&#128764;","&#128765;","&#128766;","&#128767;","&#129302;","&#129303;",
+      "&#129304;","&#129305;","&#129306;","&#129307;","&#129308;","&#129309;","&#129310;","&#129311;","&#129312;","&#129313;",
+      "&#129314;","&#129315;","&#129316;","&#129317;","&#129318;","&#129319;","&#129320;","&#129321;","&#129322;","&#129323;",
+      "&#129324;","&#129325;","&#129326;","&#129327;","&#129328;","&#129329;","&#129330;","&#129331;","&#129332;","&#129333;",
+      "&#129334;","&#129335;","&#129336;","&#129337;","&#129338;","&#129339;","&#129340;","&#129341;","&#129342;","&#129343;",
+      "&#129344;","&#129345;","&#129346;","&#129347;","&#129348;","&#129349;","&#129350;","&#129351;","&#129352;","&#129353;",
+      "&#129354;","&#129355;","&#129356;","&#129357;","&#129358;","&#129359;","&#129360;","&#129361;","&#129362;","&#129363;",
+      "&#129364;","&#129365;","&#129366;","&#129367;","&#129368;","&#129369;","&#129370;","&#129371;","&#129372;","&#129373;",
+      "&#129374;","&#129375;","&#129376;","&#129377;","&#129378;","&#129379;","&#129380;","&#129381;","&#129382;","&#129383;",
+      "&#129384;","&#129385;","&#129386;","&#129387;","&#129388;","&#129389;","&#129390;","&#129391;","&#129392;","&#129393;",
+      "&#129394;","&#129395;","&#129396;","&#129397;","&#129398;","&#129399;","&#129400;","&#129401;","&#129402;","&#129403;",
+      "&#129404;","&#129405;","&#129406;","&#129407;","&#129408;","&#129409;","&#129410;","&#129411;","&#129412;","&#129413;",
+      "&#129414;","&#129415;","&#129416;","&#129417;","&#129418;","&#129419;","&#129420;","&#129421;","&#129422;","&#129423;",
+      "&#129424;","&#129425;","&#129426;","&#129427;","&#129428;","&#129429;","&#129430;","&#129431;","&#129432;","&#129433;",
+      "&#129434;","&#129435;","&#129436;","&#129437;","&#129438;","&#129439;","&#129440;","&#129441;","&#129442;","&#129443;",
+      "&#129444;","&#129445;","&#129446;","&#129447;","&#129448;","&#129449;","&#129450;","&#129451;","&#129452;","&#129453;",
+      "&#129454;","&#129455;","&#129456;","&#129457;","&#129458;","&#129459;","&#129460;","&#129461;","&#129462;","&#129463;",
+      "&#129464;","&#129465;","&#129466;","&#129467;","&#129468;","&#129469;","&#129470;","&#129471;","&#129472;","&#129473;",
+      "&#129474;","&#129475;","&#129476;","&#129477;","&#129478;","&#129479;","&#129480;","&#129481;","&#129482;","&#129483;",
+      "&#129484;","&#129485;","&#129486;","&#129487;","&#129488;","&#129489;","&#129490;","&#129491;","&#129492;","&#129493;",
+      "&#129494;","&#129495;","&#129496;","&#129497;","&#129498;","&#129499;","&#129500;","&#129501;","&#129502;","&#129503;",
+      "&#129504;","&#129505;","&#129506;","&#129507;","&#129508;","&#129509;","&#129510;","&#129511;","&#129512;","&#129513;",
+      "&#129514;","&#129515;","&#129516;","&#129517;","&#129518;","&#129519;","&#129520;","&#129521;","&#129522;","&#129523;",
+      "&#129524;","&#129525;","&#129526;","&#129527;","&#129528;","&#129529;","&#129530;","&#129531;","&#129532;","&#129533;",
+      "&#129534;","&#129535;","&#129536;","&#129537;","&#129538;","&#129539;","&#129540;","&#129541;","&#129542;","&#129543;",
+      "&#129544;","&#129545;","&#129546;","&#129547;","&#129548;","&#129549;","&#129550;","&#129551;","&#129552;","&#129553;",
+      "&#129554;","&#129555;","&#129556;","&#129557;","&#129558;","&#129559;","&#129560;","&#129561;","&#129562;","&#129563;",
+      "&#129564;","&#129565;","&#129566;","&#129567;","&#129568;","&#129569;","&#129570;","&#129571;","&#129572;","&#129573;",
+      "&#129574;","&#129575;","&#129576;","&#129577;","&#129578;","&#129579;","&#129580;","&#129581;","&#129582;","&#129583;",
+      "&#129584;","&#129585;","&#129586;","&#129587;","&#129588;","&#129589;","&#129590;","&#129591;","&#129592;","&#129593;",
+      "&#129594;","&#129595;","&#129596;","&#129597;","&#129598;","&#129599;","&#129600;","&#129601;","&#129602;","&#129603;",
+      "&#129604;","&#129605;","&#129606;","&#129607;","&#129608;","&#129609;","&#129610;","&#129611;","&#129612;","&#129613;",
+      "&#129614;","&#129615;","&#129616;","&#129617;","&#129618;","&#129619;","&#129620;","&#129621;","&#129622;","&#129623;",
+      "&#129624;","&#129625;","&#129626;","&#129627;","&#129628;","&#129629;","&#129630;","&#129631;","&#129632;","&#129633;",
+      "&#129634;","&#129635;","&#129636;","&#129637;","&#129638;","&#129639;","&#129640;","&#129641;","&#129642;","&#129643;",
+      "&#129644;","&#129645;","&#129646;","&#129647;","&#129648;","&#129649;","&#129650;","&#129651;","&#129652;","&#129653;",
+      "&#129654;","&#129655;","&#129656;","&#129657;","&#129658;","&#129659;","&#129660;","&#129661;","&#129662;","&#129663;",
+      "&#129664;","&#129665;","&#129666;","&#129667;","&#129668;","&#129669;","&#129670;","&#129671;","&#129672;","&#129673;",
+      "&#129674;","&#129675;","&#129676;","&#129677;","&#129678;","&#129679;","&#129680;","&#129681;","&#129682;","&#129683;",
+      "&#129684;","&#129685;","&#129686;","&#129687;","&#129688;","&#129689;","&#129690;","&#129691;","&#129692;","&#129693;",
+      "&#129694;","&#129695;","&#129696;","&#129697;","&#129698;","&#129699;","&#129700;","&#129701;","&#129702;","&#129703;",
+      "&#129704;","&#129705;","&#129706;","&#129707;","&#129708;","&#129709;","&#129710;","&#129711;","&#129712;","&#129713;",
+      "&#129714;","&#129715;","&#129716;","&#129717;","&#129718;","&#129719;","&#129720;","&#129721;","&#129722;","&#129723;",
+      "&#129724;","&#129725;","&#129726;","&#129727;","&#129728;","&#129729;","&#129730;","&#129731;","&#129732;","&#129733;",
+      "&#129734;","&#129735;","&#129736;","&#129737;","&#129738;","&#129739;","&#129740;","&#129741;","&#129742;","&#129743;",
+      "&#129744;","&#129745;","&#129746;","&#129747;","&#129748;","&#129749;","&#129750;","&#129751;","&#129752;","&#129753;",
+      "&#129754;","&#129755;","&#129756;","&#129757;","&#129758;","&#129759;","&#129760;","&#129761;","&#129762;","&#129763;",
+      "&#129764;","&#129765;","&#129766;","&#129767;","&#129768;","&#129769;","&#129770;","&#129771;","&#129772;","&#129773;",
+      "&#129774;","&#129775;","&#129776;","&#129777;","&#129778;","&#129779;","&#129780;","&#129781;","&#129782;","&#129783;",
+      "&#129784;","&#129785;","&#129786;","&#129787;","&#129788;","&#129789;","&#129790;","&#129791;","&#129792;","&#129793;",
+      "&#129794;","&#129795;","&#129796;","&#129797;","&#129798;","&#129799;","&#129800;","&#129801;","&#129802;","&#129803;",
+      "&#129804;","&#129805;","&#129806;","&#129807;","&#129808;","&#129809;","&#129810;","&#129811;","&#129812;","&#129813;",
+      "&#129814;","&#129815;","&#129816;","&#129817;","&#129818;","&#129819;","&#129820;","&#129821;","&#129822;","&#129823;",
+      "&#129824;","&#129825;","&#129826;","&#129827;","&#129828;","&#129829;","&#129830;","&#129831;","&#129832;","&#129833;",
+      "&#129834;","&#129835;","&#129836;","&#129837;","&#129838;","&#129839;","&#129840;","&#129841;","&#129842;","&#129843;",
+      "&#129844;","&#129845;","&#129846;","&#129847;","&#129848;","&#129849;","&#129850;","&#129851;","&#129852;","&#129853;",
+      "&#129854;","&#129855;","&#129856;","&#129857;","&#129858;","&#129859;","&#129860;","&#129861;","&#129862;","&#129863;",
+      "&#129864;","&#129865;","&#129866;","&#129867;","&#129868;","&#129869;","&#129870;","&#129871;","&#129872;","&#129873;",
+      "&#129874;","&#129875;","&#129876;","&#129877;","&#129878;","&#129879;","&#129880;","&#129881;","&#129882;","&#129883;",
+      "&#129884;","&#129885;","&#129886;","&#129887;","&#129888;","&#129889;","&#129890;","&#129891;","&#129892;","&#129893;",
+      "&#129894;","&#129895;","&#129896;","&#129897;","&#129898;","&#129899;","&#129900;","&#129901;","&#129902;","&#129903;",
+      "&#129904;","&#129905;","&#129906;","&#129907;","&#129908;","&#129909;","&#129910;","&#129911;","&#129912;","&#129913;",
+      "&#129914;","&#129915;","&#129916;","&#129917;","&#129918;","&#129919;","&#129920;","&#129921;","&#129922;","&#129923;",
+      "&#129924;","&#129925;","&#129926;","&#129927;","&#129928;","&#129929;","&#129930;","&#129931;","&#129932;","&#129933;",
+      "&#129934;","&#129935;","&#129936;","&#129937;","&#129938;","&#129939;","&#129940;","&#129941;","&#129942;","&#129943;",
+      "&#129944;","&#129945;","&#129946;","&#129947;","&#129948;","&#129949;","&#129950;","&#129951;","&#129952;","&#129953;",
+      "&#129954;","&#129955;","&#129956;","&#129957;","&#129958;","&#129959;","&#129960;","&#129961;","&#129962;","&#129963;",
+      "&#129964;","&#129965;","&#129966;","&#129967;","&#129968;","&#129969;","&#129970;","&#129971;","&#129972;","&#129973;",
+      "&#129974;","&#129975;","&#129976;","&#129977;","&#129978;","&#129979;","&#129980;","&#129981;","&#129982;","&#129983;",
+      "&#129984;","&#129985;","&#129986;","&#129987;","&#129988;","&#129989;","&#129990;","&#129991;","&#129992;","&#129993;",
+      "&#129994;","&#129995;","&#129996;","&#129997;","&#129998;","&#129999;"
     ];
 
     document.getElementById('btnToggleEmojis').onclick = () => {
@@ -1175,10 +1423,14 @@
         img.className = 'sticker-thumb';
         img.src = src;
         img.onclick = () => {
-          if (conn && conn.open) conn.send({ type: 'MEDIA', src, mediaType: 'image', isSticker: true });
-          appendMedia(src, 'image', 'me', true);
-          saveMessageToHistory(currentChatId, src, 'me', true, 'image');
-          playSound('send');
+          if (currentChatId && activeConnections[currentChatId] && activeConnections[currentChatId].open) {
+            activeConnections[currentChatId].send({ type: 'MEDIA', src, mediaType: 'image', isSticker: true });
+            appendMedia(src, 'image', 'me', true);
+            saveMessageToHistory(currentChatId, src, 'me', true, 'image');
+            playSound('send');
+          } else {
+            alert('No hay conexion activa');
+          }
         };
         drawer.appendChild(img);
       });
@@ -1186,20 +1438,13 @@
       document.getElementById('plusPanel').classList.add('hidden');
     };
 
-    function saveMessageToHistory(contactId, content, sender, isSticker = false, mediaType = null) {
-      if (!contactId) return;
-      if (!savedContacts[contactId]) {
-        savedContacts[contactId] = { name: "Contacto Guardado", avatar: "https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg", messages: [] };
-      }
-      savedContacts[contactId].messages.push({ content, sender, isSticker, mediaType });
-      localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
-    }
-
-    // OPCIONES DE CONTACTO
+    // ===== OPCIONES DE CONTACTO =====
     document.getElementById('contactHeaderInfo').onclick = () => {
       if (!currentChatId || !savedContacts[currentChatId]) return;
-      document.getElementById('modalContactName').innerText = savedContacts[currentChatId].name;
-      document.getElementById('modalContactAvatar').src = savedContacts[currentChatId].avatar;
+      const c = savedContacts[currentChatId];
+      document.getElementById('modalContactName').innerText = c.name;
+      document.getElementById('modalContactAvatar').src = c.avatar;
+      document.getElementById('modalContactNumber').innerText = formatNumber(c.number || '');
       document.getElementById('contactModal').classList.remove('hidden');
     };
 
@@ -1216,6 +1461,7 @@
 
     document.getElementById('btnBlockContact').onclick = () => {
       delete savedContacts[currentChatId];
+      delete activeConnections[currentChatId];
       localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
       document.getElementById('contactModal').classList.add('hidden');
       document.getElementById('chatView').classList.add('hidden');
