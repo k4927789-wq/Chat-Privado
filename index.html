@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Mando Web Multi-Dispositivo</title>
-  <!-- Librería PeerJS para conectar 2 celulares por WebRTC sin servidor -->
+  <title>Mando Web Pro - Teclado Virtual</title>
+  <!-- Librería PeerJS para conectar 2 celulares -->
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
     :root {
@@ -37,7 +37,7 @@
       padding: 10px;
     }
 
-    /* PANTALLA DE SELECCIÓN DE MODO */
+    /* SELECCIÓN DE MODO */
     .mode-selector {
       background: var(--card-bg);
       border: 2px solid var(--btn-border);
@@ -49,12 +49,10 @@
       display: flex;
       flex-direction: column;
       gap: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
 
-    .mode-selector h2 {
-      color: var(--accent);
-      font-size: 1.3rem;
-    }
+    .mode-selector h2 { color: var(--accent); font-size: 1.4rem; }
 
     .input-code {
       background: #0d1117;
@@ -84,7 +82,7 @@
 
     /* MANDO PRO */
     .gamepad-body {
-      display: none; /* Oculto hasta conectar */
+      display: none;
       background: linear-gradient(145deg, #1c2128, #0d1117);
       border: 3px solid #30363d;
       border-radius: 40px;
@@ -112,7 +110,7 @@
 
     .touchpad {
       width: 100%;
-      height: 140px;
+      height: 130px;
       background: radial-gradient(circle, #161b22 0%, #0d1117 100%);
       border: 2px solid var(--accent);
       border-radius: 18px;
@@ -178,7 +176,7 @@
     .btn-x { background: #1f6feb; border-color: #388bfd; }
     .btn-y { background: #d29922; border-color: #e3b341; color: #fff; }
 
-    /* CONSOLA DE RECEPTION EN PANTALLA RECEPTORA */
+    /* CONSOLA CELULAR 1 */
     .receiver-box {
       display: none;
       background: var(--card-bg);
@@ -193,7 +191,7 @@
     .console-log {
       margin-top: 15px; background: #0d1117;
       border: 1px solid #30363d; border-radius: 10px;
-      padding: 10px; height: 150px; overflow-y: auto;
+      padding: 10px; height: 160px; overflow-y: auto;
       font-family: monospace; font-size: 0.8rem; color: var(--accent);
       text-align: left;
     }
@@ -201,29 +199,29 @@
 </head>
 <body>
 
-  <!-- PANTALLA DE INICIO (ELEGIR ROL) -->
+  <!-- PANTALLA INICIAL DE CONFIGURACIÓN -->
   <div class="mode-selector" id="setupScreen">
     <h2>🎮 Mando Web Conexión</h2>
-    <p style="font-size: 0.85rem; color: #8b949e;">Elige la función de este celular:</p>
+    <p style="font-size: 0.85rem; color: #8b949e;">Elige qué función tendrá este dispositivo:</p>
 
-    <button class="btn-main" style="background:#21262d; color:#fff;" id="btnHostMode">📱 Celular 1: RECIBIR (Pantalla/Juego)</button>
+    <button class="btn-main" style="background:#21262d; color:#fff;" id="btnHostMode">📱 Celular 1: RECIBIR (Juego / Pantalla)</button>
 
     <hr style="border-color: #30363d; margin: 5px 0;">
 
-    <p style="font-size: 0.85rem; color: #8b949e;">O ingresar código para ser el Mando:</p>
+    <p style="font-size: 0.85rem; color: #8b949e;">O pon el código para ser el mando:</p>
     <input type="text" class="input-code" id="joinCodeInput" placeholder="CÓDIGO (Ej: 4821)" maxlength="6">
     <button class="btn-main" id="btnJoinMode">🕹️ Celular 2: UNIRSE COMO MANDO</button>
   </div>
 
-  <!-- MODO RECEPCTOR (CELULAR 1) -->
+  <!-- PANTALLA RECEPTORA (CELULAR 1) -->
   <div class="receiver-box" id="receiverScreen">
-    <h3 style="color: var(--accent);">Código de Sala:</h3>
-    <h1 id="roomCodeDisplay" style="font-size: 2.5rem; letter-spacing: 4px; margin: 10px 0;">----</h1>
-    <p style="font-size: 0.85rem; color: #8b949e;">Ingresa este código en el otro celular para conectarlo como mando.</p>
-    <div class="console-log" id="receiverLog">> Esperando que el mando se conecte...</div>
+    <h3 style="color: var(--accent);">Código de Conexión:</h3>
+    <h1 id="roomCodeDisplay" style="font-size: 2.8rem; letter-spacing: 5px; margin: 10px 0; color: #fff;">----</h1>
+    <p style="font-size: 0.85rem; color: #8b949e;">Pon este número en el Celular 2.</p>
+    <div class="console-log" id="receiverLog">> Generando sala...</div>
   </div>
 
-  <!-- MODO MANDO (CELULAR 2) -->
+  <!-- MANDO INTERACTIVO (CELULAR 2) -->
   <div class="gamepad-body" id="gamepadScreen">
 
     <!-- IZQUIERDA: PERILLA Y CRUCETA -->
@@ -234,13 +232,13 @@
 
       <div class="dpad">
         <div></div>
-        <button class="btn-ctrl" data-cmd="UP">▲</button>
+        <button class="btn-ctrl" data-cmd="UP" data-key="ArrowUp">▲</button>
         <div></div>
-        <button class="btn-ctrl" data-cmd="LEFT">◄</button>
+        <button class="btn-ctrl" data-cmd="LEFT" data-key="ArrowLeft">◄</button>
         <div></div>
-        <button class="btn-ctrl" data-cmd="RIGHT">►</button>
+        <button class="btn-ctrl" data-cmd="RIGHT" data-key="ArrowRight">►</button>
         <div></div>
-        <button class="btn-ctrl" data-cmd="DOWN">▼</button>
+        <button class="btn-ctrl" data-cmd="DOWN" data-key="ArrowDown">▼</button>
         <div></div>
       </div>
     </div>
@@ -249,7 +247,7 @@
     <div class="pad-column">
       <div class="touchpad-box">
         <div class="touchpad" id="touchpad">
-          🖱️ Mouse Touchpad<br><small>Desliza tu dedo aquí</small>
+          🖱️ Mouse Touchpad<br><small>Desliza para mover</small>
         </div>
         <div class="mouse-btns">
           <button class="btn-mouse" data-cmd="CLICK_LEFT">Clic Izq.</button>
@@ -258,10 +256,10 @@
       </div>
 
       <div class="menu-row">
-        <button class="btn-menu" data-cmd="SELECT">SELECT</button>
-        <button class="btn-menu" data-cmd="HOME">🏠 HOME</button>
-        <button class="btn-menu" data-cmd="MENU">☰ MENÚ</button>
-        <button class="btn-menu" data-cmd="START">START</button>
+        <button class="btn-menu" data-cmd="SELECT" data-key="Shift">SELECT</button>
+        <button class="btn-menu" data-cmd="HOME" data-key="Escape">🏠 HOME</button>
+        <button class="btn-menu" data-cmd="MENU" data-key="Tab">☰ MENÚ</button>
+        <button class="btn-menu" data-cmd="START" data-key="Enter">START</button>
       </div>
     </div>
 
@@ -269,13 +267,13 @@
     <div class="pad-column">
       <div class="action-btns">
         <div></div>
-        <button class="btn-ctrl btn-act btn-y" data-cmd="Y">Y</button>
+        <button class="btn-ctrl btn-act btn-y" data-cmd="Y" data-key="w">Y</button>
         <div></div>
-        <button class="btn-ctrl btn-act btn-x" data-cmd="X">X</button>
+        <button class="btn-ctrl btn-act btn-x" data-cmd="X" data-key="a">X</button>
         <div></div>
-        <button class="btn-ctrl btn-act btn-b" data-cmd="B">B</button>
+        <button class="btn-ctrl btn-act btn-b" data-cmd="B" data-key="s">B</button>
         <div></div>
-        <button class="btn-ctrl btn-act btn-a" data-cmd="A">A</button>
+        <button class="btn-ctrl btn-act btn-a" data-cmd="A" data-key="Space">A</button>
         <div></div>
       </div>
     </div>
@@ -294,12 +292,25 @@
     const receiverLog = document.getElementById('receiverLog');
     const joinCodeInput = document.getElementById('joinCodeInput');
 
-    // Generador de código aleatorio corto de 4 números
+    // Mapeo de equivalencia de botones a Teclas Reales de Teclado
+    const KEY_MAP = {
+      'UP': 'ArrowUp',
+      'DOWN': 'ArrowDown',
+      'LEFT': 'ArrowLeft',
+      'RIGHT': 'ArrowRight',
+      'A': ' ',        // Barra espaciadora
+      'B': 'Shift',
+      'X': 'x',
+      'Y': 'z',
+      'START': 'Enter',
+      'SELECT': 'Control'
+    };
+
     function generateShortId() {
       return Math.floor(1000 + Math.random() * 9000).toString();
     }
 
-    // --- OPCIÓN 1: SER LA PANTALLA RECEPTORA (CELULAR 1) ---
+    // --- MODO CELULAR 1 (RECEPTOR Y MOTOR DE TECLADO) ---
     document.getElementById('btnHostMode').addEventListener('click', () => {
       const roomCode = generateShortId();
       peer = new Peer(`mando-room-${roomCode}`);
@@ -308,27 +319,77 @@
       receiverScreen.style.display = 'block';
       roomCodeDisplay.innerText = roomCode;
 
-      peer.on('open', (id) => {
-        receiverLog.innerHTML += `<br>> Sala creada con éxito. ID: ${roomCode}`;
+      peer.on('open', () => {
+        receiverLog.innerHTML = `> Sala lista. Código: <b>${roomCode}</b><br>> Esperando al Celular 2...`;
       });
 
       peer.on('connection', (connection) => {
         conn = connection;
-        receiverLog.innerHTML += `<br><b>> ¡MANDO CONECTADO Y LISTO!</b>`;
+        receiverLog.innerHTML += `<br><b style="color:#00f2fe;">> ¡MANDO CONECTADO Y TRANSMITIENDO!</b>`;
 
         conn.on('data', (data) => {
-          // Aquí recibes todos los eventos transmitidos desde el mando
-          receiverLog.innerHTML += `<br>> Recibido: ${JSON.stringify(data)}`;
+          // 1. Si presionan un botón -> Inyecta evento de Teclado
+          if (data.type === 'BTN_DOWN') {
+            const keyToSimulate = KEY_MAP[data.cmd] || data.key || ' ';
+            simulateKeyEvent('keydown', keyToSimulate);
+            receiverLog.innerHTML += `<br>> Tecla Presionada: ${keyToSimulate}`;
+          }
+
+          if (data.type === 'BTN_UP') {
+            const keyToSimulate = KEY_MAP[data.cmd] || data.key || ' ';
+            simulateKeyEvent('keyup', keyToSimulate);
+          }
+
+          // 2. Si mueven la Perilla -> Simula Flechas de dirección
+          if (data.type === 'JOYSTICK_MOVE') {
+            handleJoystickAsArrows(data.x, data.y);
+          }
+
           receiverLog.scrollTop = receiverLog.scrollHeight;
         });
       });
     });
 
-    // --- OPCIÓN 2: SER EL MANDO (CELULAR 2) ---
+    // Inyector real de eventos de teclado en la ventana del navegador
+    function simulateKeyEvent(eventType, keyName) {
+      const event = new KeyboardEvent(eventType, {
+        key: keyName,
+        code: keyName,
+        bubbles: true,
+        cancelable: true
+      });
+      document.dispatchEvent(event);
+    }
+
+    // Traduce la perilla táctil a pulsaciones de flechas arriba/abajo/izq/der
+    let activeJoyKeys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
+
+    function handleJoystickAsArrows(x, y) {
+      const threshold = 0.4; // Sensibilidad de la perilla
+
+      function checkAxis(val, posKey, negKey) {
+        if (val > threshold) {
+          if (!activeJoyKeys[posKey]) { simulateKeyEvent('keydown', posKey); activeJoyKeys[posKey] = true; }
+        } else {
+          if (activeJoyKeys[posKey]) { simulateKeyEvent('keyup', posKey); activeJoyKeys[posKey] = false; }
+        }
+
+        if (val < -threshold) {
+          if (!activeJoyKeys[negKey]) { simulateKeyEvent('keydown', negKey); activeJoyKeys[negKey] = true; }
+        } else {
+          if (activeJoyKeys[negKey]) { simulateKeyEvent('keyup', negKey); activeJoyKeys[negKey] = false; }
+        }
+      }
+
+      checkAxis(x, 'ArrowRight', 'ArrowLeft');
+      checkAxis(y, 'ArrowDown', 'ArrowUp');
+    }
+
+    // --- MODO CELULAR 2 (EL MANDO EN SÍ) ---
     document.getElementById('btnJoinMode').addEventListener('click', () => {
       const code = joinCodeInput.value.trim();
       if (!code || code.length < 4) {
-        alert("Ingresa el código numérico de 4 dígitos generado en la otra pantalla.");
+        alert("Escribe el código de 4 dígitos generado en el Celular 1.");
         return;
       }
 
@@ -343,13 +404,12 @@
           if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
         });
 
-        conn.on('error', (err) => {
-          alert("No se pudo conectar a ese código. Revisa que la otra pantalla siga abierta.");
+        conn.on('error', () => {
+          alert("Error de conexión. Verifica que el Celular 1 siga con la pantalla abierta.");
         });
       });
     });
 
-    // FUNCIÓN PARA TRANSMITIR DATOS AL CELULAR 1
     function sendSignal(type, data) {
       if (conn && conn.open) {
         conn.send({ type, ...data });
@@ -357,42 +417,23 @@
       if (navigator.vibrate) navigator.vibrate(20);
     }
 
-    // --- EVENTOS DEL MANDO (BOTONES, TOUCHPAD, JOYSTICK) ---
+    // DETECCIÓN DE BOTONES (PRESIONAR Y SOLTAR)
     document.querySelectorAll('[data-cmd]').forEach(btn => {
-      btn.addEventListener('pointerdown', () => {
-        sendSignal('BTN_PRESS', { key: btn.getAttribute('data-cmd') });
+      const cmd = btn.getAttribute('data-cmd');
+      const key = btn.getAttribute('data-key');
+
+      btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        sendSignal('BTN_DOWN', { cmd, key });
+      });
+
+      btn.addEventListener('pointerup', (e) => {
+        e.preventDefault();
+        sendSignal('BTN_UP', { cmd, key });
       });
     });
 
-    // TOUCHPAD MOUSE
-    const touchpad = document.getElementById('touchpad');
-    let startX = 0, startY = 0, isTouching = false;
-
-    touchpad.addEventListener('pointerdown', (e) => {
-      isTouching = true;
-      startX = e.clientX;
-      startY = e.clientY;
-      touchpad.setPointerCapture(e.pointerId);
-    });
-
-    touchpad.addEventListener('pointermove', (e) => {
-      if (!isTouching) return;
-      const dx = Math.round(e.clientX - startX);
-      const dy = Math.round(e.clientY - startY);
-
-      if (dx !== 0 || dy !== 0) {
-        sendSignal('MOUSE_MOVE', { dx, dy });
-        startX = e.clientX;
-        startY = e.clientY;
-      }
-    });
-
-    touchpad.addEventListener('pointerup', (e) => {
-      isTouching = false;
-      touchpad.releasePointerCapture(e.pointerId);
-    });
-
-    // PERILLA ANALÓGICA
+    // PERILLA (JOYSTICK)
     const joystick = document.getElementById('joystickLeft');
     const stick = document.getElementById('stickLeft');
     let joyActive = false;
