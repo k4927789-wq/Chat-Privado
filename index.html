@@ -2,1358 +2,521 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>PeerChat Pro - Número Virtual</title>
-  
-  <link rel="icon" type="image/jpeg" href="https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg">
-  <link rel="apple-touch-icon" href="https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Chat PeerJS - Estilo WhatsApp</title>
+  <!-- PeerJS CDN -->
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  
   <style>
-    :root {
-      --bg: #0d0f12;
-      --card-bg: #161b22;
-      --accent: #9d4edd;
-      --accent-glow: #c77dff;
-      --text: #ffffff;
-      --bubble-me: #3c096c;
-      --bubble-other: #21262d;
-      --border: #30363d;
-      --app-max-width: 480px;
-    }
-
     * {
       box-sizing: border-box;
-      margin: 0; padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
     }
-
-    html, body {
-      background-color: #000000;
-      color: var(--text);
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh; height: 100dvh;
-      overflow: hidden;
-      width: 100vw;
+      height: 100vh;
     }
-
-    body.pc-mode .app-container {
-      max-width: 900px !important;
-      height: 90vh !important;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-    }
-
     .app-container {
-      width: 100%;
-      max-width: var(--app-max-width);
-      height: 100vh; height: 100dvh;
-      background: var(--bg);
+      width: 95%;
+      max-width: 1000px;
+      height: 92vh;
+      display: flex;
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #333;
+    }
+    /* Panel lateral de contactos */
+    .sidebar {
+      width: 38%;
+      border-right: 1px solid #333;
       display: flex;
       flex-direction: column;
-      position: relative;
-      box-shadow: 0 0 30px rgba(0,0,0,0.8);
+      background-color: #181818;
+    }
+    .profile-header {
+      padding: 15px;
+      background-color: #252525;
+      border-bottom: 1px solid #333;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .avatar-img {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background-color: #333;
+      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #aaa;
+    }
+    .profile-info {
+      flex: 1;
       overflow: hidden;
     }
-
-    .hidden { display: none !important; }
-
-    .device-switcher {
-      position: absolute;
-      top: 10px; right: 10px;
-      z-index: 999;
-      background: rgba(22, 27, 34, 0.9);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 4px;
-      display: flex; gap: 4px;
+    .profile-info h3 {
+      font-size: 13px;
+      color: #888;
     }
-
-    .device-btn {
-      background: transparent;
+    .profile-info p {
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .profile-info span {
+      font-size: 12px;
+      color: #a855f7;
+    }
+    .edit-profile-btn {
+      background: none;
       border: none;
-      color: #8b949e;
-      padding: 6px 10px;
-      border-radius: 16px;
-      font-size: 0.75rem;
+      color: #aaa;
       cursor: pointer;
-      display: flex; align-items: center; gap: 4px;
+      font-size: 16px;
     }
+    .edit-profile-btn:hover { color: #fff; }
 
-    .device-btn.active { background: var(--accent); color: #fff; }
-
-    .app-logo {
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin: 0 auto 10px auto;
-      border: 2px solid var(--accent-glow);
-    }
-
-    .screen {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: var(--bg);
-      display: flex; flex-direction: column;
-      padding: 20px;
-      z-index: 10;
+    .contacts-list {
+      flex: 1;
       overflow-y: auto;
     }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 20px;
-      width: 100%;
-      text-align: center;
-      display: flex; flex-direction: column;
-      gap: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-      margin: auto 0;
-    }
-
-    input[type="text"] {
-      background: #0d1117;
-      border: 1px solid var(--border);
-      color: #fff;
-      padding: 12px;
-      border-radius: 12px;
-      font-size: 1rem;
-      outline: none;
-      width: 100%;
-    }
-
-    .btn {
-      background: linear-gradient(135deg, var(--accent), var(--accent-glow));
-      color: #fff;
-      border: none;
-      padding: 12px;
-      border-radius: 12px;
-      font-weight: bold;
-      font-size: 1rem;
+    .contact-item {
+      padding: 12px 15px;
+      border-bottom: 1px solid #282828;
       cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-
-    .btn-secondary {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-
-    .avatar-upload {
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      background: var(--border);
-      margin: 0 auto;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; overflow: hidden;
-      border: 2px dashed var(--accent-glow);
-    }
-
-    .avatar-upload img { width: 100%; height: 100%; object-fit: cover; }
-
-    .main-nav {
       display: flex;
-      border-bottom: 1px solid var(--border);
-      margin-top: 15px;
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 4px;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.2s;
     }
-
-    .nav-tab {
+    .contact-item:hover, .contact-item.active {
+      background-color: #2a2a2a;
+    }
+    .contact-details {
       flex: 1;
-      padding: 10px;
-      text-align: center;
-      font-size: 0.85rem;
+    }
+    .contact-item .name {
       font-weight: bold;
-      color: #8b949e;
+      color: #fff;
+      font-size: 14px;
+    }
+    .contact-item .sub {
+      font-size: 12px;
+      color: #888;
+    }
+    .edit-contact-btn {
+      background: none;
+      border: none;
+      color: #777;
       cursor: pointer;
-      border-radius: 8px;
+      font-size: 14px;
+      padding: 5px;
     }
+    .edit-contact-btn:hover { color: #a855f7; }
 
-    .nav-tab.active { background: var(--accent); color: #fff; }
-
-    .chats-header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 35px 0 10px 0;
+    /* Panel del Chat */
+    .chat-area {
+      width: 62%;
+      display: flex;
+      flex-direction: column;
+      background-color: #121212;
     }
-
-    .user-profile-bar {
-      display: flex; align-items: center; gap: 10px; cursor: pointer;
-      padding: 4px 8px; border-radius: 12px; transition: background 0.2s;
-    }
-    .user-profile-bar:hover { background: var(--card-bg); }
-
-    .chat-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 12px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      margin-bottom: 10px;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .chat-item-avatar {
-      width: 44px; height: 44px;
-      border-radius: 50%; object-fit: cover;
-    }
-
-    .chat-view {
-      display: flex; flex-direction: column;
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      width: 100%; height: 100%;
-      background: var(--bg);
-      z-index: 20;
-    }
-
     .chat-header {
-      background: var(--card-bg);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 16px;
-      display: flex; align-items: center; justify-content: space-between;
-      height: 60px; flex-shrink: 0;
+      padding: 15px;
+      background-color: #1e1e1e;
+      border-bottom: 1px solid #333;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-
-    .chat-body {
-      flex: 1 1 auto;
-      min-height: 0;
+    .messages-box {
+      flex: 1;
       padding: 15px;
       overflow-y: auto;
-      display: flex; flex-direction: column; gap: 10px;
-      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
-
-    .msg {
-      max-width: 80%;
+    .message {
+      max-width: 70%;
       padding: 10px 14px;
-      border-radius: 16px;
-      font-size: 0.95rem;
-      word-break: break-word;
+      border-radius: 8px;
+      font-size: 14px;
+      word-wrap: break-word;
     }
-
-    .msg.me { align-self: flex-end; background: var(--bubble-me); border-bottom-right-radius: 2px; }
-    .msg.other { align-self: flex-start; background: var(--bubble-other); border-bottom-left-radius: 2px; }
-
-    .msg-media img, .msg-media video {
-      max-width: 100%;
-      border-radius: 12px;
-      margin-top: 5px;
+    .message.sent {
+      align-self: flex-end;
+      background-color: #7e22ce;
+      color: #fff;
     }
-
-    .msg-sticker {
-      background: transparent !important;
-      padding: 0 !important;
+    .message.received {
+      align-self: flex-start;
+      background-color: #2a2a2a;
+      color: #e0e0e0;
     }
-    .msg-sticker img {
-      width: 120px !important;
-      height: 120px !important;
-      object-fit: contain;
+    /* Formulario inferior */
+    .input-area {
+      padding: 15px;
+      background-color: #1e1e1e;
+      border-top: 1px solid #333;
+      display: flex;
+      gap: 10px;
+    }
+    .input-area input {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #333;
+      background-color: #121212;
+      color: #fff;
+      outline: none;
+    }
+    .input-area input[type="text"] { flex: 1; }
+    .input-area button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #a855f7;
+      color: #fff;
+      font-weight: bold;
       cursor: pointer;
     }
+    .input-area button:hover { background-color: #9333ea; }
 
-    .chat-footer {
-      background: var(--card-bg);
-      border-top: 1px solid var(--border);
-      padding: 8px 12px;
-      display: flex; align-items: center; gap: 8px;
-      height: 65px; flex-shrink: 0;
-      position: relative; z-index: 50;
-    }
-
-    .icon-btn {
-      background: transparent; border: none;
-      color: var(--accent-glow);
-      padding: 6px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    .plus-panel {
-      position: absolute;
-      bottom: 70px; left: 10px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 10px;
-      display: flex; flex-direction: column; gap: 8px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.8);
-      z-index: 100; width: 220px;
-    }
-
-    .menu-option {
-      display: flex; align-items: center; gap: 10px;
-      padding: 8px; cursor: pointer;
-      border-radius: 8px; font-size: 0.85rem;
-    }
-
-    .drawer-panel {
-      position: absolute;
-      bottom: 70px; left: 0; right: 0;
-      background: var(--card-bg);
-      border-top: 1px solid var(--border);
-      padding: 12px; max-height: 180px;
-      overflow-y: auto;
-      display: flex; flex-wrap: wrap; gap: 10px;
-      z-index: 90;
-    }
-
-    .emoji-item { font-size: 1.5rem; cursor: pointer; padding: 4px; transition: transform 0.1s; }
-    .emoji-item:hover { transform: scale(1.2); }
-    .sticker-thumb { width: 55px; height: 55px; border-radius: 10px; object-fit: cover; cursor: pointer; border: 1px solid var(--border); }
-
-    .call-screen {
-      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      background: #050508; z-index: 300;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: space-around;
-      padding: 40px 20px;
-    }
-
-    .call-avatar {
-      width: 120px; height: 120px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid var(--accent-glow);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(199, 125, 255, 0.4); }
-      70% { box-shadow: 0 0 0 25px rgba(199, 125, 255, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(199, 125, 255, 0); }
-    }
-
-    .call-actions { display: flex; gap: 30px; }
-    .btn-call-action {
-      width: 60px; height: 60px;
-      border-radius: 50%; border: none;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color: #fff;
-    }
-
-    .status-view-container {
-      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      background: #000; z-index: 250;
-      display: flex; flex-direction: column;
-      justify-content: space-between;
-      padding: 20px;
-    }
-
-    .status-content {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      flex-direction: column;
-    }
-
-    .status-content img, .status-content video {
-      max-width: 100%; max-height: 65vh;
-      border-radius: 12px;
-    }
-
-    .status-analytics-drawer {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: var(--card-bg);
-      border-top: 1px solid var(--border);
-      border-radius: 20px 20px 0 0;
-      padding: 15px; max-height: 250px; overflow-y: auto;
-      z-index: 260; box-shadow: 0 -5px 25px rgba(0,0,0,0.9);
-    }
-
+    /* Modal simple para editar perfil */
     .modal {
-      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.85); z-index: 200;
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px;
-    }
-
-    .virtual-num-badge {
-      background: #1f2937;
-      border: 1px solid var(--accent);
-      color: var(--accent-glow);
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-family: monospace;
-      font-size: 0.9rem;
-      display: inline-flex;
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
       align-items: center;
-      gap: 6px;
-      margin: 5px 0;
     }
+    .modal-content {
+      background: #222;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid #444;
+    }
+    .modal-content h3 { color: #fff; font-size: 16px; }
+    .modal-content input {
+      padding: 8px;
+      background: #111;
+      border: 1px solid #444;
+      color: #fff;
+      border-radius: 4px;
+    }
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .modal-buttons button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-save { background: #a855f7; color: #fff; }
+    .btn-cancel { background: #444; color: #fff; }
   </style>
 </head>
 <body>
 
   <div class="app-container">
-
-    <div class="device-switcher">
-      <button class="device-btn active" id="btnModeAndroid"><i data-lucide="smartphone" style="width:14px;"></i> Android</button>
-      <button class="device-btn" id="btnModePC"><i data-lucide="monitor" style="width:14px;"></i> PC</button>
-    </div>
-
-    <!-- 1. PERFIL INICIAL -->
-    <div class="screen" id="profileScreen">
-      <div class="card">
-        <img src="https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg" alt="Logo" class="app-logo">
-        <h2>Crear Perfil</h2>
-        <p style="font-size: 0.8rem; color: #8b949e;">Configura tu foto y nombre. Se generará un número virtual para ti.</p>
-        
-        <label class="avatar-upload">
-          <i data-lucide="camera" id="cameraIcon"></i>
-          <img id="myAvatarImg" class="hidden">
-          <input type="file" id="profilePicInput" accept="image/*" style="display: none;">
-        </label>
-
-        <input type="text" id="usernameInput" placeholder="Tu Nombre de Usuario" maxlength="15">
-        <button class="btn" id="btnSaveProfile"><i data-lucide="check"></i> Continuar</button>
-      </div>
-    </div>
-
-    <!-- 2. PANTALLA PRINCIPAL -->
-    <div class="screen hidden" id="mainScreen">
-      
-      <div class="chats-header">
-        <div class="user-profile-bar" id="btnMyProfileInfo">
-          <img id="mainProfileAvatar" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1px solid var(--accent-glow);">
-          <div>
-            <h3 id="mainProfileName" style="font-size:0.95rem; line-height:1.1;">Nombre</h3>
-            <span style="font-size:0.7rem; color:var(--accent-glow); font-family:monospace;" id="mainProfileNumberMini">Número Virtual</span>
-          </div>
+    <!-- Panel Izquierdo: Tu Perfil y Contactos -->
+    <div class="sidebar">
+      <div class="profile-header">
+        <div class="avatar-img" id="my-avatar-display">👤</div>
+        <div class="profile-info">
+          <h3 id="my-name-display">Mi Nombre</h3>
+          <p id="my-number">Cargando...</p>
         </div>
-        <button class="btn" id="btnOpenAddContactModal" style="padding: 6px 12px; font-size: 0.8rem;"><i data-lucide="user-plus"></i> Agregar Contacto</button>
+        <button class="edit-profile-btn" onclick="openProfileModal()" title="Editar perfil">⚙️</button>
       </div>
-
-      <div class="main-nav">
-        <div class="nav-tab active" id="tabChats">Chats</div>
-        <div class="nav-tab" id="tabStatuses">Estados</div>
-        <div class="nav-tab" id="tabCalls">Llamadas</div>
-      </div>
-
-      <div id="sectionChats" style="margin-top: 15px;">
-        <div id="chatsListContainer"></div>
-      </div>
-
-      <div id="sectionStatuses" class="hidden" style="margin-top: 15px;">
-        <div class="chat-item" id="btnMyStatus">
-          <img id="myStatusAvatar" class="chat-item-avatar">
-          <div style="flex:1;">
-            <div style="font-weight:bold; font-size:0.9rem;" id="myStatusTitle">Mi Estado</div>
-            <div style="font-size:0.75rem; color:#8b949e;" id="myStatusSubtitle">Toca para subir un estado</div>
-          </div>
-          <button class="icon-btn hidden" id="btnDeleteMyStatus" title="Eliminar Estado" style="padding: 4px 8px; color: #da3633;"><i data-lucide="more-vertical"></i></button>
-        </div>
-
-        <h4 style="font-size:0.8rem; color:#8b949e; margin: 15px 0 10px 0;">ESTADOS RECIENTES</h4>
-        <div id="statusesListContainer"></div>
-      </div>
-
-      <div id="sectionCalls" class="hidden" style="margin-top: 15px;">
-        <div id="callsListContainer">
-          <p style="text-align:center; color:#8b949e; margin-top:20px;">Sin llamadas recientes</p>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- MODAL MI PERFIL Y MI NÚMERO VIRTUAL -->
-    <div class="modal hidden" id="myProfileModal">
-      <div class="card" style="max-width: 300px;">
-        <img id="modalMyAvatar" style="width: 70px; height: 70px; border-radius: 50%; margin: 0 auto; object-fit: cover; border: 2px solid var(--accent-glow);">
-        <h3 id="modalMyName">Mi Perfil</h3>
-        <p style="font-size: 0.75rem; color: #8b949e;">Tu Número Virtual Único:</p>
-        <div class="virtual-num-badge" id="modalMyVirtualNum">
-          <i data-lucide="phone"></i> <span>+52 000 000 000</span>
-        </div>
-        <p style="font-size: 0.7rem; color: #8b949e;">Comparte este número con tus contactos para que te agreguen.</p>
-        <button class="btn btn-secondary" id="btnCopyVirtualNum"><i data-lucide="copy"></i> Copiar Número</button>
-        <button class="btn" style="background: transparent;" id="btnCloseMyProfileModal">Cerrar</button>
+      <div class="contacts-list" id="contacts-list">
+        <!-- Lista dinámica de contactos -->
       </div>
     </div>
 
-    <!-- MODAL AGREGAR CONTACTO -->
-    <div class="modal hidden" id="addContactModal">
-      <div class="card" style="max-width: 320px;">
-        <h3 style="display:flex; align-items:center; justify-content:center; gap:8px;"><i data-lucide="user-plus"></i> Nuevo Contacto</h3>
-        <p style="font-size: 0.75rem; color: #8b949e;">Ingresa los datos para guardar al contacto de forma permanente.</p>
-        
-        <input type="text" id="newContactNameInput" placeholder="Nombre del contacto (Ej: María)">
-        <input type="text" id="newContactNumberInput" placeholder="Número Virtual (Ej: 555849201)" maxlength="15">
-        
-        <button class="btn" id="btnSaveNewContact"><i data-lucide="save"></i> Guardar Contacto</button>
-        <button class="btn" style="background: transparent;" id="btnCloseAddContactModal">Cancelar</button>
+    <!-- Panel Derecho: Conversación -->
+    <div class="chat-area">
+      <div class="chat-header" id="chat-header">
+        Selecciona o ingresa un número para chatear
+      </div>
+      <div class="messages-box" id="messages-box">
+        <!-- Mensajes dinámicos -->
+      </div>
+      <div class="input-area">
+        <input type="number" id="target-number" placeholder="Número destino..." style="width: 130px;">
+        <input type="text" id="message-text" placeholder="Escribe un mensaje...">
+        <button id="send-btn">Enviar</button>
       </div>
     </div>
+  </div>
 
-    <!-- 4. CHAT ACTIVO -->
-    <div class="chat-view hidden" id="chatView">
-      <div class="chat-header">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <button class="icon-btn" id="btnLeaveChat"><i data-lucide="arrow-left"></i></button>
-          <div style="display:flex; align-items:center; gap:8px;" id="contactHeaderInfo">
-            <img id="activeContactAvatar" class="chat-item-avatar">
-            <div>
-              <span id="activeContactName" style="font-weight: bold; font-size: 0.9rem;">Contacto</span>
-              <p id="activeContactStatus" style="font-size: 0.7rem; color: #2ea043;">Conectando...</p>
-            </div>
-          </div>
-        </div>
-
-        <div style="display: flex; gap: 8px;">
-          <button class="icon-btn" id="btnReconnectChat" title="Reconectar"><i data-lucide="refresh-cw"></i></button>
-          <button class="icon-btn" id="btnStartCall" title="Iniciar Llamada"><i data-lucide="phone" style="width:22px; height:22px;"></i></button>
-        </div>
-      </div>
-
-      <div class="chat-body" id="chatBody"></div>
-
-      <div class="drawer-panel hidden" id="emojiDrawer"></div>
-      <div class="drawer-panel hidden" id="stickerDrawer"></div>
-
-      <div class="plus-panel hidden" id="plusPanel">
-        <label class="menu-option">
-          <i data-lucide="image"></i> Enviar Imagen
-          <input type="file" id="imageInput" accept="image/*" style="display: none;">
-        </label>
-        <label class="menu-option">
-          <i data-lucide="video"></i> Enviar Video
-          <input type="file" id="videoInput" accept="video/*" style="display: none;">
-        </label>
-        <label class="menu-option">
-          <i data-lucide="sticker"></i> Subir Sticker
-          <input type="file" id="stickerInput" accept="image/*" style="display: none;">
-        </label>
-        <div class="menu-option" id="btnToggleEmojis"><i data-lucide="smile"></i> Emojis</div>
-        <div class="menu-option" id="btnToggleStickers"><i data-lucide="star"></i> Stickers Guardados</div>
-      </div>
-
-      <div class="chat-footer">
-        <button class="icon-btn" id="btnPlus"><i data-lucide="plus-circle" style="width: 26px; height: 26px;"></i></button>
-        <input type="text" id="messageInput" style="flex: 1; text-align: left;" placeholder="Escribe un mensaje...">
-        <button class="btn" id="btnSend" style="padding: 8px 12px;"><i data-lucide="send"></i></button>
+  <!-- Modal para Editar Perfil -->
+  <div class="modal" id="profile-modal">
+    <div class="modal-content">
+      <h3>Editar Perfil</h3>
+      <label style="font-size: 12px; color: #aaa;">Tu Nombre:</label>
+      <input type="text" id="input-my-name" placeholder="Ej. Carlos Pérez">
+      <label style="font-size: 12px; color: #aaa;">URL de tu Foto de Perfil (Opcional):</label>
+      <input type="text" id="input-my-avatar" placeholder="https://ejemplo.com/foto.jpg">
+      <div class="modal-buttons">
+        <button class="btn-cancel" onclick="closeProfileModal()">Cancelar</button>
+        <button class="btn-save" onclick="saveProfile()">Guardar</button>
       </div>
     </div>
-
-    <!-- 5. INTERFAZ DE LLAMADA -->
-    <div class="call-screen hidden" id="callScreen">
-      <div style="text-align: center;">
-        <img id="callAvatar" class="call-avatar">
-        <h3 id="callName" style="margin-top: 15px;">Llamando...</h3>
-        <p id="callStatus" style="font-size: 0.8rem; color: #8b949e; margin-top: 5px;">Llamada de voz activa</p>
-      </div>
-
-      <div class="call-actions">
-        <button class="btn-call-action" id="btnMuteCall" style="background: var(--card-bg); border: 1px solid var(--border);" title="Silenciar Micrófono"><i data-lucide="mic"></i></button>
-        <button class="btn-call-action" id="btnEndCall" style="background: #da3633;" title="Colgar Llamada"><i data-lucide="phone-off"></i></button>
-      </div>
-      <audio id="remoteAudio" autoplay></audio>
-    </div>
-
-    <!-- 6. SUBIR ESTADO -->
-    <div class="modal hidden" id="uploadStatusModal">
-      <div class="card" style="max-width: 320px;">
-        <h3>Subir Estado</h3>
-        <input type="text" id="statusTextInput" placeholder="Texto opcional...">
-        <label class="btn" style="background: var(--card-bg); border: 1px solid var(--border);">
-          <i data-lucide="image"></i> Seleccionar Imagen/Video
-          <input type="file" id="statusMediaInput" accept="image/*,video/*" style="display: none;">
-        </label>
-        <div id="statusMediaPreview" style="font-size: 0.75rem; color: var(--accent-glow);"></div>
-        <button class="btn" id="btnPublishStatus"><i data-lucide="upload"></i> Publicar</button>
-        <button class="btn" style="background: transparent;" id="btnCloseStatusModal">Cancelar</button>
-      </div>
-    </div>
-
-    <!-- 7. VISUALIZAR ESTADO -->
-    <div class="status-view-container hidden" id="statusViewContainer">
-      <div style="display:flex; justify-content:space-between; align-items:center; z-index:10;">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <img id="statusUserAvatar" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
-          <span id="statusUserName" style="font-weight:bold; font-size:0.9rem;"></span>
-        </div>
-        <button class="icon-btn" id="btnCloseStatusView"><i data-lucide="x"></i></button>
-      </div>
-
-      <div class="status-content" id="statusContentArea"></div>
-
-      <div id="myStatusAnalyticsBtnArea" class="hidden" style="text-align:center; z-index:10; margin-bottom: 10px;">
-        <button class="btn btn-secondary" id="btnToggleStatusAnalytics" style="padding: 6px 14px; font-size: 0.8rem; margin: 0 auto;"><i data-lucide="eye"></i> Ver Vistas y Reacciones</button>
-      </div>
-
-      <div id="otherStatusInteractionArea" style="display:flex; gap:8px; align-items:center; z-index:10;">
-        <input type="text" id="statusCommentInput" placeholder="Responder..." style="flex:1;">
-        <button class="icon-btn" id="btnHeartStatus" style="color:#ff4d6d;"><i data-lucide="heart"></i></button>
-        <button class="btn" id="btnSendStatusComment" style="padding:8px 12px;"><i data-lucide="send"></i></button>
-      </div>
-
-      <div class="status-analytics-drawer hidden" id="statusAnalyticsDrawer">
-        <h4 style="font-size:0.85rem; color:var(--accent-glow); margin-bottom:10px;">VISTAS Y REACCIONES</h4>
-        <div id="statusAnalyticsList" style="font-size:0.8rem; display:flex; flex-direction:column; gap:8px;"></div>
-      </div>
-    </div>
-
-    <!-- MODAL CONTACTO OPCIONES -->
-    <div class="modal hidden" id="contactModal">
-      <div class="card" style="max-width: 280px;">
-        <img id="modalContactAvatar" style="width: 60px; height: 60px; border-radius: 50%; margin: 0 auto; object-fit: cover;">
-        <h3 id="modalContactName">Contacto</h3>
-        <p style="font-size: 0.75rem; color: var(--accent-glow); font-family: monospace;" id="modalContactNumber">Número</p>
-        <button class="btn" style="background: #21262d; border: 1px solid var(--border);" id="btnClearChatHistory"><i data-lucide="trash-2"></i> Borrar Chat</button>
-        <button class="btn" style="background: #da3633;" id="btnBlockContact"><i data-lucide="shield-alert"></i> Eliminar Contacto</button>
-        <button class="btn" style="background: transparent;" id="btnCloseModal">Cerrar</button>
-      </div>
-    </div>
-
   </div>
 
   <script>
-    lucide.createIcons();
-
-    // GENERAR NÚMERO VIRTUAL ALEATORIO TIPO "+52 555 XXX XXX"
-    function generateVirtualNumber() {
-      const num = Math.floor(100000000 + Math.random() * 900000000);
-      return `${num}`;
+    // --- 1. CONFIGURACIÓN DE IDENTIDAD Y PERFIL ---
+    let myNumber = localStorage.getItem('my_virtual_number');
+    if (!myNumber) {
+      myNumber = Math.floor(100000 + Math.random() * 900000).toString();
+      localStorage.setItem('my_virtual_number', myNumber);
     }
 
-    // MODO DISPOSITIVO
-    document.getElementById('btnModeAndroid').onclick = function() {
-      document.body.classList.remove('pc-mode');
-      this.classList.add('active');
-      document.getElementById('btnModePC').classList.remove('active');
-    };
+    let myName = localStorage.getItem('my_profile_name') || `Usuario ${myNumber}`;
+    let myAvatar = localStorage.getItem('my_profile_avatar') || '';
 
-    document.getElementById('btnModePC').onclick = function() {
-      document.body.classList.add('pc-mode');
-      this.classList.add('active');
-      document.getElementById('btnModeAndroid').classList.remove('active');
-    };
-
-    function playSound(type) {
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.frequency.setValueAtTime(type === 'send' ? 500 : 700, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-      } catch(e) {}
-    }
-
-    // DATOS LOCALES Y PERFIL
-    let myProfile = JSON.parse(localStorage.getItem('user_profile') || '{}');
-    if (!myProfile.virtualNumber) {
-      myProfile.virtualNumber = generateVirtualNumber();
-    }
-
-    let myStatus = JSON.parse(localStorage.getItem('my_status') || 'null');
-    let savedContacts = JSON.parse(localStorage.getItem('saved_contacts') || '{}');
-    let savedStickers = JSON.parse(localStorage.getItem('saved_stickers') || '[]');
-    
-    let peer = null;
-    let conn = null;
-    let currentCall = null;
-    let localStream = null;
-    let currentChatNumber = null;
-    let currentViewingStatusPeerId = null;
-
-    if (myProfile.name && myProfile.avatar) {
-      showMainScreen();
-      initMyPeerServer();
-    }
-
-    function processFile(file, callback) {
-      const reader = new FileReader();
-      reader.onload = (e) => callback(e.target.result);
-      reader.readAsDataURL(file);
-    }
-
-    // CREACIÓN Y GUARDADO DE PERFIL
-    document.getElementById('profilePicInput').onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        processFile(file, (data) => {
-          myProfile.avatar = data;
-          document.getElementById('myAvatarImg').src = data;
-          document.getElementById('myAvatarImg').classList.remove('hidden');
-          document.getElementById('cameraIcon').classList.add('hidden');
-        });
+    function updateProfileUI() {
+      document.getElementById('my-number').textContent = `Nº ${myNumber}`;
+      document.getElementById('my-name-display').textContent = myName;
+      
+      const avatarDisplay = document.getElementById('my-avatar-display');
+      if (myAvatar) {
+        avatarDisplay.innerHTML = `<img src="${myAvatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+      } else {
+        avatarDisplay.innerHTML = '👤';
       }
-    };
+    }
+    updateProfileUI();
 
-    document.getElementById('btnSaveProfile').onclick = () => {
-      const name = document.getElementById('usernameInput').value.trim();
-      if (!name || !myProfile.avatar) return alert('Sube una foto y escribe un nombre.');
-      myProfile.name = name;
-      localStorage.setItem('user_profile', JSON.stringify(myProfile));
-      document.getElementById('profileScreen').classList.add('hidden');
-      showMainScreen();
-      initMyPeerServer();
-    };
+    // Inicializar PeerJS con el ID fijo guardado
+    const peer = new Peer(myNumber);
+    let activeConnections = {};
+    let activeChatNumber = null;
 
-    function showMainScreen() {
-      document.getElementById('mainProfileName').innerText = myProfile.name;
-      document.getElementById('mainProfileAvatar').src = myProfile.avatar;
-      document.getElementById('mainProfileNumberMini').innerText = `#${myProfile.virtualNumber}`;
-      document.getElementById('myStatusAvatar').src = myProfile.avatar;
-      document.getElementById('mainScreen').classList.remove('hidden');
-      renderMyStatusCard();
-      renderContactsList();
-      renderStatusesList();
+    peer.on('open', (id) => {
+      console.log('Conectado a PeerJS con número:', id);
+    });
+
+    // --- 2. GESTIÓN DE MODAL DE PERFIL ---
+    function openProfileModal() {
+      document.getElementById('input-my-name').value = myName;
+      document.getElementById('input-my-avatar').value = myAvatar;
+      document.getElementById('profile-modal').style.display = 'flex';
     }
 
-    // INICIALIZAR EL SERVIDOR DE MI NÚMERO EN PEERJS
-    function initMyPeerServer() {
-      if (peer) return;
-      const peerId = `peer-vnum-${myProfile.virtualNumber}`;
-      peer = new Peer(peerId);
+    function closeProfileModal() {
+      document.getElementById('profile-modal').style.display = 'none';
+    }
 
-      peer.on('open', () => {
-        console.log("Servidor iniciado con número virtual:", myProfile.virtualNumber);
+    function saveProfile() {
+      myName = document.getElementById('input-my-name').value.trim() || `Usuario ${myNumber}`;
+      myAvatar = document.getElementById('input-my-avatar').value.trim();
+
+      localStorage.setItem('my_profile_name', myName);
+      localStorage.setItem('my_profile_avatar', myAvatar);
+
+      updateProfileUI();
+      closeProfileModal();
+      
+      // Opcional: Avisar a los contactos conectados que cambiaste tu perfil
+      broadcastProfileUpdate();
+    }
+
+    function broadcastProfileUpdate() {
+      const profileData = { type: 'PROFILE_UPDATE', name: myName, avatar: myAvatar };
+      Object.values(activeConnections).forEach(conn => {
+        if (conn.open) conn.send(profileData);
       });
+    }
 
-      peer.on('connection', (c) => {
-        conn = c;
-        bindConnEvents();
-      });
+    // --- 3. MANEJO DE CONTACTOS Y LOCALSTORAGE ---
+    function getContacts() {
+      return JSON.parse(localStorage.getItem('chat_contacts')) || [];
+    }
 
-      peer.on('call', (call) => {
-        if (confirm("Llamada entrante. ¿Deseas contestar?")) {
-          navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-            localStream = stream;
-            call.answer(stream);
-            currentCall = call;
-            showCallScreen();
-            call.on('stream', (remoteStream) => {
-              document.getElementById('remoteAudio').srcObject = remoteStream;
-            });
-          }).catch(() => alert("No se pudo acceder al micrófono."));
+    function saveContactAuto(number, name = `Contacto ${number}`, avatar = '') {
+      let contacts = getContacts();
+      const index = contacts.findIndex(c => c.number === number);
+
+      if (index === -1) {
+        contacts.push({ number: number, name: name, avatar: avatar });
+      } else {
+        // Actualizar nombre o avatar si vienen datos nuevos
+        if (name && name !== `Contacto ${number}`) contacts[index].name = name;
+        if (avatar) contacts[index].avatar = avatar;
+      }
+      localStorage.setItem('chat_contacts', JSON.stringify(contacts));
+      renderContactsList();
+    }
+
+    function editContactName(event, number) {
+      event.stopPropagation();
+      const currentName = getContacts().find(c => c.number === number)?.name || '';
+      const newName = prompt("Nuevo nombre para el contacto:", currentName);
+      if (newName && newName.trim()) {
+        let contacts = getContacts();
+        const contact = contacts.find(c => c.number === number);
+        if (contact) {
+          contact.name = newName.trim();
+          localStorage.setItem('chat_contacts', JSON.stringify(contacts));
+          renderContactsList();
+          if (activeChatNumber === number) selectContact(number);
         }
-      });
-    }
-
-    // PESTAÑAS
-    document.getElementById('tabChats').onclick = function() { switchTab(this, 'sectionChats'); };
-    document.getElementById('tabStatuses').onclick = function() { switchTab(this, 'sectionStatuses'); };
-    document.getElementById('tabCalls').onclick = function() { switchTab(this, 'sectionCalls'); };
-
-    function switchTab(tab, sectionId) {
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById('sectionChats').classList.add('hidden');
-      document.getElementById('sectionStatuses').classList.add('hidden');
-      document.getElementById('sectionCalls').classList.add('hidden');
-      document.getElementById(sectionId).classList.remove('hidden');
-    }
-
-    // MOSTRAR INFORMACIÓN Y COPIAR NÚMERO DE MI PERFIL
-    document.getElementById('btnMyProfileInfo').onclick = () => {
-      document.getElementById('modalMyAvatar').src = myProfile.avatar;
-      document.getElementById('modalMyName').innerText = myProfile.name;
-      document.getElementById('modalMyVirtualNum').querySelector('span').innerText = myProfile.virtualNumber;
-      document.getElementById('myProfileModal').classList.remove('hidden');
-    };
-
-    document.getElementById('btnCloseMyProfileModal').onclick = () => {
-      document.getElementById('myProfileModal').classList.add('hidden');
-    };
-
-    document.getElementById('btnCopyVirtualNum').onclick = () => {
-      navigator.clipboard.writeText(myProfile.virtualNumber);
-      alert('Número virtual copiado al portapapeles');
-    };
-
-    // AGREGAR NUEVO CONTACTO PERMANENTE
-    document.getElementById('btnOpenAddContactModal').onclick = () => {
-      document.getElementById('addContactModal').classList.remove('hidden');
-    };
-
-    document.getElementById('btnCloseAddContactModal').onclick = () => {
-      document.getElementById('addContactModal').classList.add('hidden');
-    };
-
-    document.getElementById('btnSaveNewContact').onclick = () => {
-      const name = document.getElementById('newContactNameInput').value.trim();
-      const rawNumber = document.getElementById('newContactNumberInput').value.trim().replace(/\s+/g, '');
-
-      if (!name || !rawNumber) return alert('Por favor llena el nombre y el número virtual.');
-      if (rawNumber === myProfile.virtualNumber) return alert('No puedes agregarte a ti mismo.');
-
-      const defaultAvatar = "https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg";
-
-      savedContacts[rawNumber] = {
-        name: name,
-        number: rawNumber,
-        avatar: savedContacts[rawNumber]?.avatar || defaultAvatar,
-        messages: savedContacts[rawNumber]?.messages || []
-      };
-
-      localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
-      renderContactsList();
-
-      document.getElementById('newContactNameInput').value = '';
-      document.getElementById('newContactNumberInput').value = '';
-      document.getElementById('addContactModal').classList.add('hidden');
-
-      alert(`Contacto "${name}" guardado permanentemente.`);
-    };
-
-    function renderContactsList() {
-      const container = document.getElementById('chatsListContainer');
-      container.innerHTML = '';
-      const keys = Object.keys(savedContacts);
-      if (keys.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#8b949e; margin-top:20px;">Sin contactos. Toca "+ Agregar Contacto"</p>';
-        return;
       }
-      keys.forEach(num => {
-        const c = savedContacts[num];
+    }
+
+    function getHistory(number) {
+      const chats = JSON.parse(localStorage.getItem('chat_history')) || {};
+      return chats[number] || [];
+    }
+
+    function saveMessageHistory(targetNumber, messageObj) {
+      let chats = JSON.parse(localStorage.getItem('chat_history')) || {};
+      if (!chats[targetNumber]) chats[targetNumber] = [];
+      chats[targetNumber].push(messageObj);
+      localStorage.setItem('chat_history', JSON.stringify(chats));
+    }
+
+    // --- 4. RENDERIZAR INTERFAZ ---
+    function renderContactsList() {
+      const listContainer = document.getElementById('contacts-list');
+      listContainer.innerHTML = '';
+      const contacts = getContacts();
+
+      contacts.forEach(c => {
         const item = document.createElement('div');
-        item.className = 'chat-item';
-        const lastMsgObj = c.messages[c.messages.length - 1];
-        const lastMsgText = lastMsgObj ? (lastMsgObj.mediaType ? '📷 Archivo multimedia' : lastMsgObj.content) : 'Sin mensajes';
+        item.className = `contact-item ${activeChatNumber === c.number ? 'active' : ''}`;
+        
+        let avatarHTML = c.avatar ? `<img src="${c.avatar}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">` : `<div class="avatar-img" style="width:40px; height:40px; font-size:16px;">👤</div>`;
 
         item.innerHTML = `
-          <img src="${c.avatar}" class="chat-item-avatar">
-          <div style="flex:1;">
-            <div style="font-weight:bold; font-size:0.9rem;">${c.name}</div>
-            <div style="font-size:0.75rem; color:#8b949e;">#${c.number} • ${lastMsgText}</div>
+          ${avatarHTML}
+          <div class="contact-details">
+            <div class="name">${c.name}</div>
+            <div class="sub">Nº ${c.number}</div>
           </div>
+          <button class="edit-contact-btn" onclick="editContactName(event, '${c.number}')" title="Editar nombre">✏️</button>
         `;
-        item.onclick = () => {
-          openChat(c.number, c.name, c.avatar);
-        };
-        container.appendChild(item);
+        item.onclick = () => selectContact(c.number);
+        listContainer.appendChild(item);
       });
-      lucide.createIcons();
     }
 
-    function openChat(number, name, avatar) {
-      currentChatNumber = number;
-      document.getElementById('activeContactName').innerText = name;
-      document.getElementById('activeContactAvatar').src = avatar;
-
-      document.getElementById('mainScreen').classList.add('hidden');
-      document.getElementById('chatView').classList.remove('hidden');
-
-      const chatBody = document.getElementById('chatBody');
-      chatBody.innerHTML = '';
-      const history = savedContacts[number]?.messages || [];
-      history.forEach(m => {
-        if (m.mediaType) appendMedia(m.content, m.mediaType, m.sender, m.isSticker);
-        else appendMessage(m.content, m.sender);
-      });
-
-      // CONECTAR AUTOMÁTICAMENTE AL PEER DEL CONTACTO MEDIANTE SU NÚMERO
-      connectToContactNumber(number);
+    function selectContact(number) {
+      activeChatNumber = number;
+      document.getElementById('target-number').value = number;
+      
+      const contacts = getContacts();
+      const contact = contacts.find(c => c.number === number);
+      const displayName = contact ? contact.name : number;
+      
+      document.getElementById('chat-header').innerHTML = `Chat con ${displayName} (${number})`;
+      renderContactsList();
+      renderMessages();
     }
 
-    function connectToContactNumber(number) {
-      const statusEl = document.getElementById('activeContactStatus');
-      statusEl.innerText = 'Conectando...';
-      statusEl.style.color = '#8b949e';
+    function renderMessages() {
+      const box = document.getElementById('messages-box');
+      box.innerHTML = '';
+      if (!activeChatNumber) return;
 
-      const targetPeerId = `peer-vnum-${number}`;
-      conn = peer.connect(targetPeerId);
-      bindConnEvents();
+      const history = getHistory(activeChatNumber);
+      history.forEach(msg => {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${msg.sender === 'me' ? 'sent' : 'received'}`;
+        msgDiv.textContent = msg.text;
+        box.appendChild(msgDiv);
+      });
+      box.scrollTop = box.scrollHeight;
     }
 
-    function bindConnEvents() {
-      if (!conn) return;
-
-      conn.on('open', () => {
-        conn.send({ type: 'HANDSHAKE', profile: myProfile, status: myStatus });
-
-        const statusEl = document.getElementById('activeContactStatus');
-        if (statusEl) {
-          statusEl.innerText = 'Conectado';
-          statusEl.style.color = '#2ea043';
-        }
-      });
+    // --- 5. RECEPCIÓN DE CONEXIONES Y MENSAJES ---
+    peer.on('connection', (conn) => {
+      const senderNumber = conn.peer;
+      activeConnections[senderNumber] = conn;
 
       conn.on('data', (data) => {
-        const senderNumber = data.profile?.virtualNumber || currentChatNumber;
-
-        if (data.type === 'HANDSHAKE') {
-          if (savedContacts[senderNumber]) {
-            savedContacts[senderNumber].name = data.profile.name;
-            savedContacts[senderNumber].avatar = data.profile.avatar;
-            savedContacts[senderNumber].status = data.status || null;
-          } else {
-            savedContacts[senderNumber] = {
-              name: data.profile.name,
-              number: senderNumber,
-              avatar: data.profile.avatar,
-              status: data.status || null,
-              messages: []
-            };
-          }
-          localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
-          renderContactsList();
-          renderStatusesList();
-        }
-
-        if (data.type === 'STATUS_UPDATE' && savedContacts[senderNumber]) {
-          savedContacts[senderNumber].status = data.status;
-          localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
-          renderStatusesList();
-        }
-
-        if (data.type === 'STATUS_VIEWED' && myStatus) {
-          if (!myStatus.views) myStatus.views = [];
-          if (!myStatus.views.includes(data.viewerName)) {
-            myStatus.views.push(data.viewerName);
-            localStorage.setItem('my_status', JSON.stringify(myStatus));
-          }
-        }
-
-        if (data.type === 'STATUS_REACTION') {
-          if (myStatus) {
-            if (!myStatus.reactions) myStatus.reactions = [];
-            myStatus.reactions.push({ user: data.userName, reaction: data.reaction });
-            localStorage.setItem('my_status', JSON.stringify(myStatus));
-          }
-          const textMsg = `${data.reaction} Reaccionó a tu estado`;
-          saveMessageToHistory(senderNumber, textMsg, 'other');
-          if (currentChatNumber === senderNumber) appendMessage(textMsg, 'other');
-          playSound('receive');
-        }
-
-        if (data.type === 'STATUS_COMMENT') {
-          if (myStatus) {
-            if (!myStatus.comments) myStatus.comments = [];
-            myStatus.comments.push({ user: data.userName, text: data.text });
-            localStorage.setItem('my_status', JSON.stringify(myStatus));
-          }
-          const textMsg = `💬 Respuesta a tu estado: ${data.text}`;
-          saveMessageToHistory(senderNumber, textMsg, 'other');
-          if (currentChatNumber === senderNumber) appendMessage(textMsg, 'other');
-          playSound('receive');
-        }
-
-        if (data.type === 'TEXT') {
-          saveMessageToHistory(senderNumber, data.text, 'other');
-          if (currentChatNumber === senderNumber) appendMessage(data.text, 'other');
-          playSound('receive');
-        }
-
-        if (data.type === 'MEDIA') {
-          saveMessageToHistory(senderNumber, data.src, 'other', data.isSticker, data.mediaType);
-          if (currentChatNumber === senderNumber) appendMedia(data.src, data.mediaType, 'other', data.isSticker);
-          playSound('receive');
+        if (data.type === 'PROFILE_UPDATE') {
+          // Actualizar datos del perfil del contacto remoto
+          saveContactAuto(senderNumber, data.name, data.avatar);
+          if (activeChatNumber === senderNumber) selectContact(senderNumber);
+        } else {
+          // Mensaje normal de chat
+          saveContactAuto(senderNumber);
+          saveMessageHistory(senderNumber, { sender: senderNumber, text: data.text });
+          if (activeChatNumber === senderNumber) renderMessages();
         }
       });
+    });
 
-      conn.on('close', () => {
-        const statusEl = document.getElementById('activeContactStatus');
-        if (statusEl) {
-          statusEl.innerText = 'Desconectado';
-          statusEl.style.color = '#da3633';
-        }
-      });
-    }
+    // --- 6. ENVÍO DE MENSAJES ---
+    document.getElementById('send-btn').onclick = () => {
+      const targetInput = document.getElementById('target-number');
+      const messageInput = document.getElementById('message-text');
 
-    document.getElementById('btnReconnectChat').onclick = () => {
-      if (currentChatNumber) connectToContactNumber(currentChatNumber);
-    };
+      const targetNumber = targetInput.value.trim();
+      const text = messageInput.value.trim();
 
-    // MI ESTADO
-    function renderMyStatusCard() {
-      const avatarEl = document.getElementById('myStatusAvatar');
-      const titleEl = document.getElementById('myStatusTitle');
-      const subTitleEl = document.getElementById('myStatusSubtitle');
-      const deleteBtn = document.getElementById('btnDeleteMyStatus');
+      if (!targetNumber || !text) return;
 
-      if (myStatus) {
-        avatarEl.style.border = "2px solid var(--accent-glow)";
-        titleEl.innerText = "Mi Estado";
-        subTitleEl.innerText = "Toca para ver tu estado publicado";
-        deleteBtn.classList.remove('hidden');
+      if (targetNumber === myNumber) {
+        alert("No puedes enviarte mensajes a tu propio número.");
+        return;
+      }
 
-        deleteBtn.onclick = (e) => {
-          e.stopPropagation();
-          if (confirm("¿Deseas eliminar tu estado actual?")) {
-            myStatus = null;
-            localStorage.removeItem('my_status');
-            if (conn && conn.open) conn.send({ type: 'STATUS_UPDATE', status: null });
-            renderMyStatusCard();
-          }
-        };
+      saveContactAuto(targetNumber);
+      selectContact(targetNumber);
 
-        document.getElementById('btnMyStatus').onclick = () => {
-          viewStatus(myProfile.name, myProfile.avatar, myStatus, 'ME');
-        };
+      const msgObj = { sender: 'me', text: text };
+      saveMessageHistory(targetNumber, msgObj);
+      renderMessages();
+
+      messageInput.value = '';
+
+      const payload = { type: 'MESSAGE', text: text, senderName: myName };
+
+      if (activeConnections[targetNumber] && activeConnections[targetNumber].open) {
+        activeConnections[targetNumber].send(payload);
       } else {
-        avatarEl.style.border = "none";
-        titleEl.innerText = "Mi Estado";
-        subTitleEl.innerText = "Toca para subir un estado";
-        deleteBtn.classList.add('hidden');
+        const conn = peer.connect(targetNumber);
+        activeConnections[targetNumber] = conn;
 
-        document.getElementById('btnMyStatus').onclick = () => {
-          document.getElementById('uploadStatusModal').classList.remove('hidden');
-        };
-      }
-    }
+        conn.on('open', () => {
+          // Enviar también el perfil actual al conectar por primera vez
+          conn.send({ type: 'PROFILE_UPDATE', name: myName, avatar: myAvatar });
+          conn.send(payload);
+        });
 
-    function renderStatusesList() {
-      const container = document.getElementById('statusesListContainer');
-      container.innerHTML = '';
-      let count = 0;
-      Object.keys(savedContacts).forEach(num => {
-        const c = savedContacts[num];
-        if (c.status) {
-          count++;
-          const item = document.createElement('div');
-          item.className = 'chat-item';
-          item.innerHTML = `
-            <img src="${c.avatar}" class="chat-item-avatar" style="border: 2px solid var(--accent-glow);">
-            <div style="flex:1;">
-              <div style="font-weight:bold; font-size:0.9rem;">${c.name}</div>
-              <div style="font-size:0.75rem; color:#8b949e;">Ver estado</div>
-            </div>
-          `;
-          item.onclick = () => {
-            currentViewingStatusPeerId = num;
-            if (conn && conn.open) {
-              conn.send({ type: 'STATUS_VIEWED', viewerName: myProfile.name });
-            }
-            viewStatus(c.name, c.avatar, c.status, num);
-          };
-          container.appendChild(item);
-        }
-      });
-      if (count === 0) container.innerHTML = '<p style="text-align:center; color:#8b949e;">No hay estados recientes</p>';
-    }
-
-    // SUBIR Y VER ESTADOS
-    let tempStatusMedia = null, tempStatusType = 'text';
-
-    document.getElementById('btnCloseStatusModal').onclick = () => document.getElementById('uploadStatusModal').classList.add('hidden');
-
-    document.getElementById('statusMediaInput').onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        tempStatusType = file.type.startsWith('video') ? 'video' : 'image';
-        processFile(file, (data) => {
-          tempStatusMedia = data;
-          document.getElementById('statusMediaPreview').innerText = `Archivo cargado (${tempStatusType})`;
+        conn.on('error', (err) => {
+          console.error("Error al enviar:", err);
+          alert("No se pudo conectar con el usuario. Asegúrate de que esté en línea.");
         });
       }
     };
 
-    document.getElementById('btnPublishStatus').onclick = () => {
-      const text = document.getElementById('statusTextInput').value.trim();
-      myStatus = { 
-        text, 
-        media: tempStatusMedia, 
-        type: tempStatusType,
-        views: [],
-        reactions: [],
-        comments: []
-      };
-      
-      localStorage.setItem('my_status', JSON.stringify(myStatus));
-      if (conn && conn.open) conn.send({ type: 'STATUS_UPDATE', status: myStatus });
-      
-      alert('Estado publicado');
-      document.getElementById('uploadStatusModal').classList.add('hidden');
-      renderMyStatusCard();
-      tempStatusMedia = null;
-    };
-
-    function viewStatus(name, avatar, status, ownerId) {
-      document.getElementById('statusUserName').innerText = name;
-      document.getElementById('statusUserAvatar').src = avatar;
-      const area = document.getElementById('statusContentArea');
-      area.innerHTML = '';
-
-      if (status.type === 'image' && status.media) area.innerHTML = `<img src="${status.media}">`;
-      else if (status.type === 'video' && status.media) area.innerHTML = `<video src="${status.media}" controls autoplay></video>`;
-      else area.innerHTML = `<h2 style="color:#fff; text-align:center; padding: 20px;">${status.text || ''}</h2>`;
-
-      const myAnalyticsBtn = document.getElementById('myStatusAnalyticsBtnArea');
-      const otherInteractionArea = document.getElementById('otherStatusInteractionArea');
-      const analyticsDrawer = document.getElementById('statusAnalyticsDrawer');
-
-      analyticsDrawer.classList.add('hidden');
-
-      if (ownerId === 'ME') {
-        myAnalyticsBtn.classList.remove('hidden');
-        otherInteractionArea.classList.add('hidden');
-      } else {
-        myAnalyticsBtn.classList.add('hidden');
-        otherInteractionArea.classList.remove('hidden');
-      }
-
-      document.getElementById('statusViewContainer').classList.remove('hidden');
-    }
-
-    document.getElementById('btnToggleStatusAnalytics').onclick = () => {
-      const drawer = document.getElementById('statusAnalyticsDrawer');
-      const list = document.getElementById('statusAnalyticsList');
-      drawer.classList.toggle('hidden');
-      list.innerHTML = '';
-
-      if (myStatus) {
-        const views = myStatus.views || [];
-        const reactions = myStatus.reactions || [];
-        const comments = myStatus.comments || [];
-
-        list.innerHTML += `<div><strong>👁️ Visto por (${views.length}):</strong> ${views.join(', ') || 'Nadie aún'}</div>`;
-        let reactText = reactions.map(r => `${r.user}: ${r.reaction}`).join('<br>') || 'Sin reacciones';
-        list.innerHTML += `<div><strong>❤️ Reacciones:</strong><br>${reactText}</div>`;
-        let commText = comments.map(c => `${c.user}: ${c.text}`).join('<br>') || 'Sin comentarios';
-        list.innerHTML += `<div><strong>💬 Comentarios:</strong><br>${commText}</div>`;
-      }
-    };
-
-    document.getElementById('btnCloseStatusView').onclick = () => document.getElementById('statusViewContainer').classList.add('hidden');
-
-    document.getElementById('btnHeartStatus').onclick = () => {
-      if (conn && conn.open && currentViewingStatusPeerId) {
-        conn.send({ type: 'STATUS_REACTION', userName: myProfile.name, reaction: '❤️' });
-        saveMessageToHistory(currentViewingStatusPeerId, '❤️ Reaccionó a tu estado', 'me');
-        alert('Reacción enviada al chat privado');
-      }
-    };
-
-    document.getElementById('btnSendStatusComment').onclick = () => {
-      const input = document.getElementById('statusCommentInput');
-      const text = input.value.trim();
-      if (text && conn && conn.open && currentViewingStatusPeerId) {
-        conn.send({ type: 'STATUS_COMMENT', userName: myProfile.name, text: text });
-        saveMessageToHistory(currentViewingStatusPeerId, `💬 Respuesta a tu estado: ${text}`, 'me');
-        input.value = '';
-        alert('Comentario enviado al chat privado');
-      }
-    };
-
-    // LLAMADAS EN EL CHAT
-    document.getElementById('btnStartCall').onclick = () => {
-      if (!conn || !conn.open) {
-        return alert("Debes estar conectado con tu contacto primero. Toca el botón de reconectar.");
-      }
-      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-        localStream = stream;
-        currentCall = peer.call(conn.peer, stream);
-        showCallScreen();
-        currentCall.on('stream', (remoteStream) => {
-          document.getElementById('remoteAudio').srcObject = remoteStream;
-        });
-      }).catch(() => alert("No se pudo acceder al micrófono para realizar la llamada."));
-    };
-
-    function showCallScreen() {
-      document.getElementById('callName').innerText = savedContacts[currentChatNumber]?.name || "Contacto";
-      document.getElementById('callAvatar').src = savedContacts[currentChatNumber]?.avatar || "";
-      document.getElementById('callScreen').classList.remove('hidden');
-    }
-
-    document.getElementById('btnEndCall').onclick = () => {
-      if (currentCall) currentCall.close();
-      if (localStream) localStream.getTracks().forEach(t => t.stop());
-      document.getElementById('callScreen').classList.add('hidden');
-    };
-
-    let isMuted = false;
-    document.getElementById('btnMuteCall').onclick = () => {
-      if (localStream) {
-        isMuted = !isMuted;
-        localStream.getAudioTracks()[0].enabled = !isMuted;
-        document.getElementById('btnMuteCall').style.background = isMuted ? '#da3633' : 'var(--card-bg)';
-      }
-    };
-
-    document.getElementById('btnLeaveChat').onclick = () => {
-      document.getElementById('chatView').classList.add('hidden');
-      showMainScreen();
-    };
-
-    // ENVÍO DE MENSAJES Y ARCHIVOS
-    document.getElementById('btnSend').onclick = sendText;
-    document.getElementById('messageInput').onkeypress = (e) => { if(e.key === 'Enter') sendText(); };
-
-    function sendText() {
-      const input = document.getElementById('messageInput');
-      const text = input.value.trim();
-      if (!text) return;
-      if (conn && conn.open) conn.send({ type: 'TEXT', text });
-      appendMessage(text, 'me');
-      saveMessageToHistory(currentChatNumber, text, 'me');
-      input.value = '';
-      playSound('send');
-    }
-
-    function appendMessage(text, sender) {
-      const chatBody = document.getElementById('chatBody');
-      const msg = document.createElement('div');
-      msg.className = `msg ${sender}`;
-      msg.innerText = text;
-      chatBody.appendChild(msg);
-      chatBody.scrollTop = chatBody.scrollHeight;
-    }
-
-    document.getElementById('btnPlus').onclick = () => {
-      document.getElementById('plusPanel').classList.toggle('hidden');
-      document.getElementById('emojiDrawer').classList.add('hidden');
-      document.getElementById('stickerDrawer').classList.add('hidden');
-    };
-
-    document.getElementById('imageInput').onchange = (e) => handleMediaSend(e.target.files[0], 'image', false);
-    document.getElementById('videoInput').onchange = (e) => handleMediaSend(e.target.files[0], 'video', false);
-    
-    document.getElementById('stickerInput').onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        processFile(file, (src) => {
-          if (!savedStickers.includes(src)) {
-            savedStickers.push(src);
-            localStorage.setItem('saved_stickers', JSON.stringify(savedStickers));
-          }
-          if (conn && conn.open) conn.send({ type: 'MEDIA', src, mediaType: 'image', isSticker: true });
-          appendMedia(src, 'image', 'me', true);
-          saveMessageToHistory(currentChatNumber, src, 'me', true, 'image');
-          playSound('send');
-          document.getElementById('plusPanel').classList.add('hidden');
-        });
-      }
-    };
-
-    function handleMediaSend(file, type, isSticker = false) {
-      if (file) {
-        processFile(file, (src) => {
-          if (conn && conn.open) conn.send({ type: 'MEDIA', src, mediaType: type, isSticker });
-          appendMedia(src, type, 'me', isSticker);
-          saveMessageToHistory(currentChatNumber, src, 'me', isSticker, type);
-          playSound('send');
-          document.getElementById('plusPanel').classList.add('hidden');
-        });
-      }
-    }
-
-    function appendMedia(src, type, sender, isSticker = false) {
-      const chatBody = document.getElementById('chatBody');
-      const msg = document.createElement('div');
-      
-      if (isSticker) {
-        msg.className = `msg ${sender} msg-sticker`;
-        const img = document.createElement('img');
-        img.src = src;
-        img.title = "Toca para guardar sticker";
-        img.onclick = () => {
-          if (confirm("¿Deseas guardar este sticker en tu colección?")) {
-            if (!savedStickers.includes(src)) {
-              savedStickers.push(src);
-              localStorage.setItem('saved_stickers', JSON.stringify(savedStickers));
-              alert("Sticker guardado exitosamente.");
-            } else {
-              alert("Este sticker ya está en tu colección.");
-            }
-          }
-        };
-        msg.appendChild(img);
-      } else {
-        msg.className = `msg ${sender} msg-media`;
-        if (type === 'image') msg.innerHTML = `<img src="${src}">`;
-        else if (type === 'video') msg.innerHTML = `<video src="${src}" controls style="width:100%; border-radius:12px;"></video>`;
-      }
-
-      chatBody.appendChild(msg);
-      chatBody.scrollTop = chatBody.scrollHeight;
-    }
-
-    // PANEL DE EMOJIS Y STICKERS
-    document.getElementById('btnToggleEmojis').onclick = () => {
-      const drawer = document.getElementById('emojiDrawer');
-      drawer.innerHTML = '';
-      const emojiList = [
-        '😀','😃','😄','😁','😆','😅','😂','🤣','🥲','🥹',
-        '😊','😇','🙂','🙃','😉','😌','😍','🥰','😘','😗',
-        '😋','😛','😜','🤪','😝','🤑','🤗','🫣','🤫','🤔',
-        '🫡','🤐','🤨','😐','😑','😶','🫥','😏','😒','🙄',
-        '😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕',
-        '🥳','🥸','😎','🤓','🧐','👺','💀','☠️','👽','👾',
-        '🤖','🔥','❤️','💥','✨','🎉','👍','👎','👏','🙌'
-      ];
-
-      emojiList.forEach(emoji => {
-        const span = document.createElement('span');
-        span.className = 'emoji-item';
-        span.innerText = emoji;
-        span.onclick = () => document.getElementById('messageInput').value += emoji;
-        drawer.appendChild(span);
-      });
-      drawer.classList.remove('hidden');
-      document.getElementById('plusPanel').classList.add('hidden');
-    };
-
-    document.getElementById('btnToggleStickers').onclick = () => {
-      const drawer = document.getElementById('stickerDrawer');
-      drawer.innerHTML = '';
-      if(savedStickers.length === 0) drawer.innerHTML = '<p style="font-size:0.8rem; color:#8b949e;">Sin stickers guardados</p>';
-      savedStickers.forEach(src => {
-        const img = document.createElement('img');
-        img.className = 'sticker-thumb';
-        img.src = src;
-        img.onclick = () => {
-          if (conn && conn.open) conn.send({ type: 'MEDIA', src, mediaType: 'image', isSticker: true });
-          appendMedia(src, 'image', 'me', true);
-          saveMessageToHistory(currentChatNumber, src, 'me', true, 'image');
-          playSound('send');
-        };
-        drawer.appendChild(img);
-      });
-      drawer.classList.remove('hidden');
-      document.getElementById('plusPanel').classList.add('hidden');
-    };
-
-    function saveMessageToHistory(number, content, sender, isSticker = false, mediaType = null) {
-      if (!number) return;
-      if (!savedContacts[number]) {
-        savedContacts[number] = { name: "Contacto", number: number, avatar: "https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg", messages: [] };
-      }
-      savedContacts[number].messages.push({ content, sender, isSticker, mediaType });
-      localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
-    }
-
-    // OPCIONES Y ELIMINAR CONTACTO
-    document.getElementById('contactHeaderInfo').onclick = () => {
-      if (!currentChatNumber || !savedContacts[currentChatNumber]) return;
-      document.getElementById('modalContactName').innerText = savedContacts[currentChatNumber].name;
-      document.getElementById('modalContactNumber').innerText = `#${savedContacts[currentChatNumber].number}`;
-      document.getElementById('modalContactAvatar').src = savedContacts[currentChatNumber].avatar;
-      document.getElementById('contactModal').classList.remove('hidden');
-    };
-
-    document.getElementById('btnCloseModal').onclick = () => document.getElementById('contactModal').classList.add('hidden');
-
-    document.getElementById('btnClearChatHistory').onclick = () => {
-      if (savedContacts[currentChatNumber]) {
-        savedContacts[currentChatNumber].messages = [];
-        localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
-      }
-      document.getElementById('chatBody').innerHTML = '';
-      document.getElementById('contactModal').classList.add('hidden');
-    };
-
-    document.getElementById('btnBlockContact').onclick = () => {
-      delete savedContacts[currentChatNumber];
-      localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
-      document.getElementById('contactModal').classList.add('hidden');
-      document.getElementById('chatView').classList.add('hidden');
-      showMainScreen();
-    };
+    renderContactsList();
   </script>
 </body>
 </html>
