@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>PeerChat Pro</title>
+  <title>PeerChat Pro - Número Virtual</title>
   
   <link rel="icon" type="image/jpeg" href="https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg">
   <link rel="apple-touch-icon" href="https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg">
@@ -161,7 +161,7 @@
     .main-nav {
       display: flex;
       border-bottom: 1px solid var(--border);
-      margin-top: 35px;
+      margin-top: 15px;
       background: var(--card-bg);
       border-radius: 12px;
       padding: 4px;
@@ -182,8 +182,14 @@
 
     .chats-header {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 15px 0 10px 0;
+      padding: 35px 0 10px 0;
     }
+
+    .user-profile-bar {
+      display: flex; align-items: center; gap: 10px; cursor: pointer;
+      padding: 4px 8px; border-radius: 12px; transition: background 0.2s;
+    }
+    .user-profile-bar:hover { background: var(--card-bg); }
 
     .chat-item {
       display: flex; align-items: center; gap: 12px;
@@ -244,7 +250,6 @@
       margin-top: 5px;
     }
 
-    /* ESTILO PEQUEÑO TIPO WHATSAPP PARA STICKERS */
     .msg-sticker {
       background: transparent !important;
       padding: 0 !important;
@@ -309,7 +314,7 @@
       position: absolute; top: 0; left: 0; right: 0; bottom: 0;
       background: #050508; z-index: 300;
       display: flex; flex-direction: column;
-      align-items: center; justify-around: space-around;
+      align-items: center; justify-content: space-around;
       padding: 40px 20px;
     }
 
@@ -372,6 +377,20 @@
       display: flex; align-items: center; justify-content: center;
       padding: 20px;
     }
+
+    .virtual-num-badge {
+      background: #1f2937;
+      border: 1px solid var(--accent);
+      color: var(--accent-glow);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 5px 0;
+    }
   </style>
 </head>
 <body>
@@ -387,8 +406,8 @@
     <div class="screen" id="profileScreen">
       <div class="card">
         <img src="https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg" alt="Logo" class="app-logo">
-        <h2>Perfil Inicial</h2>
-        <p style="font-size: 0.8rem; color: #8b949e;">Configura tu foto y nombre para chatear</p>
+        <h2>Crear Perfil</h2>
+        <p style="font-size: 0.8rem; color: #8b949e;">Configura tu foto y nombre. Se generará un número virtual para ti.</p>
         
         <label class="avatar-upload">
           <i data-lucide="camera" id="cameraIcon"></i>
@@ -396,9 +415,8 @@
           <input type="file" id="profilePicInput" accept="image/*" style="display: none;">
         </label>
 
-        <input type="text" id="usernameInput" placeholder="Nombre de Usuario" maxlength="15">
+        <input type="text" id="usernameInput" placeholder="Tu Nombre de Usuario" maxlength="15">
         <button class="btn" id="btnSaveProfile"><i data-lucide="check"></i> Continuar</button>
-        <button class="btn btn-secondary" id="btnQuickReconnect"><i data-lucide="refresh-cw"></i> Reconectar Último Chat</button>
       </div>
     </div>
 
@@ -406,11 +424,14 @@
     <div class="screen hidden" id="mainScreen">
       
       <div class="chats-header">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <img id="mainProfileAvatar" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
-          <h3 id="mainProfileName">Chats</h3>
+        <div class="user-profile-bar" id="btnMyProfileInfo">
+          <img id="mainProfileAvatar" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1px solid var(--accent-glow);">
+          <div>
+            <h3 id="mainProfileName" style="font-size:0.95rem; line-height:1.1;">Nombre</h3>
+            <span style="font-size:0.7rem; color:var(--accent-glow); font-family:monospace;" id="mainProfileNumberMini">Número Virtual</span>
+          </div>
         </div>
-        <button class="btn" id="btnNewChat" style="padding: 6px 12px; font-size: 0.8rem;"><i data-lucide="plus"></i> Nuevo Chat</button>
+        <button class="btn" id="btnOpenAddContactModal" style="padding: 6px 12px; font-size: 0.8rem;"><i data-lucide="user-plus"></i> Agregar Contacto</button>
       </div>
 
       <div class="main-nav">
@@ -424,7 +445,6 @@
       </div>
 
       <div id="sectionStatuses" class="hidden" style="margin-top: 15px;">
-        <!-- CONTENEDOR MI ESTADO -->
         <div class="chat-item" id="btnMyStatus">
           <img id="myStatusAvatar" class="chat-item-avatar">
           <div style="flex:1;">
@@ -446,17 +466,32 @@
 
     </div>
 
-    <!-- 3. CONEXIÓN -->
-    <div class="screen hidden" id="connectScreen">
-      <div class="card">
-        <button class="icon-btn" id="btnBackToMain" style="align-self: flex-start;"><i data-lucide="arrow-left"></i> Volver</button>
-        <h2>Conectar Dispositivos</h2>
-        <p style="font-size: 0.8rem; color: #8b949e;">Genera un código o ingresa el del otro dispositivo</p>
+    <!-- MODAL MI PERFIL Y MI NÚMERO VIRTUAL -->
+    <div class="modal hidden" id="myProfileModal">
+      <div class="card" style="max-width: 300px;">
+        <img id="modalMyAvatar" style="width: 70px; height: 70px; border-radius: 50%; margin: 0 auto; object-fit: cover; border: 2px solid var(--accent-glow);">
+        <h3 id="modalMyName">Mi Perfil</h3>
+        <p style="font-size: 0.75rem; color: #8b949e;">Tu Número Virtual Único:</p>
+        <div class="virtual-num-badge" id="modalMyVirtualNum">
+          <i data-lucide="phone"></i> <span>+52 000 000 000</span>
+        </div>
+        <p style="font-size: 0.7rem; color: #8b949e;">Comparte este número con tus contactos para que te agreguen.</p>
+        <button class="btn btn-secondary" id="btnCopyVirtualNum"><i data-lucide="copy"></i> Copiar Número</button>
+        <button class="btn" style="background: transparent;" id="btnCloseMyProfileModal">Cerrar</button>
+      </div>
+    </div>
+
+    <!-- MODAL AGREGAR CONTACTO -->
+    <div class="modal hidden" id="addContactModal">
+      <div class="card" style="max-width: 320px;">
+        <h3 style="display:flex; align-items:center; justify-content:center; gap:8px;"><i data-lucide="user-plus"></i> Nuevo Contacto</h3>
+        <p style="font-size: 0.75rem; color: #8b949e;">Ingresa los datos para guardar al contacto de forma permanente.</p>
         
-        <button class="btn" id="btnGenCode"><i data-lucide="qr-code"></i> Generar Código</button>
-        <hr style="border-color: var(--border);">
-        <input type="text" id="joinCodeInput" placeholder="Código (Ej: 5821)" maxlength="10">
-        <button class="btn btn-secondary" id="btnJoin"><i data-lucide="link"></i> Conectar / Reconectar Chat</button>
+        <input type="text" id="newContactNameInput" placeholder="Nombre del contacto (Ej: María)">
+        <input type="text" id="newContactNumberInput" placeholder="Número Virtual (Ej: 555849201)" maxlength="15">
+        
+        <button class="btn" id="btnSaveNewContact"><i data-lucide="save"></i> Guardar Contacto</button>
+        <button class="btn" style="background: transparent;" id="btnCloseAddContactModal">Cancelar</button>
       </div>
     </div>
 
@@ -469,7 +504,7 @@
             <img id="activeContactAvatar" class="chat-item-avatar">
             <div>
               <span id="activeContactName" style="font-weight: bold; font-size: 0.9rem;">Contacto</span>
-              <p id="activeContactStatus" style="font-size: 0.7rem; color: #2ea043;">Conectado</p>
+              <p id="activeContactStatus" style="font-size: 0.7rem; color: #2ea043;">Conectando...</p>
             </div>
           </div>
         </div>
@@ -551,32 +586,30 @@
 
       <div class="status-content" id="statusContentArea"></div>
 
-      <!-- BOTÓN ANALÍTICAS MI ESTADO -->
       <div id="myStatusAnalyticsBtnArea" class="hidden" style="text-align:center; z-index:10; margin-bottom: 10px;">
         <button class="btn btn-secondary" id="btnToggleStatusAnalytics" style="padding: 6px 14px; font-size: 0.8rem; margin: 0 auto;"><i data-lucide="eye"></i> Ver Vistas y Reacciones</button>
       </div>
 
-      <!-- PANEL DE COMENTARIOS/REACCIÓN DE OTROS -->
       <div id="otherStatusInteractionArea" style="display:flex; gap:8px; align-items:center; z-index:10;">
         <input type="text" id="statusCommentInput" placeholder="Responder..." style="flex:1;">
         <button class="icon-btn" id="btnHeartStatus" style="color:#ff4d6d;"><i data-lucide="heart"></i></button>
         <button class="btn" id="btnSendStatusComment" style="padding:8px 12px;"><i data-lucide="send"></i></button>
       </div>
 
-      <!-- DRAWER DE ANALÍTICAS DE MI ESTADO -->
       <div class="status-analytics-drawer hidden" id="statusAnalyticsDrawer">
         <h4 style="font-size:0.85rem; color:var(--accent-glow); margin-bottom:10px;">VISTAS Y REACCIONES</h4>
         <div id="statusAnalyticsList" style="font-size:0.8rem; display:flex; flex-direction:column; gap:8px;"></div>
       </div>
     </div>
 
-    <!-- MODAL CONTACTO -->
+    <!-- MODAL CONTACTO OPCIONES -->
     <div class="modal hidden" id="contactModal">
       <div class="card" style="max-width: 280px;">
         <img id="modalContactAvatar" style="width: 60px; height: 60px; border-radius: 50%; margin: 0 auto; object-fit: cover;">
         <h3 id="modalContactName">Contacto</h3>
+        <p style="font-size: 0.75rem; color: var(--accent-glow); font-family: monospace;" id="modalContactNumber">Número</p>
         <button class="btn" style="background: #21262d; border: 1px solid var(--border);" id="btnClearChatHistory"><i data-lucide="trash-2"></i> Borrar Chat</button>
-        <button class="btn" style="background: #da3633;" id="btnBlockContact"><i data-lucide="shield-alert"></i> Eliminar</button>
+        <button class="btn" style="background: #da3633;" id="btnBlockContact"><i data-lucide="shield-alert"></i> Eliminar Contacto</button>
         <button class="btn" style="background: transparent;" id="btnCloseModal">Cerrar</button>
       </div>
     </div>
@@ -585,6 +618,12 @@
 
   <script>
     lucide.createIcons();
+
+    // GENERAR NÚMERO VIRTUAL ALEATORIO TIPO "+52 555 XXX XXX"
+    function generateVirtualNumber() {
+      const num = Math.floor(100000000 + Math.random() * 900000000);
+      return `${num}`;
+    }
 
     // MODO DISPOSITIVO
     document.getElementById('btnModeAndroid').onclick = function() {
@@ -599,7 +638,6 @@
       document.getElementById('btnModeAndroid').classList.remove('active');
     };
 
-    // SONIDO
     function playSound(type) {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -613,21 +651,27 @@
       } catch(e) {}
     }
 
-    // DATOS LOCALES
-    let myProfile = JSON.parse(localStorage.getItem('user_profile') || '{"name":"","avatar":""}');
-    let myStatus = JSON.parse(localStorage.getItem('my_status') || 'null'); // Mi Estado
+    // DATOS LOCALES Y PERFIL
+    let myProfile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+    if (!myProfile.virtualNumber) {
+      myProfile.virtualNumber = generateVirtualNumber();
+    }
+
+    let myStatus = JSON.parse(localStorage.getItem('my_status') || 'null');
     let savedContacts = JSON.parse(localStorage.getItem('saved_contacts') || '{}');
     let savedStickers = JSON.parse(localStorage.getItem('saved_stickers') || '[]');
-    let lastChatPeerId = localStorage.getItem('last_chat_peer_id') || '';
     
     let peer = null;
     let conn = null;
     let currentCall = null;
     let localStream = null;
-    let currentChatId = null;
+    let currentChatNumber = null;
     let currentViewingStatusPeerId = null;
 
-    if (myProfile.name && myProfile.avatar) showMainScreen();
+    if (myProfile.name && myProfile.avatar) {
+      showMainScreen();
+      initMyPeerServer();
+    }
 
     function processFile(file, callback) {
       const reader = new FileReader();
@@ -635,7 +679,7 @@
       reader.readAsDataURL(file);
     }
 
-    // PERFIL
+    // CREACIÓN Y GUARDADO DE PERFIL
     document.getElementById('profilePicInput').onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -655,21 +699,48 @@
       localStorage.setItem('user_profile', JSON.stringify(myProfile));
       document.getElementById('profileScreen').classList.add('hidden');
       showMainScreen();
-    };
-
-    document.getElementById('btnQuickReconnect').onclick = () => {
-      if (!lastChatPeerId) return alert('No hay ningún chat guardado para reconectar.');
-      reconnectToPeer(lastChatPeerId);
+      initMyPeerServer();
     };
 
     function showMainScreen() {
       document.getElementById('mainProfileName').innerText = myProfile.name;
       document.getElementById('mainProfileAvatar').src = myProfile.avatar;
+      document.getElementById('mainProfileNumberMini').innerText = `#${myProfile.virtualNumber}`;
       document.getElementById('myStatusAvatar').src = myProfile.avatar;
       document.getElementById('mainScreen').classList.remove('hidden');
       renderMyStatusCard();
       renderContactsList();
       renderStatusesList();
+    }
+
+    // INICIALIZAR EL SERVIDOR DE MI NÚMERO EN PEERJS
+    function initMyPeerServer() {
+      if (peer) return;
+      const peerId = `peer-vnum-${myProfile.virtualNumber}`;
+      peer = new Peer(peerId);
+
+      peer.on('open', () => {
+        console.log("Servidor iniciado con número virtual:", myProfile.virtualNumber);
+      });
+
+      peer.on('connection', (c) => {
+        conn = c;
+        bindConnEvents();
+      });
+
+      peer.on('call', (call) => {
+        if (confirm("Llamada entrante. ¿Deseas contestar?")) {
+          navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+            localStream = stream;
+            call.answer(stream);
+            currentCall = call;
+            showCallScreen();
+            call.on('stream', (remoteStream) => {
+              document.getElementById('remoteAudio').srcObject = remoteStream;
+            });
+          }).catch(() => alert("No se pudo acceder al micrófono."));
+        }
+      });
     }
 
     // PESTAÑAS
@@ -686,38 +757,218 @@
       document.getElementById(sectionId).classList.remove('hidden');
     }
 
+    // MOSTRAR INFORMACIÓN Y COPIAR NÚMERO DE MI PERFIL
+    document.getElementById('btnMyProfileInfo').onclick = () => {
+      document.getElementById('modalMyAvatar').src = myProfile.avatar;
+      document.getElementById('modalMyName').innerText = myProfile.name;
+      document.getElementById('modalMyVirtualNum').querySelector('span').innerText = myProfile.virtualNumber;
+      document.getElementById('myProfileModal').classList.remove('hidden');
+    };
+
+    document.getElementById('btnCloseMyProfileModal').onclick = () => {
+      document.getElementById('myProfileModal').classList.add('hidden');
+    };
+
+    document.getElementById('btnCopyVirtualNum').onclick = () => {
+      navigator.clipboard.writeText(myProfile.virtualNumber);
+      alert('Número virtual copiado al portapapeles');
+    };
+
+    // AGREGAR NUEVO CONTACTO PERMANENTE
+    document.getElementById('btnOpenAddContactModal').onclick = () => {
+      document.getElementById('addContactModal').classList.remove('hidden');
+    };
+
+    document.getElementById('btnCloseAddContactModal').onclick = () => {
+      document.getElementById('addContactModal').classList.add('hidden');
+    };
+
+    document.getElementById('btnSaveNewContact').onclick = () => {
+      const name = document.getElementById('newContactNameInput').value.trim();
+      const rawNumber = document.getElementById('newContactNumberInput').value.trim().replace(/\s+/g, '');
+
+      if (!name || !rawNumber) return alert('Por favor llena el nombre y el número virtual.');
+      if (rawNumber === myProfile.virtualNumber) return alert('No puedes agregarte a ti mismo.');
+
+      const defaultAvatar = "https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg";
+
+      savedContacts[rawNumber] = {
+        name: name,
+        number: rawNumber,
+        avatar: savedContacts[rawNumber]?.avatar || defaultAvatar,
+        messages: savedContacts[rawNumber]?.messages || []
+      };
+
+      localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
+      renderContactsList();
+
+      document.getElementById('newContactNameInput').value = '';
+      document.getElementById('newContactNumberInput').value = '';
+      document.getElementById('addContactModal').classList.add('hidden');
+
+      alert(`Contacto "${name}" guardado permanentemente.`);
+    };
+
     function renderContactsList() {
       const container = document.getElementById('chatsListContainer');
       container.innerHTML = '';
       const keys = Object.keys(savedContacts);
       if (keys.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#8b949e; margin-top:20px;">Sin chats. Toca "+ Nuevo Chat"</p>';
+        container.innerHTML = '<p style="text-align:center; color:#8b949e; margin-top:20px;">Sin contactos. Toca "+ Agregar Contacto"</p>';
         return;
       }
-      keys.forEach(id => {
-        const c = savedContacts[id];
+      keys.forEach(num => {
+        const c = savedContacts[num];
         const item = document.createElement('div');
         item.className = 'chat-item';
+        const lastMsgObj = c.messages[c.messages.length - 1];
+        const lastMsgText = lastMsgObj ? (lastMsgObj.mediaType ? '📷 Archivo multimedia' : lastMsgObj.content) : 'Sin mensajes';
+
         item.innerHTML = `
           <img src="${c.avatar}" class="chat-item-avatar">
           <div style="flex:1;">
             <div style="font-weight:bold; font-size:0.9rem;">${c.name}</div>
-            <div style="font-size:0.75rem; color:#8b949e;">Abrir historial o reconectar</div>
+            <div style="font-size:0.75rem; color:#8b949e;">#${c.number} • ${lastMsgText}</div>
           </div>
-          <button class="btn btn-secondary" style="padding:6px 10px; font-size:0.75rem;"><i data-lucide="refresh-cw"></i> Reconectar</button>
         `;
-        item.onclick = (e) => {
-          openChat(id, c.name, c.avatar);
-          if (e.target.closest('button')) {
-            reconnectToPeer(id);
-          }
+        item.onclick = () => {
+          openChat(c.number, c.name, c.avatar);
         };
         container.appendChild(item);
       });
       lucide.createIcons();
     }
 
-    // MI ESTADO: MOSTRAR CÓMO QUEDA AL SUBIR
+    function openChat(number, name, avatar) {
+      currentChatNumber = number;
+      document.getElementById('activeContactName').innerText = name;
+      document.getElementById('activeContactAvatar').src = avatar;
+
+      document.getElementById('mainScreen').classList.add('hidden');
+      document.getElementById('chatView').classList.remove('hidden');
+
+      const chatBody = document.getElementById('chatBody');
+      chatBody.innerHTML = '';
+      const history = savedContacts[number]?.messages || [];
+      history.forEach(m => {
+        if (m.mediaType) appendMedia(m.content, m.mediaType, m.sender, m.isSticker);
+        else appendMessage(m.content, m.sender);
+      });
+
+      // CONECTAR AUTOMÁTICAMENTE AL PEER DEL CONTACTO MEDIANTE SU NÚMERO
+      connectToContactNumber(number);
+    }
+
+    function connectToContactNumber(number) {
+      const statusEl = document.getElementById('activeContactStatus');
+      statusEl.innerText = 'Conectando...';
+      statusEl.style.color = '#8b949e';
+
+      const targetPeerId = `peer-vnum-${number}`;
+      conn = peer.connect(targetPeerId);
+      bindConnEvents();
+    }
+
+    function bindConnEvents() {
+      if (!conn) return;
+
+      conn.on('open', () => {
+        conn.send({ type: 'HANDSHAKE', profile: myProfile, status: myStatus });
+
+        const statusEl = document.getElementById('activeContactStatus');
+        if (statusEl) {
+          statusEl.innerText = 'Conectado';
+          statusEl.style.color = '#2ea043';
+        }
+      });
+
+      conn.on('data', (data) => {
+        const senderNumber = data.profile?.virtualNumber || currentChatNumber;
+
+        if (data.type === 'HANDSHAKE') {
+          if (savedContacts[senderNumber]) {
+            savedContacts[senderNumber].name = data.profile.name;
+            savedContacts[senderNumber].avatar = data.profile.avatar;
+            savedContacts[senderNumber].status = data.status || null;
+          } else {
+            savedContacts[senderNumber] = {
+              name: data.profile.name,
+              number: senderNumber,
+              avatar: data.profile.avatar,
+              status: data.status || null,
+              messages: []
+            };
+          }
+          localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
+          renderContactsList();
+          renderStatusesList();
+        }
+
+        if (data.type === 'STATUS_UPDATE' && savedContacts[senderNumber]) {
+          savedContacts[senderNumber].status = data.status;
+          localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
+          renderStatusesList();
+        }
+
+        if (data.type === 'STATUS_VIEWED' && myStatus) {
+          if (!myStatus.views) myStatus.views = [];
+          if (!myStatus.views.includes(data.viewerName)) {
+            myStatus.views.push(data.viewerName);
+            localStorage.setItem('my_status', JSON.stringify(myStatus));
+          }
+        }
+
+        if (data.type === 'STATUS_REACTION') {
+          if (myStatus) {
+            if (!myStatus.reactions) myStatus.reactions = [];
+            myStatus.reactions.push({ user: data.userName, reaction: data.reaction });
+            localStorage.setItem('my_status', JSON.stringify(myStatus));
+          }
+          const textMsg = `${data.reaction} Reaccionó a tu estado`;
+          saveMessageToHistory(senderNumber, textMsg, 'other');
+          if (currentChatNumber === senderNumber) appendMessage(textMsg, 'other');
+          playSound('receive');
+        }
+
+        if (data.type === 'STATUS_COMMENT') {
+          if (myStatus) {
+            if (!myStatus.comments) myStatus.comments = [];
+            myStatus.comments.push({ user: data.userName, text: data.text });
+            localStorage.setItem('my_status', JSON.stringify(myStatus));
+          }
+          const textMsg = `💬 Respuesta a tu estado: ${data.text}`;
+          saveMessageToHistory(senderNumber, textMsg, 'other');
+          if (currentChatNumber === senderNumber) appendMessage(textMsg, 'other');
+          playSound('receive');
+        }
+
+        if (data.type === 'TEXT') {
+          saveMessageToHistory(senderNumber, data.text, 'other');
+          if (currentChatNumber === senderNumber) appendMessage(data.text, 'other');
+          playSound('receive');
+        }
+
+        if (data.type === 'MEDIA') {
+          saveMessageToHistory(senderNumber, data.src, 'other', data.isSticker, data.mediaType);
+          if (currentChatNumber === senderNumber) appendMedia(data.src, data.mediaType, 'other', data.isSticker);
+          playSound('receive');
+        }
+      });
+
+      conn.on('close', () => {
+        const statusEl = document.getElementById('activeContactStatus');
+        if (statusEl) {
+          statusEl.innerText = 'Desconectado';
+          statusEl.style.color = '#da3633';
+        }
+      });
+    }
+
+    document.getElementById('btnReconnectChat').onclick = () => {
+      if (currentChatNumber) connectToContactNumber(currentChatNumber);
+    };
+
+    // MI ESTADO
     function renderMyStatusCard() {
       const avatarEl = document.getElementById('myStatusAvatar');
       const titleEl = document.getElementById('myStatusTitle');
@@ -759,8 +1010,8 @@
       const container = document.getElementById('statusesListContainer');
       container.innerHTML = '';
       let count = 0;
-      Object.keys(savedContacts).forEach(id => {
-        const c = savedContacts[id];
+      Object.keys(savedContacts).forEach(num => {
+        const c = savedContacts[num];
         if (c.status) {
           count++;
           const item = document.createElement('div');
@@ -773,184 +1024,17 @@
             </div>
           `;
           item.onclick = () => {
-            currentViewingStatusPeerId = id;
-            if (conn && conn.open && conn.peer === id) {
+            currentViewingStatusPeerId = num;
+            if (conn && conn.open) {
               conn.send({ type: 'STATUS_VIEWED', viewerName: myProfile.name });
             }
-            viewStatus(c.name, c.avatar, c.status, id);
+            viewStatus(c.name, c.avatar, c.status, num);
           };
           container.appendChild(item);
         }
       });
       if (count === 0) container.innerHTML = '<p style="text-align:center; color:#8b949e;">No hay estados recientes</p>';
     }
-
-    document.getElementById('btnNewChat').onclick = () => {
-      document.getElementById('mainScreen').classList.add('hidden');
-      document.getElementById('connectScreen').classList.remove('hidden');
-    };
-
-    document.getElementById('btnBackToMain').onclick = () => {
-      document.getElementById('connectScreen').classList.add('hidden');
-      document.getElementById('mainScreen').classList.remove('hidden');
-    };
-
-    // CONEXIÓN Y RECONEXIÓN PEERJS
-    document.getElementById('btnGenCode').onclick = () => {
-      const code = Math.floor(1000 + Math.random() * 9000).toString();
-      setupPeer(`peer-room-${code}`, code);
-    };
-
-    document.getElementById('btnJoin').onclick = () => {
-      const code = document.getElementById('joinCodeInput').value.trim();
-      if (!code) return alert("Ingresa el código del chat o el ID guardado.");
-      
-      const targetId = code.startsWith('peer-room-') ? code : `peer-room-${code}`;
-      reconnectToPeer(targetId);
-    };
-
-    function reconnectToPeer(peerId) {
-      localStorage.setItem('last_chat_peer_id', peerId);
-      lastChatPeerId = peerId;
-      setupPeer(null, peerId, true);
-    }
-
-    function setupPeer(customId, codeOrPeerId, isDirectPeerId = false) {
-      if (peer) {
-        try { peer.destroy(); } catch(e) {}
-      }
-      
-      peer = new Peer(customId);
-      
-      peer.on('open', () => {
-        if (customId) {
-          alert(`Código generado: ${codeOrPeerId}\nComparte este código con la otra persona.`);
-        } else {
-          const target = isDirectPeerId ? codeOrPeerId : `peer-room-${codeOrPeerId}`;
-          conn = peer.connect(target);
-          bindConnEvents();
-        }
-      });
-
-      peer.on('connection', (c) => { 
-        conn = c; 
-        bindConnEvents(); 
-      });
-
-      peer.on('call', (call) => {
-        if (confirm("Llamada entrante. ¿Deseas contestar?")) {
-          navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-            localStream = stream;
-            call.answer(stream);
-            currentCall = call;
-            showCallScreen();
-            call.on('stream', (remoteStream) => {
-              document.getElementById('remoteAudio').srcObject = remoteStream;
-            });
-          }).catch(() => alert("No se pudo acceder al micrófono."));
-        }
-      });
-    }
-
-    function bindConnEvents() {
-      if (!conn) return;
-
-      conn.on('open', () => {
-        conn.send({ type: 'HANDSHAKE', profile: myProfile, status: myStatus });
-        const targetPeerId = conn.peer;
-        localStorage.setItem('last_chat_peer_id', targetPeerId);
-        lastChatPeerId = targetPeerId;
-
-        const statusEl = document.getElementById('activeContactStatus');
-        if (statusEl) {
-          statusEl.innerText = 'Conectado';
-          statusEl.style.color = '#2ea043';
-        }
-      });
-
-      conn.on('data', (data) => {
-        const peerId = conn.peer;
-        if (data.type === 'HANDSHAKE') {
-          savedContacts[peerId] = { 
-            name: data.profile.name, 
-            avatar: data.profile.avatar, 
-            status: data.status || null,
-            messages: savedContacts[peerId]?.messages || [] 
-          };
-          localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
-          renderStatusesList();
-          document.getElementById('connectScreen').classList.add('hidden');
-          openChat(peerId, data.profile.name, data.profile.avatar);
-        }
-
-        if (data.type === 'STATUS_UPDATE') {
-          if (savedContacts[peerId]) {
-            savedContacts[peerId].status = data.status;
-            localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
-            renderStatusesList();
-          }
-        }
-
-        if (data.type === 'STATUS_VIEWED') {
-          if (myStatus) {
-            if (!myStatus.views) myStatus.views = [];
-            if (!myStatus.views.includes(data.viewerName)) {
-              myStatus.views.push(data.viewerName);
-              localStorage.setItem('my_status', JSON.stringify(myStatus));
-            }
-          }
-        }
-
-        if (data.type === 'STATUS_REACTION') {
-          if (myStatus) {
-            if (!myStatus.reactions) myStatus.reactions = [];
-            myStatus.reactions.push({ user: data.userName, reaction: data.reaction });
-            localStorage.setItem('my_status', JSON.stringify(myStatus));
-          }
-          const textMsg = `${data.reaction} Reaccionó a tu estado`;
-          saveMessageToHistory(peerId, textMsg, 'other');
-          if (currentChatId === peerId) appendMessage(textMsg, 'other');
-          playSound('receive');
-        }
-
-        if (data.type === 'STATUS_COMMENT') {
-          if (myStatus) {
-            if (!myStatus.comments) myStatus.comments = [];
-            myStatus.comments.push({ user: data.userName, text: data.text });
-            localStorage.setItem('my_status', JSON.stringify(myStatus));
-          }
-          const textMsg = `💬 Respuesta a tu estado: ${data.text}`;
-          saveMessageToHistory(peerId, textMsg, 'other');
-          if (currentChatId === peerId) appendMessage(textMsg, 'other');
-          playSound('receive');
-        }
-
-        if (data.type === 'TEXT') {
-          saveMessageToHistory(peerId, data.text, 'other');
-          if (currentChatId === peerId) appendMessage(data.text, 'other');
-          playSound('receive');
-        }
-
-        if (data.type === 'MEDIA') {
-          saveMessageToHistory(peerId, data.src, 'other', data.isSticker, data.mediaType);
-          if (currentChatId === peerId) appendMedia(data.src, data.mediaType, 'other', data.isSticker);
-          playSound('receive');
-        }
-      });
-
-      conn.on('close', () => {
-        const statusEl = document.getElementById('activeContactStatus');
-        if (statusEl) {
-          statusEl.innerText = 'Desconectado';
-          statusEl.style.color = '#da3633';
-        }
-      });
-    }
-
-    document.getElementById('btnReconnectChat').onclick = () => {
-      if (currentChatId) reconnectToPeer(currentChatId);
-      else alert('No hay un chat activo seleccionado');
-    };
 
     // SUBIR Y VER ESTADOS
     let tempStatusMedia = null, tempStatusType = 'text';
@@ -988,7 +1072,7 @@
       tempStatusMedia = null;
     };
 
-    function viewStatus(name, avatar, status, peerIdOwner) {
+    function viewStatus(name, avatar, status, ownerId) {
       document.getElementById('statusUserName').innerText = name;
       document.getElementById('statusUserAvatar').src = avatar;
       const area = document.getElementById('statusContentArea');
@@ -998,14 +1082,13 @@
       else if (status.type === 'video' && status.media) area.innerHTML = `<video src="${status.media}" controls autoplay></video>`;
       else area.innerHTML = `<h2 style="color:#fff; text-align:center; padding: 20px;">${status.text || ''}</h2>`;
 
-      // CONFIGURAR VISTA DE MI ESTADO O ESTADO AJENO
       const myAnalyticsBtn = document.getElementById('myStatusAnalyticsBtnArea');
       const otherInteractionArea = document.getElementById('otherStatusInteractionArea');
       const analyticsDrawer = document.getElementById('statusAnalyticsDrawer');
 
       analyticsDrawer.classList.add('hidden');
 
-      if (peerIdOwner === 'ME') {
+      if (ownerId === 'ME') {
         myAnalyticsBtn.classList.remove('hidden');
         otherInteractionArea.classList.add('hidden');
       } else {
@@ -1028,10 +1111,8 @@
         const comments = myStatus.comments || [];
 
         list.innerHTML += `<div><strong>👁️ Visto por (${views.length}):</strong> ${views.join(', ') || 'Nadie aún'}</div>`;
-        
         let reactText = reactions.map(r => `${r.user}: ${r.reaction}`).join('<br>') || 'Sin reacciones';
         list.innerHTML += `<div><strong>❤️ Reacciones:</strong><br>${reactText}</div>`;
-
         let commText = comments.map(c => `${c.user}: ${c.text}`).join('<br>') || 'Sin comentarios';
         list.innerHTML += `<div><strong>💬 Comentarios:</strong><br>${commText}</div>`;
       }
@@ -1074,8 +1155,8 @@
     };
 
     function showCallScreen() {
-      document.getElementById('callName').innerText = savedContacts[currentChatId]?.name || "Contacto";
-      document.getElementById('callAvatar').src = savedContacts[currentChatId]?.avatar || "";
+      document.getElementById('callName').innerText = savedContacts[currentChatNumber]?.name || "Contacto";
+      document.getElementById('callAvatar').src = savedContacts[currentChatNumber]?.avatar || "";
       document.getElementById('callScreen').classList.remove('hidden');
     }
 
@@ -1094,34 +1175,12 @@
       }
     };
 
-    function openChat(id, name, avatar) {
-      currentChatId = id;
-      document.getElementById('activeContactName').innerText = name;
-      document.getElementById('activeContactAvatar').src = avatar;
-      
-      const isConnected = conn && conn.open && conn.peer === id;
-      const statusEl = document.getElementById('activeContactStatus');
-      statusEl.innerText = isConnected ? 'Conectado' : 'Desconectado (Toca reconectar)';
-      statusEl.style.color = isConnected ? '#2ea043' : '#da3633';
-
-      document.getElementById('mainScreen').classList.add('hidden');
-      document.getElementById('chatView').classList.remove('hidden');
-
-      const chatBody = document.getElementById('chatBody');
-      chatBody.innerHTML = '';
-      const history = savedContacts[id]?.messages || [];
-      history.forEach(m => {
-        if (m.mediaType) appendMedia(m.content, m.mediaType, m.sender, m.isSticker);
-        else appendMessage(m.content, m.sender);
-      });
-    }
-
     document.getElementById('btnLeaveChat').onclick = () => {
       document.getElementById('chatView').classList.add('hidden');
       showMainScreen();
     };
 
-    // MENSAJES Y ARCHIVOS
+    // ENVÍO DE MENSAJES Y ARCHIVOS
     document.getElementById('btnSend').onclick = sendText;
     document.getElementById('messageInput').onkeypress = (e) => { if(e.key === 'Enter') sendText(); };
 
@@ -1131,7 +1190,7 @@
       if (!text) return;
       if (conn && conn.open) conn.send({ type: 'TEXT', text });
       appendMessage(text, 'me');
-      saveMessageToHistory(currentChatId, text, 'me');
+      saveMessageToHistory(currentChatNumber, text, 'me');
       input.value = '';
       playSound('send');
     }
@@ -1154,7 +1213,6 @@
     document.getElementById('imageInput').onchange = (e) => handleMediaSend(e.target.files[0], 'image', false);
     document.getElementById('videoInput').onchange = (e) => handleMediaSend(e.target.files[0], 'video', false);
     
-    // SUBIR Y CONVERTIR A STICKER PEQUEÑO
     document.getElementById('stickerInput').onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -1165,7 +1223,7 @@
           }
           if (conn && conn.open) conn.send({ type: 'MEDIA', src, mediaType: 'image', isSticker: true });
           appendMedia(src, 'image', 'me', true);
-          saveMessageToHistory(currentChatId, src, 'me', true, 'image');
+          saveMessageToHistory(currentChatNumber, src, 'me', true, 'image');
           playSound('send');
           document.getElementById('plusPanel').classList.add('hidden');
         });
@@ -1177,7 +1235,7 @@
         processFile(file, (src) => {
           if (conn && conn.open) conn.send({ type: 'MEDIA', src, mediaType: type, isSticker });
           appendMedia(src, type, 'me', isSticker);
-          saveMessageToHistory(currentChatId, src, 'me', isSticker, type);
+          saveMessageToHistory(currentChatNumber, src, 'me', isSticker, type);
           playSound('send');
           document.getElementById('plusPanel').classList.add('hidden');
         });
@@ -1215,7 +1273,7 @@
       chatBody.scrollTop = chatBody.scrollHeight;
     }
 
-    // LISTA DE EMOJIS
+    // PANEL DE EMOJIS Y STICKERS
     document.getElementById('btnToggleEmojis').onclick = () => {
       const drawer = document.getElementById('emojiDrawer');
       drawer.innerHTML = '';
@@ -1240,7 +1298,6 @@
       document.getElementById('plusPanel').classList.add('hidden');
     };
 
-    // VER Y MANDAR STICKERS GUARDADOS
     document.getElementById('btnToggleStickers').onclick = () => {
       const drawer = document.getElementById('stickerDrawer');
       drawer.innerHTML = '';
@@ -1252,7 +1309,7 @@
         img.onclick = () => {
           if (conn && conn.open) conn.send({ type: 'MEDIA', src, mediaType: 'image', isSticker: true });
           appendMedia(src, 'image', 'me', true);
-          saveMessageToHistory(currentChatId, src, 'me', true, 'image');
+          saveMessageToHistory(currentChatNumber, src, 'me', true, 'image');
           playSound('send');
         };
         drawer.appendChild(img);
@@ -1261,28 +1318,29 @@
       document.getElementById('plusPanel').classList.add('hidden');
     };
 
-    function saveMessageToHistory(contactId, content, sender, isSticker = false, mediaType = null) {
-      if (!contactId) return;
-      if (!savedContacts[contactId]) {
-        savedContacts[contactId] = { name: "Contacto Guardado", avatar: "https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg", messages: [] };
+    function saveMessageToHistory(number, content, sender, isSticker = false, mediaType = null) {
+      if (!number) return;
+      if (!savedContacts[number]) {
+        savedContacts[number] = { name: "Contacto", number: number, avatar: "https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg", messages: [] };
       }
-      savedContacts[contactId].messages.push({ content, sender, isSticker, mediaType });
+      savedContacts[number].messages.push({ content, sender, isSticker, mediaType });
       localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
     }
 
-    // OPCIONES DE CONTACTO
+    // OPCIONES Y ELIMINAR CONTACTO
     document.getElementById('contactHeaderInfo').onclick = () => {
-      if (!currentChatId || !savedContacts[currentChatId]) return;
-      document.getElementById('modalContactName').innerText = savedContacts[currentChatId].name;
-      document.getElementById('modalContactAvatar').src = savedContacts[currentChatId].avatar;
+      if (!currentChatNumber || !savedContacts[currentChatNumber]) return;
+      document.getElementById('modalContactName').innerText = savedContacts[currentChatNumber].name;
+      document.getElementById('modalContactNumber').innerText = `#${savedContacts[currentChatNumber].number}`;
+      document.getElementById('modalContactAvatar').src = savedContacts[currentChatNumber].avatar;
       document.getElementById('contactModal').classList.remove('hidden');
     };
 
     document.getElementById('btnCloseModal').onclick = () => document.getElementById('contactModal').classList.add('hidden');
 
     document.getElementById('btnClearChatHistory').onclick = () => {
-      if (savedContacts[currentChatId]) {
-        savedContacts[currentChatId].messages = [];
+      if (savedContacts[currentChatNumber]) {
+        savedContacts[currentChatNumber].messages = [];
         localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
       }
       document.getElementById('chatBody').innerHTML = '';
@@ -1290,7 +1348,7 @@
     };
 
     document.getElementById('btnBlockContact').onclick = () => {
-      delete savedContacts[currentChatId];
+      delete savedContacts[currentChatNumber];
       localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
       document.getElementById('contactModal').classList.add('hidden');
       document.getElementById('chatView').classList.add('hidden');
