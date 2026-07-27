@@ -62,7 +62,6 @@
 
     .hidden { display: none !important; }
 
-    /* SWITCHER MODO */
     .device-switcher {
       position: absolute;
       top: 10px; right: 10px;
@@ -118,7 +117,7 @@
       margin: auto 0;
     }
 
-    input[type="text"], textarea {
+    input[type="text"] {
       background: #0d1117;
       border: 1px solid var(--border);
       color: #fff;
@@ -153,7 +152,6 @@
 
     .avatar-upload img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* NAVEGACIÓN PRINCIPAL (CHATS / ESTADOS / LLAMADAS) */
     .main-nav {
       display: flex;
       border-bottom: 1px solid var(--border);
@@ -174,10 +172,7 @@
       border-radius: 8px;
     }
 
-    .nav-tab.active {
-      background: var(--accent);
-      color: #fff;
-    }
+    .nav-tab.active { background: var(--accent); color: #fff; }
 
     .chats-header {
       display: flex; justify-content: space-between; align-items: center;
@@ -199,7 +194,6 @@
       border-radius: 50%; object-fit: cover;
     }
 
-    /* VISTA CHAT FIX ANDROID */
     .chat-view {
       display: flex; flex-direction: column;
       position: absolute;
@@ -259,7 +253,6 @@
       display: flex; align-items: center; justify-content: center;
     }
 
-    /* MENÚ POPUP + */
     .plus-panel {
       position: absolute;
       bottom: 70px; left: 10px;
@@ -292,7 +285,6 @@
     .emoji-item { font-size: 1.4rem; cursor: pointer; padding: 4px; }
     .sticker-thumb { width: 55px; height: 55px; border-radius: 10px; object-fit: cover; cursor: pointer; border: 1px solid var(--border); }
 
-    /* PANTALLA DE LLAMADA */
     .call-screen {
       position: absolute; top: 0; left: 0; right: 0; bottom: 0;
       background: #050508; z-index: 300;
@@ -323,7 +315,6 @@
       cursor: pointer; color: #fff;
     }
 
-    /* MOSTRAR ESTADO */
     .status-view-container {
       position: absolute; top: 0; left: 0; right: 0; bottom: 0;
       background: #000; z-index: 250;
@@ -357,7 +348,6 @@
 
   <div class="app-container">
 
-    <!-- SELECTOR DE VISTA -->
     <div class="device-switcher">
       <button class="device-btn active" id="btnModeAndroid"><i data-lucide="smartphone" style="width:14px;"></i> Android</button>
       <button class="device-btn" id="btnModePC"><i data-lucide="monitor" style="width:14px;"></i> PC</button>
@@ -381,7 +371,7 @@
       </div>
     </div>
 
-    <!-- 2. PANTALLA PRINCIPAL (CHATS / ESTADOS / LLAMADAS) -->
+    <!-- 2. PANTALLA PRINCIPAL -->
     <div class="screen hidden" id="mainScreen">
       
       <div class="chats-header">
@@ -392,19 +382,16 @@
         <button class="btn" id="btnNewChat" style="padding: 6px 12px; font-size: 0.8rem;"><i data-lucide="plus"></i> Nuevo Chat</button>
       </div>
 
-      <!-- TABS DE NAVEGACIÓN -->
       <div class="main-nav">
         <div class="nav-tab active" id="tabChats">Chats</div>
         <div class="nav-tab" id="tabStatuses">Estados</div>
         <div class="nav-tab" id="tabCalls">Llamadas</div>
       </div>
 
-      <!-- CONTENIDO DE CHATS -->
       <div id="sectionChats" style="margin-top: 15px;">
         <div id="chatsListContainer"></div>
       </div>
 
-      <!-- CONTENIDO DE ESTADOS -->
       <div id="sectionStatuses" class="hidden" style="margin-top: 15px;">
         <div class="chat-item" id="btnMyStatus">
           <img id="myStatusAvatar" class="chat-item-avatar">
@@ -419,7 +406,6 @@
         <div id="statusesListContainer"></div>
       </div>
 
-      <!-- CONTENIDO DE LLAMADAS -->
       <div id="sectionCalls" class="hidden" style="margin-top: 15px;">
         <div id="callsListContainer">
           <p style="text-align:center; color:#8b949e; margin-top:20px;">Sin llamadas recientes</p>
@@ -428,7 +414,7 @@
 
     </div>
 
-    <!-- 3. PANTALLA CÓDIGO CONEXIÓN -->
+    <!-- 3. CONEXIÓN -->
     <div class="screen hidden" id="connectScreen">
       <div class="card">
         <button class="icon-btn" id="btnBackToMain" style="align-self: flex-start;"><i data-lucide="arrow-left"></i> Volver</button>
@@ -438,11 +424,11 @@
         <button class="btn" id="btnGenCode"><i data-lucide="qr-code"></i> Generar Código</button>
         <hr style="border-color: var(--border);">
         <input type="text" id="joinCodeInput" placeholder="Código (Ej: 5821)" maxlength="4">
-        <button class="btn" id="btnJoin" style="background: var(--card-bg); border: 1px solid var(--border);"><i data-lucide="link"></i> Conectar de Golpe</button>
+        <button class="btn" id="btnJoin" style="background: var(--card-bg); border: 1px solid var(--border);"><i data-lucide="link"></i> Conectar</button>
       </div>
     </div>
 
-    <!-- 4. PANTALLA CHAT ACTIVO -->
+    <!-- 4. CHAT ACTIVO -->
     <div class="chat-view hidden" id="chatView">
       <div class="chat-header">
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -456,7 +442,6 @@
           </div>
         </div>
 
-        <!-- BOTÓN DE LLAMADA -->
         <button class="icon-btn" id="btnStartCall"><i data-lucide="phone" style="width:22px; height:22px;"></i></button>
       </div>
 
@@ -465,7 +450,6 @@
       <div class="drawer-panel hidden" id="emojiDrawer"></div>
       <div class="drawer-panel hidden" id="stickerDrawer"></div>
 
-      <!-- MENÚ POPUP + CON TODAS LAS OPCIONES -->
       <div class="plus-panel hidden" id="plusPanel">
         <label class="menu-option">
           <i data-lucide="image"></i> Enviar Imagen
@@ -490,12 +474,12 @@
       </div>
     </div>
 
-    <!-- 5. INTERFAZ DE LLAMADA DE VOZ -->
+    <!-- 5. INTERFAZ DE LLAMADA -->
     <div class="call-screen hidden" id="callScreen">
       <div style="text-align: center;">
         <img id="callAvatar" class="call-avatar">
         <h3 id="callName" style="margin-top: 15px;">Llamando...</h3>
-        <p id="callStatus" style="font-size: 0.8rem; color: #8b949e; margin-top: 5px;">Conectando audio de extremo a extremo...</p>
+        <p id="callStatus" style="font-size: 0.8rem; color: #8b949e; margin-top: 5px;">Llamada de voz activa</p>
       </div>
 
       <div class="call-actions">
@@ -505,13 +489,13 @@
       <audio id="remoteAudio" autoplay></audio>
     </div>
 
-    <!-- 6. PANTALLA PARA SUBIR ESTADO -->
+    <!-- 6. SUBIR ESTADO -->
     <div class="modal hidden" id="uploadStatusModal">
       <div class="card" style="max-width: 320px;">
         <h3>Subir Estado</h3>
-        <input type="text" id="statusTextInput" placeholder="Texto de tu estado...">
+        <input type="text" id="statusTextInput" placeholder="Texto opcional...">
         <label class="btn" style="background: var(--card-bg); border: 1px solid var(--border);">
-          <i data-lucide="image"></i> Seleccionar Foto/Video
+          <i data-lucide="image"></i> Seleccionar Imagen/Video
           <input type="file" id="statusMediaInput" accept="image/*,video/*" style="display: none;">
         </label>
         <div id="statusMediaPreview" style="font-size: 0.75rem; color: var(--accent-glow);"></div>
@@ -520,7 +504,7 @@
       </div>
     </div>
 
-    <!-- 7. VISUALIZADOR DE ESTADOS CON REACCIONES -->
+    <!-- 7. VISUALIZAR ESTADO -->
     <div class="status-view-container hidden" id="statusViewContainer">
       <div style="display:flex; justify-content:space-between; align-items:center; z-index:10;">
         <div style="display:flex; align-items:center; gap:8px;">
@@ -533,13 +517,13 @@
       <div class="status-content" id="statusContentArea"></div>
 
       <div style="display:flex; gap:8px; align-items:center; z-index:10;">
-        <input type="text" id="statusCommentInput" placeholder="Responder a este estado..." style="flex:1;">
+        <input type="text" id="statusCommentInput" placeholder="Responder..." style="flex:1;">
         <button class="icon-btn" id="btnHeartStatus" style="color:#ff4d6d;"><i data-lucide="heart"></i></button>
         <button class="btn" id="btnSendStatusComment" style="padding:8px 12px;"><i data-lucide="send"></i></button>
       </div>
     </div>
 
-    <!-- MODAL OPCIONES DE CONTACTO -->
+    <!-- MODAL CONTACTO -->
     <div class="modal hidden" id="contactModal">
       <div class="card" style="max-width: 280px;">
         <img id="modalContactAvatar" style="width: 60px; height: 60px; border-radius: 50%; margin: 0 auto; object-fit: cover;">
@@ -555,114 +539,98 @@
   <script>
     lucide.createIcons();
 
-    // MODO ANDROID / PC
-    const btnModeAndroid = document.getElementById('btnModeAndroid');
-    const btnModePC = document.getElementById('btnModePC');
-
-    btnModeAndroid.addEventListener('click', () => {
+    // MODO DISPOSITIVO
+    document.getElementById('btnModeAndroid').onclick = function() {
       document.body.classList.remove('pc-mode');
-      btnModeAndroid.classList.add('active');
-      btnModePC.classList.remove('active');
-    });
+      this.classList.add('active');
+      document.getElementById('btnModePC').classList.remove('active');
+    };
 
-    btnModePC.addEventListener('click', () => {
+    document.getElementById('btnModePC').onclick = function() {
       document.body.classList.add('pc-mode');
-      btnModePC.classList.add('active');
-      btnModeAndroid.classList.remove('active');
-    });
+      this.classList.add('active');
+      document.getElementById('btnModeAndroid').classList.remove('active');
+    };
 
-    // SONIDO DE EFECTOS
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // SONIDO
     function playSound(type) {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.frequency.setValueAtTime(type === 'send' ? 500 : 700, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-      osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.frequency.setValueAtTime(type === 'send' ? 500 : 700, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+      } catch(e) {}
     }
 
     // DATOS LOCALES
     let myProfile = JSON.parse(localStorage.getItem('user_profile') || '{"name":"","avatar":""}');
     let savedContacts = JSON.parse(localStorage.getItem('saved_contacts') || '{}');
     let savedStickers = JSON.parse(localStorage.getItem('saved_stickers') || '[]');
-    let statuses = JSON.parse(localStorage.getItem('user_statuses') || '[]');
     
     let peer = null;
     let conn = null;
     let currentCall = null;
     let localStream = null;
     let currentChatId = null;
-    let activeStatusUser = null;
-
-    // VISTAS
-    const profileScreen = document.getElementById('profileScreen');
-    const mainScreen = document.getElementById('mainScreen');
-    const connectScreen = document.getElementById('connectScreen');
-    const chatView = document.getElementById('chatView');
-    const chatBody = document.getElementById('chatBody');
 
     if (myProfile.name && myProfile.avatar) showMainScreen();
-    else profileScreen.classList.remove('hidden');
+
+    // COMPRIMIR Y LEER IMÁGENES/VIDEOS (Solución a fallos de envío)
+    function processFile(file, callback) {
+      const reader = new FileReader();
+      reader.onload = (e) => callback(e.target.result);
+      reader.readAsDataURL(file);
+    }
 
     // PERFIL
-    document.getElementById('profilePicInput').addEventListener('change', (e) => {
+    document.getElementById('profilePicInput').onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          myProfile.avatar = event.target.result;
-          document.getElementById('myAvatarImg').src = myProfile.avatar;
+        processFile(file, (data) => {
+          myProfile.avatar = data;
+          document.getElementById('myAvatarImg').src = data;
           document.getElementById('myAvatarImg').classList.remove('hidden');
           document.getElementById('cameraIcon').classList.add('hidden');
-        };
-        reader.readAsDataURL(file);
+        });
       }
-    });
+    };
 
-    document.getElementById('btnSaveProfile').addEventListener('click', () => {
+    document.getElementById('btnSaveProfile').onclick = () => {
       const name = document.getElementById('usernameInput').value.trim();
       if (!name || !myProfile.avatar) return alert('Sube una foto y escribe un nombre.');
       myProfile.name = name;
       localStorage.setItem('user_profile', JSON.stringify(myProfile));
-      profileScreen.classList.add('hidden');
+      document.getElementById('profileScreen').classList.add('hidden');
       showMainScreen();
-    });
+    };
 
     function showMainScreen() {
       document.getElementById('mainProfileName').innerText = myProfile.name;
       document.getElementById('mainProfileAvatar').src = myProfile.avatar;
       document.getElementById('myStatusAvatar').src = myProfile.avatar;
-      mainScreen.classList.remove('hidden');
+      document.getElementById('mainScreen').classList.remove('hidden');
       renderContactsList();
       renderStatusesList();
     }
 
-    // CAMBIO DE PESTAÑAS (CHATS / ESTADOS / LLAMADAS)
-    const tabChats = document.getElementById('tabChats');
-    const tabStatuses = document.getElementById('tabStatuses');
-    const tabCalls = document.getElementById('tabCalls');
-    const sectionChats = document.getElementById('sectionChats');
-    const sectionStatuses = document.getElementById('sectionStatuses');
-    const sectionCalls = document.getElementById('sectionCalls');
+    // PESTAÑAS
+    document.getElementById('tabChats').onclick = function() { switchTab(this, 'sectionChats'); };
+    document.getElementById('tabStatuses').onclick = function() { switchTab(this, 'sectionStatuses'); };
+    document.getElementById('tabCalls').onclick = function() { switchTab(this, 'sectionCalls'); };
 
-    tabChats.onclick = () => {
-      tabChats.classList.add('active'); tabStatuses.classList.remove('active'); tabCalls.classList.remove('active');
-      sectionChats.classList.remove('hidden'); sectionStatuses.classList.add('hidden'); sectionCalls.classList.add('hidden');
-    };
+    function switchTab(tab, sectionId) {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('sectionChats').classList.add('hidden');
+      document.getElementById('sectionStatuses').classList.add('hidden');
+      document.getElementById('sectionCalls').classList.add('hidden');
+      document.getElementById(sectionId).classList.remove('hidden');
+    }
 
-    tabStatuses.onclick = () => {
-      tabStatuses.classList.add('active'); tabChats.classList.remove('active'); tabCalls.classList.remove('active');
-      sectionStatuses.classList.remove('hidden'); sectionChats.classList.add('hidden'); sectionCalls.classList.add('hidden');
-    };
-
-    tabCalls.onclick = () => {
-      tabCalls.classList.add('active'); tabChats.classList.remove('active'); tabStatuses.classList.remove('active');
-      sectionCalls.classList.remove('hidden'); sectionChats.classList.add('hidden'); sectionStatuses.classList.add('hidden');
-    };
-
-    // RENDERIZAR CONTACTOS Y ESTADOS
     function renderContactsList() {
       const container = document.getElementById('chatsListContainer');
       container.innerHTML = '';
@@ -679,7 +647,7 @@
           <img src="${c.avatar}" class="chat-item-avatar">
           <div style="flex:1;">
             <div style="font-weight:bold; font-size:0.9rem;">${c.name}</div>
-            <div style="font-size:0.75rem; color:#8b949e;">Abrir chat</div>
+            <div style="font-size:0.75rem; color:#8b949e;">Abrir conversación</div>
           </div>
         `;
         item.onclick = () => openChat(id, c.name, c.avatar);
@@ -690,9 +658,8 @@
     function renderStatusesList() {
       const container = document.getElementById('statusesListContainer');
       container.innerHTML = '';
-      const keys = Object.keys(savedContacts);
       let count = 0;
-      keys.forEach(id => {
+      Object.keys(savedContacts).forEach(id => {
         const c = savedContacts[id];
         if (c.status) {
           count++;
@@ -702,104 +669,24 @@
             <img src="${c.avatar}" class="chat-item-avatar" style="border: 2px solid var(--accent-glow);">
             <div style="flex:1;">
               <div style="font-weight:bold; font-size:0.9rem;">${c.name}</div>
-              <div style="font-size:0.75rem; color:#8b949e;">Ver estado reciente</div>
+              <div style="font-size:0.75rem; color:#8b949e;">Ver estado</div>
             </div>
           `;
-          item.onclick = () => viewStatus(id, c.name, c.avatar, c.status);
+          item.onclick = () => viewStatus(c.name, c.avatar, c.status);
           container.appendChild(item);
         }
       });
-      if (count === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#8b949e;">No hay estados disponibles</p>';
-      }
+      if (count === 0) container.innerHTML = '<p style="text-align:center; color:#8b949e;">No hay estados recientes</p>';
     }
 
     document.getElementById('btnNewChat').onclick = () => {
-      mainScreen.classList.add('hidden');
-      connectScreen.classList.remove('hidden');
+      document.getElementById('mainScreen').classList.add('hidden');
+      document.getElementById('connectScreen').classList.remove('hidden');
     };
 
     document.getElementById('btnBackToMain').onclick = () => {
-      connectScreen.classList.add('hidden');
-      mainScreen.classList.remove('hidden');
-    };
-
-    // SUBIR ESTADO
-    let tempStatusMedia = null;
-    let tempStatusType = 'text';
-
-    document.getElementById('btnMyStatus').onclick = () => {
-      document.getElementById('uploadStatusModal').classList.remove('hidden');
-    };
-
-    document.getElementById('btnCloseStatusModal').onclick = () => {
-      document.getElementById('uploadStatusModal').classList.add('hidden');
-    };
-
-    document.getElementById('statusMediaInput').onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        tempStatusType = file.type.startsWith('video') ? 'video' : 'image';
-        reader.onload = (ev) => {
-          tempStatusMedia = ev.target.result;
-          document.getElementById('statusMediaPreview').innerText = `Archivo seleccionado (${tempStatusType})`;
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-
-    document.getElementById('btnPublishStatus').onclick = () => {
-      const text = document.getElementById('statusTextInput').value.trim();
-      const statusObj = { text, media: tempStatusMedia, type: tempStatusType };
-      
-      // Enviar estado si hay conexión activa
-      if (conn && conn.open) {
-        conn.send({ type: 'STATUS_UPDATE', status: statusObj });
-      }
-
-      alert('Estado publicado con éxito');
-      document.getElementById('uploadStatusModal').classList.add('hidden');
-    };
-
-    function viewStatus(id, name, avatar, status) {
-      activeStatusUser = id;
-      document.getElementById('statusUserName').innerText = name;
-      document.getElementById('statusUserAvatar').src = avatar;
-
-      const area = document.getElementById('statusContentArea');
-      area.innerHTML = '';
-
-      if (status.type === 'image' && status.media) {
-        area.innerHTML = `<img src="${status.media}">`;
-      } else if (status.type === 'video' && status.media) {
-        area.innerHTML = `<video src="${status.media}" controls autoplay></video>`;
-      } else {
-        area.innerHTML = `<h2 style="color:#fff; text-align:center;">${status.text}</h2>`;
-      }
-
-      document.getElementById('statusViewContainer').classList.remove('hidden');
-    }
-
-    document.getElementById('btnCloseStatusView').onclick = () => {
-      document.getElementById('statusViewContainer').classList.add('hidden');
-    };
-
-    document.getElementById('btnHeartStatus').onclick = () => {
-      if (conn && conn.open) {
-        conn.send({ type: 'TEXT', text: '❤️ Le gustó tu estado' });
-        alert('Reacción enviada');
-      }
-    };
-
-    document.getElementById('btnSendStatusComment').onclick = () => {
-      const input = document.getElementById('statusCommentInput');
-      const text = input.value.trim();
-      if (text && conn && conn.open) {
-        conn.send({ type: 'TEXT', text: `💬 Respondió a tu estado: ${text}` });
-        input.value = '';
-        alert('Comentario enviado');
-      }
+      document.getElementById('connectScreen').classList.add('hidden');
+      document.getElementById('mainScreen').classList.remove('hidden');
     };
 
     // CONEXIÓN PEERJS
@@ -811,7 +698,7 @@
     document.getElementById('btnJoin').onclick = () => {
       const code = document.getElementById('joinCodeInput').value.trim();
       if (code.length === 4) setupPeer(null, code);
-      else alert("Ingresa un código válido");
+      else alert("Ingresa un código de 4 dígitos");
     };
 
     function setupPeer(customId, code) {
@@ -824,19 +711,18 @@
         }
       });
       peer.on('connection', (c) => { conn = c; bindConnEvents(); });
-      
-      // ESCUCHAR LLAMADAS DE VOZ ENTRANTES
+
       peer.on('call', (call) => {
-        if (confirm("Llamada entrante de voz. ¿Aceptar?")) {
+        if (confirm("Llamada entrante. ¿Deseas contestar?")) {
           navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
             localStream = stream;
             call.answer(stream);
             currentCall = call;
-            showCallScreen(true);
+            showCallScreen();
             call.on('stream', (remoteStream) => {
               document.getElementById('remoteAudio').srcObject = remoteStream;
             });
-          });
+          }).catch(() => alert("No se pudo acceder al micrófono."));
         }
       });
     }
@@ -851,7 +737,7 @@
           const contactId = conn.peer;
           savedContacts[contactId] = { name: data.profile.name, avatar: data.profile.avatar, messages: savedContacts[contactId]?.messages || [] };
           localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
-          connectScreen.classList.add('hidden');
+          document.getElementById('connectScreen').classList.add('hidden');
           openChat(contactId, data.profile.name, data.profile.avatar);
         }
 
@@ -877,20 +763,72 @@
       });
     }
 
-    // LLAMADAS DE AUDIO
+    // SUBIR Y VER ESTADOS
+    let tempStatusMedia = null, tempStatusType = 'text';
+
+    document.getElementById('btnMyStatus').onclick = () => document.getElementById('uploadStatusModal').classList.remove('hidden');
+    document.getElementById('btnCloseStatusModal').onclick = () => document.getElementById('uploadStatusModal').classList.add('hidden');
+
+    document.getElementById('statusMediaInput').onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        tempStatusType = file.type.startsWith('video') ? 'video' : 'image';
+        processFile(file, (data) => {
+          tempStatusMedia = data;
+          document.getElementById('statusMediaPreview').innerText = `Archivo cargado (${tempStatusType})`;
+        });
+      }
+    };
+
+    document.getElementById('btnPublishStatus').onclick = () => {
+      const text = document.getElementById('statusTextInput').value.trim();
+      const statusObj = { text, media: tempStatusMedia, type: tempStatusType };
+      if (conn && conn.open) conn.send({ type: 'STATUS_UPDATE', status: statusObj });
+      alert('Estado publicado');
+      document.getElementById('uploadStatusModal').classList.add('hidden');
+    };
+
+    function viewStatus(name, avatar, status) {
+      document.getElementById('statusUserName').innerText = name;
+      document.getElementById('statusUserAvatar').src = avatar;
+      const area = document.getElementById('statusContentArea');
+      area.innerHTML = '';
+
+      if (status.type === 'image' && status.media) area.innerHTML = `<img src="${status.media}">`;
+      else if (status.type === 'video' && status.media) area.innerHTML = `<video src="${status.media}" controls autoplay></video>`;
+      else area.innerHTML = `<h2 style="color:#fff;">${status.text}</h2>`;
+
+      document.getElementById('statusViewContainer').classList.remove('hidden');
+    }
+
+    document.getElementById('btnCloseStatusView').onclick = () => document.getElementById('statusViewContainer').classList.add('hidden');
+
+    document.getElementById('btnHeartStatus').onclick = () => {
+      if (conn && conn.open) { conn.send({ type: 'TEXT', text: '❤️ Reaccionó a tu estado' }); alert('Reacción enviada'); }
+    };
+
+    document.getElementById('btnSendStatusComment').onclick = () => {
+      const input = document.getElementById('statusCommentInput');
+      if (input.value.trim() && conn && conn.open) {
+        conn.send({ type: 'TEXT', text: `💬 Respuesta a tu estado: ${input.value.trim()}` });
+        input.value = ''; alert('Comentario enviado');
+      }
+    };
+
+    // LLAMADAS
     document.getElementById('btnStartCall').onclick = () => {
-      if (!conn) return alert("Se requiere conexión para llamar");
+      if (!conn || !conn.open) return alert("Debes estar conectado con tu contacto");
       navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
         localStream = stream;
         currentCall = peer.call(conn.peer, stream);
-        showCallScreen(false);
+        showCallScreen();
         currentCall.on('stream', (remoteStream) => {
           document.getElementById('remoteAudio').srcObject = remoteStream;
         });
-      });
+      }).catch(() => alert("No se pudo acceder al micrófono."));
     };
 
-    function showCallScreen(isIncoming) {
+    function showCallScreen() {
       document.getElementById('callName').innerText = savedContacts[currentChatId]?.name || "Contacto";
       document.getElementById('callAvatar').src = savedContacts[currentChatId]?.avatar || "";
       document.getElementById('callScreen').classList.remove('hidden');
@@ -898,7 +836,7 @@
 
     document.getElementById('btnEndCall').onclick = () => {
       if (currentCall) currentCall.close();
-      if (localStream) localStream.getTracks().forEach(track => track.stop());
+      if (localStream) localStream.getTracks().forEach(t => t.stop());
       document.getElementById('callScreen').classList.add('hidden');
     };
 
@@ -915,8 +853,8 @@
       currentChatId = id;
       document.getElementById('activeContactName').innerText = name;
       document.getElementById('activeContactAvatar').src = avatar;
-      mainScreen.classList.add('hidden');
-      chatView.classList.remove('hidden');
+      document.getElementById('mainScreen').classList.add('hidden');
+      document.getElementById('chatView').classList.remove('hidden');
 
       chatBody.innerHTML = '';
       const history = savedContacts[id]?.messages || [];
@@ -927,11 +865,11 @@
     }
 
     document.getElementById('btnLeaveChat').onclick = () => {
-      chatView.classList.add('hidden');
+      document.getElementById('chatView').classList.add('hidden');
       showMainScreen();
     };
 
-    // ENVÍO DE MENSAJES Y ARCHIVOS MULTIMEDIA
+    // MENSAJES Y ARCHIVOS
     document.getElementById('btnSend').onclick = sendText;
     document.getElementById('messageInput').onkeypress = (e) => { if(e.key === 'Enter') sendText(); };
 
@@ -960,36 +898,27 @@
       document.getElementById('stickerDrawer').classList.add('hidden');
     };
 
-    // ENVIAR IMAGEN
     document.getElementById('imageInput').onchange = (e) => handleMediaSend(e.target.files[0], 'image');
-    // ENVIAR VIDEO
     document.getElementById('videoInput').onchange = (e) => handleMediaSend(e.target.files[0], 'video');
-    // ENVIAR STICKER
     document.getElementById('stickerInput').onchange = (e) => handleMediaSend(e.target.files[0], 'image');
 
     function handleMediaSend(file, type) {
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const src = event.target.result;
+        processFile(file, (src) => {
           if (conn && conn.open) conn.send({ type: 'MEDIA', src, mediaType: type });
           appendMedia(src, type, 'me');
           saveMessageToHistory(currentChatId, src, 'me', false, type);
           playSound('send');
           document.getElementById('plusPanel').classList.add('hidden');
-        };
-        reader.readAsDataURL(file);
+        });
       }
     }
 
     function appendMedia(src, type, sender) {
       const msg = document.createElement('div');
       msg.className = `msg ${sender} msg-media`;
-      if (type === 'image') {
-        msg.innerHTML = `<img src="${src}">`;
-      } else if (type === 'video') {
-        msg.innerHTML = `<video src="${src}" controls style="width:100%; border-radius:12px;"></video>`;
-      }
+      if (type === 'image') msg.innerHTML = `<img src="${src}">`;
+      else if (type === 'video') msg.innerHTML = `<video src="${src}" controls style="width:100%; border-radius:12px;"></video>`;
       chatBody.appendChild(msg);
       chatBody.scrollTop = chatBody.scrollHeight;
     }
@@ -1011,7 +940,7 @@
     document.getElementById('btnToggleStickers').onclick = () => {
       const drawer = document.getElementById('stickerDrawer');
       drawer.innerHTML = '';
-      if(savedStickers.length === 0) drawer.innerHTML = '<p style="font-size:0.8rem; color:#8b949e;">No hay stickers guardados</p>';
+      if(savedStickers.length === 0) drawer.innerHTML = '<p style="font-size:0.8rem; color:#8b949e;">Sin stickers guardados</p>';
       savedStickers.forEach(src => {
         const img = document.createElement('img');
         img.className = 'sticker-thumb';
@@ -1026,7 +955,7 @@
       });
       drawer.classList.remove('hidden');
       document.getElementById('plusPanel').classList.add('hidden');
-    });
+    };
 
     function saveMessageToHistory(contactId, content, sender, isSticker = false, mediaType = null) {
       if (!savedContacts[contactId]) return;
@@ -1041,9 +970,7 @@
       document.getElementById('contactModal').classList.remove('hidden');
     };
 
-    document.getElementById('btnCloseModal').onclick = () => {
-      document.getElementById('contactModal').classList.add('hidden');
-    };
+    document.getElementById('btnCloseModal').onclick = () => document.getElementById('contactModal').classList.add('hidden');
 
     document.getElementById('btnClearChatHistory').onclick = () => {
       savedContacts[currentChatId].messages = [];
@@ -1056,7 +983,7 @@
       delete savedContacts[currentChatId];
       localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
       document.getElementById('contactModal').classList.add('hidden');
-      chatView.classList.add('hidden');
+      document.getElementById('chatView').classList.add('hidden');
       showMainScreen();
     };
   </script>
