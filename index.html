@@ -28,14 +28,6 @@
       --app-max-width: 480px;
     }
 
-    /* MODO PC SINO ESTÁ EN MÓVIL */
-    body.pc-mode .app-container {
-      max-width: 900px !important;
-      height: 90vh !important;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-    }
-
     * {
       box-sizing: border-box;
       margin: 0;
@@ -50,8 +42,17 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      height: 100dvh; /* Altura dinámica para Android */
+      height: 100dvh;
       overflow: hidden;
+      width: 100vw;
+    }
+
+    /* MODO PC */
+    body.pc-mode .app-container {
+      max-width: 900px !important;
+      height: 90vh !important;
+      border-radius: 20px;
+      border: 1px solid var(--border);
     }
 
     .app-container {
@@ -69,13 +70,13 @@
 
     .hidden { display: none !important; }
 
-    /* SWITCHER DE DISPOSITIVO (PC / ANDROID) */
+    /* SWITCHER MODO DISPOSITIVO */
     .device-switcher {
       position: absolute;
       top: 10px;
       right: 10px;
       z-index: 999;
-      background: rgba(22, 27, 34, 0.8);
+      background: rgba(22, 27, 34, 0.9);
       border: 1px solid var(--border);
       border-radius: 20px;
       padding: 4px;
@@ -101,7 +102,6 @@
       color: #fff;
     }
 
-    /* LOGO DE LA APLICACIÓN */
     .app-logo {
       width: 80px;
       height: 80px;
@@ -111,7 +111,7 @@
       border: 2px solid var(--accent-glow);
     }
 
-    /* PANTALLAS GENERALES */
+    /* PANTALLAS */
     .screen {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -166,7 +166,6 @@
       gap: 8px;
     }
 
-    /* AVATAR UPLOAD */
     .avatar-upload {
       width: 80px;
       height: 80px;
@@ -217,13 +216,16 @@
       object-fit: cover;
     }
 
-    /* VISTA DE CHAT FIX ANDROID */
+    /* VISTA DE CHAT FIX DEFINITIVO PARA ANDROID */
     .chat-view {
       display: flex;
       flex-direction: column;
-      height: 100%;
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
       width: 100%;
-      position: relative;
+      height: 100%;
+      background: var(--bg);
+      z-index: 20;
     }
 
     .chat-header {
@@ -238,7 +240,8 @@
     }
 
     .chat-body {
-      flex: 1;
+      flex: 1 1 auto;
+      min-height: 0; /* Solución clave para evitar que colapse en Android */
       padding: 15px;
       overflow-y: auto;
       display: flex;
@@ -280,16 +283,16 @@
       border: 2px solid var(--accent-glow);
     }
 
-    /* BARRA INFERIOR DE CHAT FIJA EN ANDROID */
     .chat-footer {
       background: var(--card-bg);
       border-top: 1px solid var(--border);
-      padding: 8px 10px;
+      padding: 8px 12px;
       display: flex;
       align-items: center;
       gap: 8px;
-      min-height: 60px;
+      height: 65px;
       flex-shrink: 0;
+      position: relative;
       z-index: 50;
     }
 
@@ -307,7 +310,7 @@
     /* MENÚ + Y DESPLEGABLES */
     .plus-panel {
       position: absolute;
-      bottom: 65px;
+      bottom: 70px;
       left: 10px;
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -333,7 +336,7 @@
 
     .drawer-panel {
       position: absolute;
-      bottom: 65px;
+      bottom: 70px;
       left: 0; right: 0;
       background: var(--card-bg);
       border-top: 1px solid var(--border);
@@ -378,7 +381,7 @@
       <button class="device-btn" id="btnModePC"><i data-lucide="monitor" style="width:14px;"></i> PC</button>
     </div>
 
-    <!-- 1. PANTALLA: CONFIGURACIÓN INICIAL DEL PERFIL (SOLO LA PRIMERA VEZ) -->
+    <!-- 1. PANTALLA: CONFIGURACIÓN INICIAL DE PERFIL -->
     <div class="screen" id="profileScreen">
       <div class="card">
         <img src="https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg" alt="Logo" class="app-logo">
@@ -396,7 +399,7 @@
       </div>
     </div>
 
-    <!-- 2. PANTALLA: PANEL DE CHATS GUARDADOS -->
+    <!-- 2. PANTALLA: LISTA DE CHATS GUARDADOS -->
     <div class="screen hidden" id="chatsListScreen">
       <div class="chats-header">
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -438,19 +441,14 @@
         </div>
       </div>
 
+      <!-- ÁREA DE MENSAJES -->
       <div class="chat-body" id="chatBody"></div>
 
+      <!-- PANEL DE EMOJIS Y STICKERS -->
       <div class="drawer-panel hidden" id="emojiDrawer"></div>
       <div class="drawer-panel hidden" id="stickerDrawer"></div>
 
-      <!-- BARRA DE MENSAJES INFERIOR -->
-      <div class="chat-footer">
-        <button class="icon-btn" id="btnPlus"><i data-lucide="plus-circle" style="width: 26px; height: 26px;"></i></button>
-        <input type="text" id="messageInput" style="flex: 1; text-align: left;" placeholder="Mensaje...">
-        <button class="btn" id="btnSend" style="padding: 8px 12px;"><i data-lucide="send"></i></button>
-      </div>
-
-      <!-- OPCIONES MENÚ + -->
+      <!-- MENÚ POPUP + -->
       <div class="plus-panel hidden" id="plusPanel">
         <label class="menu-option">
           <i data-lucide="image"></i> Subir Sticker
@@ -459,9 +457,16 @@
         <div class="menu-option" id="btnToggleEmojis"><i data-lucide="smile"></i> Emojis</div>
         <div class="menu-option" id="btnToggleStickers"><i data-lucide="sticker"></i> Stickers Guardados</div>
       </div>
+
+      <!-- BARRA DE ENTRADA DE MENSAJES -->
+      <div class="chat-footer">
+        <button class="icon-btn" id="btnPlus"><i data-lucide="plus-circle" style="width: 26px; height: 26px;"></i></button>
+        <input type="text" id="messageInput" style="flex: 1; text-align: left;" placeholder="Escribe un mensaje...">
+        <button class="btn" id="btnSend" style="padding: 8px 12px;"><i data-lucide="send"></i></button>
+      </div>
     </div>
 
-    <!-- MODAL OPCIONES DE CONTACTO -->
+    <!-- MODAL DE OPCIONES DE CONTACTO -->
     <div class="modal hidden" id="contactModal">
       <div class="card" style="max-width: 280px;">
         <img id="modalContactAvatar" style="width: 60px; height: 60px; border-radius: 50%; margin: 0 auto; object-fit: cover;">
@@ -477,7 +482,7 @@
   <script>
     lucide.createIcons();
 
-    // SELECTOR MODO ANDROID Y PC
+    // SELECTOR DE MODO ANDROID Y PC
     const btnModeAndroid = document.getElementById('btnModeAndroid');
     const btnModePC = document.getElementById('btnModePC');
 
@@ -493,7 +498,7 @@
       btnModeAndroid.classList.remove('active');
     });
 
-    // SONIDO DE SINTETIZADOR
+    // SONIDOS SINTETIZADOS
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playSound(type) {
       const osc = audioCtx.createOscillator();
@@ -506,7 +511,7 @@
       osc.start(); osc.stop(audioCtx.currentTime + 0.1);
     }
 
-    // ESTADO DE DATOS
+    // ESTADO DE DATOS LOCALES
     let myProfile = JSON.parse(localStorage.getItem('user_profile') || '{"name":"","avatar":""}');
     let savedContacts = JSON.parse(localStorage.getItem('saved_contacts') || '{}');
     let savedStickers = JSON.parse(localStorage.getItem('saved_stickers') || '[]');
@@ -514,21 +519,21 @@
     let conn = null;
     let currentChatId = null;
 
-    // VISTAS
+    // PANTALLAS
     const profileScreen = document.getElementById('profileScreen');
     const chatsListScreen = document.getElementById('chatsListScreen');
     const connectScreen = document.getElementById('connectScreen');
     const chatView = document.getElementById('chatView');
     const chatBody = document.getElementById('chatBody');
 
-    // INICIO
+    // VERIFICACIÓN INICIAL DE PERFIL
     if (myProfile.name && myProfile.avatar) {
       showChatsList();
     } else {
       profileScreen.classList.remove('hidden');
     }
 
-    // CARGAR FOTO DE PERFIL
+    // FOTO DE PERFIL
     document.getElementById('profilePicInput').addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -545,7 +550,7 @@
 
     document.getElementById('btnSaveProfile').addEventListener('click', () => {
       const name = document.getElementById('usernameInput').value.trim();
-      if (!name || !myProfile.avatar) return alert('Por favor sube una foto y nombre.');
+      if (!name || !myProfile.avatar) return alert('Por favor sube una foto y escribe un nombre.');
       myProfile.name = name;
       localStorage.setItem('user_profile', JSON.stringify(myProfile));
       profileScreen.classList.add('hidden');
@@ -594,7 +599,7 @@
       chatsListScreen.classList.remove('hidden');
     });
 
-    // PEERJS: CONEXIÓN AUTOMÁTICA DIRECTA
+    // PEERJS: CONEXIÓN
     document.getElementById('btnGenCode').addEventListener('click', () => {
       const code = Math.floor(1000 + Math.random() * 9000).toString();
       setupPeer(`peer-room-${code}`, code);
@@ -603,14 +608,14 @@
     document.getElementById('btnJoin').addEventListener('click', () => {
       const code = document.getElementById('joinCodeInput').value.trim();
       if (code.length === 4) setupPeer(null, code);
-      else alert("Ingresa un código válido");
+      else alert("Ingresa un código válido de 4 dígitos.");
     });
 
     function setupPeer(customId, code) {
       peer = new Peer(customId);
       peer.on('open', () => {
         if (customId) {
-          alert(`Código generado: ${code}\nIngrésalo en el otro dispositivo.`);
+          alert(`Código generado: ${code}\nPásale este código al otro celular.`);
         } else {
           conn = peer.connect(`peer-room-${code}`);
           bindConnEvents();
@@ -633,7 +638,6 @@
           savedContacts[contactId] = { name: data.profile.name, avatar: data.profile.avatar, messages: savedContacts[contactId]?.messages || [] };
           localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
           
-          // Entrar directo al chat sin re-confirmar datos
           connectScreen.classList.add('hidden');
           openChat(contactId, data.profile.name, data.profile.avatar);
         }
@@ -672,7 +676,7 @@
       showChatsList();
     });
 
-    // MENSAJES Y STICKERS
+    // ENVÍO DE MENSAJES Y STICKERS
     document.getElementById('btnSend').addEventListener('click', sendText);
     document.getElementById('messageInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendText(); });
 
@@ -783,7 +787,7 @@
       localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
     }
 
-    // MODAL CONTACTO
+    // MODAL OPCIONES
     document.getElementById('contactHeaderInfo').addEventListener('click', () => {
       document.getElementById('modalContactName').innerText = savedContacts[currentChatId].name;
       document.getElementById('modalContactAvatar').src = savedContacts[currentChatId].avatar;
