@@ -3,482 +3,672 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Mando Web Pro - Teclado Virtual</title>
+  <title>PeerChat Pro</title>
   <!-- Librería PeerJS para conectar 2 celulares -->
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <!-- Iconos Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     :root {
-      --bg-color: #0a0b0e;
+      --bg: #0d0f12;
       --card-bg: #161b22;
-      --accent: #00f2fe;
-      --btn-bg: #21262d;
-      --btn-border: #30363d;
+      --accent: #9d4edd;
+      --accent-glow: #c77dff;
       --text: #ffffff;
+      --bubble-me: #3c096c;
+      --bubble-other: #21262d;
+      --border: #30363d;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: manipulation;
     }
 
     body {
-      background-color: var(--bg-color);
+      background-color: var(--bg);
       color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      height: 100vh;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 0 30px rgba(0,0,0,0.8);
+      overflow: hidden;
+    }
+
+    /* PANTALLAS DE ENTRADA Y PERFIL */
+    .screen {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      padding: 10px;
+      padding: 20px;
+      z-index: 10;
+      transition: transform 0.3s ease, opacity 0.3s ease;
     }
 
-    /* SELECCIÓN DE MODO */
-    .mode-selector {
+    .hidden {
+      display: none !important;
+    }
+
+    .card {
       background: var(--card-bg);
-      border: 2px solid var(--btn-border);
-      border-radius: 20px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
       padding: 25px;
-      max-width: 400px;
       width: 100%;
       text-align: center;
       display: flex;
       flex-direction: column;
       gap: 15px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      animation: popIn 0.3s ease-out;
     }
 
-    .mode-selector h2 { color: var(--accent); font-size: 1.4rem; }
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
 
-    .input-code {
+    h2 { color: var(--accent-glow); font-size: 1.5rem; }
+
+    input {
       background: #0d1117;
-      border: 1px solid var(--accent);
+      border: 1px solid var(--border);
       color: #fff;
       padding: 12px;
-      border-radius: 10px;
-      font-size: 1.2rem;
+      border-radius: 12px;
+      font-size: 1rem;
       text-align: center;
-      letter-spacing: 2px;
       outline: none;
       width: 100%;
     }
 
-    .btn-main {
-      background: var(--accent);
-      color: #000;
+    input:focus { border-color: var(--accent-glow); }
+
+    .btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-glow));
+      color: #fff;
       border: none;
       padding: 12px;
-      border-radius: 10px;
+      border-radius: 12px;
       font-weight: bold;
       font-size: 1rem;
       cursor: pointer;
-    }
-
-    .btn-main:active { opacity: 0.8; }
-
-    /* MANDO PRO */
-    .gamepad-body {
-      display: none;
-      background: linear-gradient(145deg, #1c2128, #0d1117);
-      border: 3px solid #30363d;
-      border-radius: 40px;
-      padding: 20px;
-      width: 100%;
-      max-width: 900px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.8);
-      grid-template-columns: 1fr;
-      gap: 20px;
-    }
-
-    @media (min-width: 768px) {
-      .gamepad-body { grid-template-columns: 1.2fr 1.4fr 1.2fr; }
-    }
-
-    .pad-column {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-around;
-      gap: 15px;
-    }
-
-    .touchpad-box { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-
-    .touchpad {
-      width: 100%;
-      height: 130px;
-      background: radial-gradient(circle, #161b22 0%, #0d1117 100%);
-      border: 2px solid var(--accent);
-      border-radius: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #8b949e;
-      font-size: 0.85rem;
-      text-align: center;
-      touch-action: none;
-      cursor: crosshair;
+      gap: 8px;
+      transition: transform 0.1s;
     }
 
-    .mouse-btns { display: flex; gap: 10px; width: 100%; }
+    .btn:active { transform: scale(0.98); }
 
-    .btn-mouse {
-      flex: 1; padding: 10px; background: var(--btn-bg);
-      border: 1px solid var(--btn-border); color: #fff;
-      border-radius: 8px; font-weight: bold; cursor: pointer;
-    }
-
-    .menu-row { display: flex; gap: 8px; width: 100%; justify-content: center; }
-
-    .btn-menu {
-      background: #21262d; border: 1px solid #30363d;
-      color: #fff; padding: 8px 12px; border-radius: 12px;
-      font-size: 0.75rem; font-weight: bold; cursor: pointer;
-    }
-
-    .dpad { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(3, 60px); gap: 5px; }
-
-    .btn-ctrl {
-      background: var(--btn-bg); border: 2px solid var(--btn-border);
-      color: var(--text); border-radius: 12px; font-weight: bold;
-      font-size: 1.3rem; cursor: pointer; display: flex;
-      align-items: center; justify-content: center; box-shadow: 0 4px 0 #0d1117;
-    }
-
-    .btn-ctrl:active {
-      transform: translateY(2px); box-shadow: 0 2px 0 #0d1117;
-      background: var(--accent); color: #000;
-    }
-
-    .joystick-outer {
-      width: 120px; height: 120px;
-      background: radial-gradient(circle, #21262d 0%, #0d1117 100%);
-      border: 3px solid var(--btn-border); border-radius: 50%;
-      position: relative; display: flex; align-items: center;
-      justify-content: center; touch-action: none;
-    }
-
-    .joystick-stick {
-      width: 55px; height: 55px;
-      background: radial-gradient(circle, #30363d 0%, #161b22 100%);
-      border: 2px solid var(--accent); border-radius: 50%;
-      position: absolute; box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-    }
-
-    .action-btns { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(3, 60px); gap: 5px; }
-    .btn-act { border-radius: 50%; font-size: 1.1rem; }
-    .btn-a { background: #238636; border-color: #2ea043; }
-    .btn-b { background: #da3633; border-color: #f85149; }
-    .btn-x { background: #1f6feb; border-color: #388bfd; }
-    .btn-y { background: #d29922; border-color: #e3b341; color: #fff; }
-
-    /* CONSOLA CELULAR 1 */
-    .receiver-box {
-      display: none;
+    /* CHAT HEADER */
+    .chat-header {
       background: var(--card-bg);
-      border: 1px solid var(--btn-border);
-      border-radius: 16px;
-      padding: 20px;
-      max-width: 500px;
-      width: 100%;
-      text-align: center;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 5;
     }
 
-    .console-log {
-      margin-top: 15px; background: #0d1117;
-      border: 1px solid #30363d; border-radius: 10px;
-      padding: 10px; height: 160px; overflow-y: auto;
-      font-family: monospace; font-size: 0.8rem; color: var(--accent);
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+      border: 2px solid var(--accent-glow);
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      background: #2ea043;
+      border-radius: 50%;
+      display: inline-block;
+      margin-left: 5px;
+    }
+
+    /* MENSAGES / AREA DE CHAT */
+    .chat-body {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .msg {
+      max-width: 75%;
+      padding: 10px 14px;
+      border-radius: 18px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      word-break: break-word;
+      animation: msgPop 0.2s ease-out;
+      position: relative;
+    }
+
+    @keyframes msgPop {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .msg.me {
+      align-self: flex-end;
+      background: var(--bubble-me);
+      border-bottom-right-radius: 4px;
+      color: #fff;
+    }
+
+    .msg.other {
+      align-self: flex-start;
+      background: var(--bubble-other);
+      border-bottom-left-radius: 4px;
+      color: #fff;
+    }
+
+    .msg-sticker {
+      background: transparent !important;
+      padding: 0 !important;
+    }
+
+    .msg-sticker img {
+      width: 160px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 20px;
+      border: 2px solid var(--accent-glow);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    .sticker-actions {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+    }
+
+    .btn-sm {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    /* BARRA INFERIOR DE MENSAJES */
+    .chat-footer {
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-input {
+      flex: 1;
       text-align: left;
+      padding: 10px 14px;
+    }
+
+    /* MENÚ DESPLEGABLE "+" */
+    .plus-menu {
+      position: absolute;
+      bottom: 60px;
+      left: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+      z-index: 100;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .menu-item:hover { background: rgba(255,255,255,0.05); }
+
+    /* MODAL DE PERFIL DEL CONTACTO */
+    .profile-modal {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* GALERÍA DE STICKERS GUARDADOS */
+    .stickers-drawer {
+      max-height: 120px;
+      background: #0d1117;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      padding: 8px;
+      overflow-x: auto;
+    }
+
+    .stickers-drawer img {
+      width: 70px;
+      height: 70px;
+      border-radius: 12px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 1px solid var(--border);
     }
   </style>
 </head>
 <body>
 
-  <!-- PANTALLA INICIAL DE CONFIGURACIÓN -->
-  <div class="mode-selector" id="setupScreen">
-    <h2>🎮 Mando Web Conexión</h2>
-    <p style="font-size: 0.85rem; color: #8b949e;">Elige qué función tendrá este dispositivo:</p>
+  <div class="app-container">
 
-    <button class="btn-main" style="background:#21262d; color:#fff;" id="btnHostMode">📱 Celular 1: RECIBIR (Juego / Pantalla)</button>
+    <!-- PANTALLA 1: CONEXIÓN POR CÓDIGO -->
+    <div class="screen" id="connectScreen">
+      <div class="card">
+        <i data-lucide="message-square-plus" style="width: 48px; height: 48px; color: var(--accent-glow); margin: 0 auto;"></i>
+        <h2>PeerChat Pro</h2>
+        <p style="font-size: 0.85rem; color: #8b949e;">Conexión directa entre 2 dispositivos.</p>
 
-    <hr style="border-color: #30363d; margin: 5px 0;">
+        <button class="btn" id="btnGenCode"><i data-lucide="qr-code"></i> Generar Código de Sala</button>
 
-    <p style="font-size: 0.85rem; color: #8b949e;">O pon el código para ser el mando:</p>
-    <input type="text" class="input-code" id="joinCodeInput" placeholder="CÓDIGO (Ej: 4821)" maxlength="6">
-    <button class="btn-main" id="btnJoinMode">🕹️ Celular 2: UNIRSE COMO MANDO</button>
-  </div>
+        <hr style="border-color: var(--border);">
 
-  <!-- PANTALLA RECEPTORA (CELULAR 1) -->
-  <div class="receiver-box" id="receiverScreen">
-    <h3 style="color: var(--accent);">Código de Conexión:</h3>
-    <h1 id="roomCodeDisplay" style="font-size: 2.8rem; letter-spacing: 5px; margin: 10px 0; color: #fff;">----</h1>
-    <p style="font-size: 0.85rem; color: #8b949e;">Pon este número en el Celular 2.</p>
-    <div class="console-log" id="receiverLog">> Generando sala...</div>
-  </div>
-
-  <!-- MANDO INTERACTIVO (CELULAR 2) -->
-  <div class="gamepad-body" id="gamepadScreen">
-
-    <!-- IZQUIERDA: PERILLA Y CRUCETA -->
-    <div class="pad-column">
-      <div class="joystick-outer" id="joystickLeft">
-        <div class="joystick-stick" id="stickLeft"></div>
-      </div>
-
-      <div class="dpad">
-        <div></div>
-        <button class="btn-ctrl" data-cmd="UP" data-key="ArrowUp">▲</button>
-        <div></div>
-        <button class="btn-ctrl" data-cmd="LEFT" data-key="ArrowLeft">◄</button>
-        <div></div>
-        <button class="btn-ctrl" data-cmd="RIGHT" data-key="ArrowRight">►</button>
-        <div></div>
-        <button class="btn-ctrl" data-cmd="DOWN" data-key="ArrowDown">▼</button>
-        <div></div>
+        <input type="text" id="joinCodeInput" placeholder="Ingresar Código (Ej: 4821)" maxlength="4">
+        <button class="btn" style="background: var(--card-bg); border: 1px solid var(--border);" id="btnJoin"><i data-lucide="link"></i> Unirse a Chat</button>
       </div>
     </div>
 
-    <!-- CENTRO: MOUSE Y MENÚS -->
-    <div class="pad-column">
-      <div class="touchpad-box">
-        <div class="touchpad" id="touchpad">
-          🖱️ Mouse Touchpad<br><small>Desliza para mover</small>
-        </div>
-        <div class="mouse-btns">
-          <button class="btn-mouse" data-cmd="CLICK_LEFT">Clic Izq.</button>
-          <button class="btn-mouse" data-cmd="CLICK_RIGHT">Clic Der.</button>
-        </div>
-      </div>
+    <!-- PANTALLA 2: EDITAR NOMBRE / CONFIRMAR -->
+    <div class="screen hidden" id="profileScreen">
+      <div class="card">
+        <i data-lucide="user-check" style="width: 48px; height: 48px; color: var(--accent-glow); margin: 0 auto;"></i>
+        <h2>Configura tu Perfil</h2>
+        <p style="font-size: 0.85rem; color: #8b949e;">Elige cómo te verá la otra persona.</p>
 
-      <div class="menu-row">
-        <button class="btn-menu" data-cmd="SELECT" data-key="Shift">SELECT</button>
-        <button class="btn-menu" data-cmd="HOME" data-key="Escape">🏠 HOME</button>
-        <button class="btn-menu" data-cmd="MENU" data-key="Tab">☰ MENÚ</button>
-        <button class="btn-menu" data-cmd="START" data-key="Enter">START</button>
+        <input type="text" id="usernameInput" placeholder="Tu Nombre de usuario" maxlength="15">
+
+        <div style="display: flex; gap: 10px; justify-content: center;" id="avatarPicker">
+          <div class="avatar" style="cursor: pointer;" onclick="selectAvatar('👾')">👾</div>
+          <div class="avatar" style="cursor: pointer;" onclick="selectAvatar('🦊')">🦊</div>
+          <div class="avatar" style="cursor: pointer;" onclick="selectAvatar('⚡')">⚡</div>
+          <div class="avatar" style="cursor: pointer;" onclick="selectAvatar('👑')">👑</div>
+        </div>
+
+        <button class="btn" id="btnConfirmProfile"><i data-lucide="check-circle"></i> Entrar al Chat</button>
       </div>
     </div>
 
-    <!-- DERECHA: BOTONES DE ACCIÓN -->
-    <div class="pad-column">
-      <div class="action-btns">
-        <div></div>
-        <button class="btn-ctrl btn-act btn-y" data-cmd="Y" data-key="w">Y</button>
-        <div></div>
-        <button class="btn-ctrl btn-act btn-x" data-cmd="X" data-key="a">X</button>
-        <div></div>
-        <button class="btn-ctrl btn-act btn-b" data-cmd="B" data-key="s">B</button>
-        <div></div>
-        <button class="btn-ctrl btn-act btn-a" data-cmd="A" data-key="Space">A</button>
-        <div></div>
+    <!-- PANTALLA 3: CHAT PRINCIPAL -->
+    <div class="app-container hidden" id="chatScreen">
+      <!-- HEADER -->
+      <div class="chat-header">
+        <div class="user-info" id="contactHeader">
+          <div class="avatar" id="contactAvatar">?</div>
+          <div>
+            <span id="contactName" style="font-weight: bold;">Contacto</span>
+            <span class="status-dot"></span>
+          </div>
+        </div>
+        <button class="btn-sm" id="btnAddMore"><i data-lucide="user-plus" style="width: 16px;"></i> Conectar otro</button>
+      </div>
+
+      <!-- CHAT BODY -->
+      <div class="chat-body" id="chatBody"></div>
+
+      <!-- GALERÍA DE STICKERS GUARDADOS -->
+      <div class="stickers-drawer hidden" id="stickersDrawer"></div>
+
+      <!-- BARRA INFERIOR -->
+      <div class="chat-footer">
+        <button class="btn-sm" id="btnPlus" style="padding: 10px;"><i data-lucide="plus"></i></button>
+        <input type="text" class="chat-input" id="messageInput" placeholder="Escribe un mensaje...">
+        <button class="btn" id="btnSend" style="padding: 10px 14px;"><i data-lucide="send"></i></button>
+      </div>
+
+      <!-- MENÚ DE OPCIONES DEL BÓTON "+" -->
+      <div class="plus-menu hidden" id="plusMenu">
+        <label class="menu-item">
+          <i data-lucide="image"></i> Subir Sticker
+          <input type="file" id="imageInput" accept="image/*" style="display: none;">
+        </label>
+        <div class="menu-item" id="btnToggleStickers"><i data-lucide="smile"></i> Mis Stickers</div>
+      </div>
+    </div>
+
+    <!-- MODAL PERFIL/BLOQUEO -->
+    <div class="profile-modal hidden" id="profileModal">
+      <div class="card" style="max-width: 320px;">
+        <div class="avatar" id="modalAvatar" style="width: 60px; height: 60px; margin: 0 auto; font-size: 1.8rem;">?</div>
+        <h3 id="modalName">Contacto</h3>
+        <p style="font-size: 0.8rem; color: #8b949e;">Conexión WebRTC Encriptada</p>
+        <button class="btn" style="background: #da3633;" id="btnBlock"><i data-lucide="shield-alert"></i> Bloquear Usuario</button>
+        <button class="btn" style="background: #21262d; border: 1px solid var(--border);" id="btnClearChat"><i data-lucide="trash-2"></i> Borrar Historial</button>
+        <button class="btn-sm" id="btnCloseModal">Cerrar</button>
       </div>
     </div>
 
   </div>
 
   <script>
+    lucide.createIcons();
+
+    // EFECTOS DE SONIDO (AUDIO SINTETIZADO WEB AUDIO API)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'send') {
+        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+      } else {
+        osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+      }
+    }
+
+    // ESTADO DE LA APP
     let peer = null;
     let conn = null;
+    let myProfile = { name: 'Usuario', avatar: '👾' };
+    let peerProfile = { name: 'Contacto', avatar: '🦊' };
+    let savedStickers = JSON.parse(localStorage.getItem('saved_stickers') || '[]');
+    let chatHistory = JSON.parse(localStorage.getItem('chat_history') || '[]');
 
-    const setupScreen = document.getElementById('setupScreen');
-    const receiverScreen = document.getElementById('receiverScreen');
-    const gamepadScreen = document.getElementById('gamepadScreen');
+    // ELEMENTOS DEL DOM
+    const connectScreen = document.getElementById('connectScreen');
+    const profileScreen = document.getElementById('profileScreen');
+    const chatScreen = document.getElementById('chatScreen');
+    const chatBody = document.getElementById('chatBody');
+    const messageInput = document.getElementById('messageInput');
+    const plusMenu = document.getElementById('plusMenu');
+    const stickersDrawer = document.getElementById('stickersDrawer');
 
-    const roomCodeDisplay = document.getElementById('roomCodeDisplay');
-    const receiverLog = document.getElementById('receiverLog');
-    const joinCodeInput = document.getElementById('joinCodeInput');
-
-    // Mapeo de equivalencia de botones a Teclas Reales de Teclado
-    const KEY_MAP = {
-      'UP': 'ArrowUp',
-      'DOWN': 'ArrowDown',
-      'LEFT': 'ArrowLeft',
-      'RIGHT': 'ArrowRight',
-      'A': ' ',        // Barra espaciadora
-      'B': 'Shift',
-      'X': 'x',
-      'Y': 'z',
-      'START': 'Enter',
-      'SELECT': 'Control'
-    };
-
-    function generateShortId() {
-      return Math.floor(1000 + Math.random() * 9000).toString();
+    // SOLICITAR NOTIFICACIONES NATIVAS
+    if ("Notification" in window) {
+      Notification.requestPermission();
     }
 
-    // --- MODO CELULAR 1 (RECEPTOR Y MOTOR DE TECLADO) ---
-    document.getElementById('btnHostMode').addEventListener('click', () => {
-      const roomCode = generateShortId();
-      peer = new Peer(`mando-room-${roomCode}`);
+    function selectAvatar(emoji) {
+      myProfile.avatar = emoji;
+      alert(`Avatar seleccionado: ${emoji}`);
+    }
 
-      setupScreen.style.display = 'none';
-      receiverScreen.style.display = 'block';
-      roomCodeDisplay.innerText = roomCode;
-
-      peer.on('open', () => {
-        receiverLog.innerHTML = `> Sala lista. Código: <b>${roomCode}</b><br>> Esperando al Celular 2...`;
-      });
-
-      peer.on('connection', (connection) => {
-        conn = connection;
-        receiverLog.innerHTML += `<br><b style="color:#00f2fe;">> ¡MANDO CONECTADO Y TRANSMITIENDO!</b>`;
-
-        conn.on('data', (data) => {
-          // 1. Si presionan un botón -> Inyecta evento de Teclado
-          if (data.type === 'BTN_DOWN') {
-            const keyToSimulate = KEY_MAP[data.cmd] || data.key || ' ';
-            simulateKeyEvent('keydown', keyToSimulate);
-            receiverLog.innerHTML += `<br>> Tecla Presionada: ${keyToSimulate}`;
-          }
-
-          if (data.type === 'BTN_UP') {
-            const keyToSimulate = KEY_MAP[data.cmd] || data.key || ' ';
-            simulateKeyEvent('keyup', keyToSimulate);
-          }
-
-          // 2. Si mueven la Perilla -> Simula Flechas de dirección
-          if (data.type === 'JOYSTICK_MOVE') {
-            handleJoystickAsArrows(data.x, data.y);
-          }
-
-          receiverLog.scrollTop = receiverLog.scrollHeight;
-        });
-      });
+    // GENERAR O UNIRSE
+    document.getElementById('btnGenCode').addEventListener('click', () => {
+      const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
+      initPeer(`peer-chat-${roomCode}`, roomCode);
     });
 
-    // Inyector real de eventos de teclado en la ventana del navegador
-    function simulateKeyEvent(eventType, keyName) {
-      const event = new KeyboardEvent(eventType, {
-        key: keyName,
-        code: keyName,
-        bubbles: true,
-        cancelable: true
-      });
-      document.dispatchEvent(event);
-    }
-
-    // Traduce la perilla táctil a pulsaciones de flechas arriba/abajo/izq/der
-    let activeJoyKeys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
-
-    function handleJoystickAsArrows(x, y) {
-      const threshold = 0.4; // Sensibilidad de la perilla
-
-      function checkAxis(val, posKey, negKey) {
-        if (val > threshold) {
-          if (!activeJoyKeys[posKey]) { simulateKeyEvent('keydown', posKey); activeJoyKeys[posKey] = true; }
-        } else {
-          if (activeJoyKeys[posKey]) { simulateKeyEvent('keyup', posKey); activeJoyKeys[posKey] = false; }
-        }
-
-        if (val < -threshold) {
-          if (!activeJoyKeys[negKey]) { simulateKeyEvent('keydown', negKey); activeJoyKeys[negKey] = true; }
-        } else {
-          if (activeJoyKeys[negKey]) { simulateKeyEvent('keyup', negKey); activeJoyKeys[negKey] = false; }
-        }
+    document.getElementById('btnJoin').addEventListener('click', () => {
+      const code = document.getElementById('joinCodeInput').value.trim();
+      if (code.length === 4) {
+        initPeer(null, code);
+      } else {
+        alert("Escribe un código válido de 4 dígitos.");
       }
-
-      checkAxis(x, 'ArrowRight', 'ArrowLeft');
-      checkAxis(y, 'ArrowDown', 'ArrowUp');
-    }
-
-    // --- MODO CELULAR 2 (EL MANDO EN SÍ) ---
-    document.getElementById('btnJoinMode').addEventListener('click', () => {
-      const code = joinCodeInput.value.trim();
-      if (!code || code.length < 4) {
-        alert("Escribe el código de 4 dígitos generado en el Celular 1.");
-        return;
-      }
-
-      peer = new Peer();
-
-      peer.on('open', () => {
-        conn = peer.connect(`mando-room-${code}`);
-
-        conn.on('open', () => {
-          setupScreen.style.display = 'none';
-          gamepadScreen.style.display = 'grid';
-          if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-        });
-
-        conn.on('error', () => {
-          alert("Error de conexión. Verifica que el Celular 1 siga con la pantalla abierta.");
-        });
-      });
     });
 
-    function sendSignal(type, data) {
+    function initPeer(customId, roomCode) {
+      peer = new Peer(customId);
+
+      peer.on('open', () => {
+        if (customId) {
+          alert(`Tu código generado es: ${roomCode}. Compártelo con el otro celular.`);
+        } else {
+          conn = peer.connect(`peer-chat-${roomCode}`);
+          setupConnection();
+        }
+        connectScreen.classList.add('hidden');
+        profileScreen.classList.remove('hidden');
+      });
+
+      peer.on('connection', (c) => {
+        conn = c;
+        setupConnection();
+      });
+    }
+
+    document.getElementById('btnConfirmProfile').addEventListener('click', () => {
+      const inputName = document.getElementById('usernameInput').value.trim();
+      if (inputName) myProfile.name = inputName;
+
+      profileScreen.classList.add('hidden');
+      chatScreen.classList.remove('hidden');
+
+      // Cargar historial guardado
+      loadHistory();
+      renderStickers();
+
+      if (conn) {
+        conn.send({ type: 'PROFILE', profile: myProfile });
+      }
+    });
+
+    function setupConnection() {
+      conn.on('data', (data) => {
+        if (data.type === 'PROFILE') {
+          peerProfile = data.profile;
+          document.getElementById('contactName').innerText = peerProfile.name;
+          document.getElementById('contactAvatar').innerText = peerProfile.avatar;
+          document.getElementById('modalName').innerText = peerProfile.name;
+          document.getElementById('modalAvatar').innerText = peerProfile.avatar;
+        }
+
+        if (data.type === 'TEXT') {
+          renderMessage(data.text, 'other');
+          saveMessage(data.text, 'other');
+          playSound('receive');
+          sendNotification(peerProfile.name, data.text);
+        }
+
+        if (data.type === 'STICKER') {
+          renderSticker(data.imgSrc, 'other');
+          playSound('receive');
+          sendNotification(peerProfile.name, '📷 Te envió un sticker');
+        }
+      });
+    }
+
+    // ENVIAR MENSAJE
+    document.getElementById('btnSend').addEventListener('click', sendTextMessage);
+    messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendTextMessage(); });
+
+    function sendTextMessage() {
+      const text = messageInput.value.trim();
+      if (!text) return;
+
       if (conn && conn.open) {
-        conn.send({ type, ...data });
-      }
-      if (navigator.vibrate) navigator.vibrate(20);
-    }
-
-    // DETECCIÓN DE BOTONES (PRESIONAR Y SOLTAR)
-    document.querySelectorAll('[data-cmd]').forEach(btn => {
-      const cmd = btn.getAttribute('data-cmd');
-      const key = btn.getAttribute('data-key');
-
-      btn.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        sendSignal('BTN_DOWN', { cmd, key });
-      });
-
-      btn.addEventListener('pointerup', (e) => {
-        e.preventDefault();
-        sendSignal('BTN_UP', { cmd, key });
-      });
-    });
-
-    // PERILLA (JOYSTICK)
-    const joystick = document.getElementById('joystickLeft');
-    const stick = document.getElementById('stickLeft');
-    let joyActive = false;
-    const maxRadius = 30;
-
-    joystick.addEventListener('pointerdown', (e) => {
-      joyActive = true;
-      joystick.setPointerCapture(e.pointerId);
-      updateJoystick(e);
-    });
-
-    joystick.addEventListener('pointermove', (e) => {
-      if (joyActive) updateJoystick(e);
-    });
-
-    function resetJoystick() {
-      if (!joyActive) return;
-      joyActive = false;
-      stick.style.transform = `translate(0px, 0px)`;
-      sendSignal('JOYSTICK_MOVE', { x: 0, y: 0 });
-    }
-
-    joystick.addEventListener('pointerup', resetJoystick);
-    joystick.addEventListener('pointercancel', resetJoystick);
-
-    function updateJoystick(e) {
-      const rect = joystick.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-
-      let dx = e.clientX - centerX;
-      let dy = e.clientY - centerY;
-      const dist = Math.hypot(dx, dy);
-
-      if (dist > maxRadius) {
-        const angle = Math.atan2(dy, dx);
-        dx = Math.cos(angle) * maxRadius;
-        dy = Math.sin(angle) * maxRadius;
+        conn.send({ type: 'TEXT', text });
       }
 
-      stick.style.transform = `translate(${dx}px, ${dy}px)`;
-      sendSignal('JOYSTICK_MOVE', { 
-        x: parseFloat((dx / maxRadius).toFixed(2)), 
-        y: parseFloat((dy / maxRadius).toFixed(2)) 
+      renderMessage(text, 'me');
+      saveMessage(text, 'me');
+      messageInput.value = '';
+      playSound('send');
+    }
+
+    function renderMessage(text, sender) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `msg ${sender}`;
+      msgDiv.innerText = text;
+      chatBody.appendChild(msgDiv);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // MANEJO DE STICKERS (SUBIR IMAGEN)
+    document.getElementById('btnPlus').addEventListener('click', () => {
+      plusMenu.classList.toggle('hidden');
+    });
+
+    document.getElementById('imageInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const imgSrc = event.target.result;
+          if (conn && conn.open) {
+            conn.send({ type: 'STICKER', imgSrc });
+          }
+          renderSticker(imgSrc, 'me');
+          playSound('send');
+          plusMenu.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function renderSticker(src, sender) {
+      const container = document.createElement('div');
+      container.className = `msg ${sender} msg-sticker`;
+
+      const img = document.createElement('img');
+      img.src = src;
+
+      const actions = document.createElement('div');
+      actions.className = 'sticker-actions';
+
+      const btnSave = document.createElement('button');
+      btnSave.className = 'btn-sm';
+      btnSave.innerText = '💾 Guardar';
+      btnSave.onclick = () => saveStickerToDrawer(src);
+
+      actions.appendChild(btnSave);
+      container.appendChild(img);
+      container.appendChild(actions);
+      chatBody.appendChild(container);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function saveStickerToDrawer(src) {
+      if (!savedStickers.includes(src)) {
+        savedStickers.push(src);
+        localStorage.setItem('saved_stickers', JSON.stringify(savedStickers));
+        renderStickers();
+        alert('Sticker guardado en tu galería.');
+      }
+    }
+
+    function renderStickers() {
+      stickersDrawer.innerHTML = '';
+      savedStickers.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.onclick = () => {
+          if (conn && conn.open) {
+            conn.send({ type: 'STICKER', imgSrc: src });
+          }
+          renderSticker(src, 'me');
+          playSound('send');
+        };
+        stickersDrawer.appendChild(img);
       });
+    }
+
+    document.getElementById('btnToggleStickers').addEventListener('click', () => {
+      stickersDrawer.classList.toggle('hidden');
+      plusMenu.classList.add('hidden');
+    });
+
+    // SISTEMA DE ALMACENAMIENTO
+    function saveMessage(text, sender) {
+      chatHistory.push({ text, sender });
+      localStorage.setItem('chat_history', JSON.stringify(chatHistory));
+    }
+
+    function loadHistory() {
+      chatHistory.forEach(m => renderMessage(m.text, m.sender));
+    }
+
+    // MODAL DE PERFIL / BLOQUEO
+    document.getElementById('contactHeader').addEventListener('click', () => {
+      document.getElementById('profileModal').classList.remove('hidden');
+    });
+
+    document.getElementById('btnCloseModal').addEventListener('click', () => {
+      document.getElementById('profileModal').classList.add('hidden');
+    });
+
+    document.getElementById('btnClearChat').addEventListener('click', () => {
+      chatHistory = [];
+      localStorage.removeItem('chat_history');
+      chatBody.innerHTML = '';
+      document.getElementById('profileModal').classList.add('hidden');
+    });
+
+    document.getElementById('btnBlock').addEventListener('click', () => {
+      alert("Usuario bloqueado.");
+      location.reload();
+    });
+
+    document.getElementById('btnAddMore').addEventListener('click', () => {
+      location.reload();
+    });
+
+    // NOTIFICACIONES NATIVAS
+    function sendNotification(title, body) {
+      if (document.hidden && Notification.permission === "granted") {
+        new Notification(title, { body, icon: 'https://cdn-icons-png.flaticon.com/512/134/134937.png' });
+      }
     }
   </script>
 </body>
