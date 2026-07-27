@@ -5,14 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>PeerChat Pro</title>
   
-  <!-- LOGO FAVORITO/ENLACE -->
   <link rel="icon" type="image/jpeg" href="https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg">
   <link rel="apple-touch-icon" href="https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg">
-  <meta property="og:image" content="https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg">
 
-  <!-- Librería PeerJS -->
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-  <!-- Iconos Lucide -->
   <script src="https://unpkg.com/lucide@latest"></script>
   
   <style>
@@ -30,8 +26,7 @@
 
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
@@ -41,13 +36,11 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      height: 100dvh;
+      height: 100vh; height: 100dvh;
       overflow: hidden;
       width: 100vw;
     }
 
-    /* MODO PC */
     body.pc-mode .app-container {
       max-width: 900px !important;
       height: 90vh !important;
@@ -58,8 +51,7 @@
     .app-container {
       width: 100%;
       max-width: var(--app-max-width);
-      height: 100vh;
-      height: 100dvh;
+      height: 100vh; height: 100dvh;
       background: var(--bg);
       display: flex;
       flex-direction: column;
@@ -70,18 +62,16 @@
 
     .hidden { display: none !important; }
 
-    /* SWITCHER MODO DISPOSITIVO */
+    /* SWITCHER MODO */
     .device-switcher {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 10px; right: 10px;
       z-index: 999;
       background: rgba(22, 27, 34, 0.9);
       border: 1px solid var(--border);
       border-radius: 20px;
       padding: 4px;
-      display: flex;
-      gap: 4px;
+      display: flex; gap: 4px;
     }
 
     .device-btn {
@@ -92,32 +82,24 @@
       border-radius: 16px;
       font-size: 0.75rem;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
+      display: flex; align-items: center; gap: 4px;
     }
 
-    .device-btn.active {
-      background: var(--accent);
-      color: #fff;
-    }
+    .device-btn.active { background: var(--accent); color: #fff; }
 
     .app-logo {
-      width: 80px;
-      height: 80px;
+      width: 80px; height: 80px;
       border-radius: 50%;
       object-fit: cover;
       margin: 0 auto 10px auto;
       border: 2px solid var(--accent-glow);
     }
 
-    /* PANTALLAS */
     .screen {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
       background: var(--bg);
-      display: flex;
-      flex-direction: column;
+      display: flex; flex-direction: column;
       padding: 20px;
       z-index: 10;
       overflow-y: auto;
@@ -130,16 +112,13 @@
       padding: 20px;
       width: 100%;
       text-align: center;
-      display: flex;
-      flex-direction: column;
+      display: flex; flex-direction: column;
       gap: 12px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.5);
       margin: auto 0;
     }
 
-    h2, h3 { color: var(--accent-glow); }
-
-    input[type="text"] {
+    input[type="text"], textarea {
       background: #0d1117;
       border: 1px solid var(--border);
       color: #fff;
@@ -148,7 +127,6 @@
       font-size: 1rem;
       outline: none;
       width: 100%;
-      text-align: center;
     }
 
     .btn {
@@ -160,47 +138,54 @@
       font-weight: bold;
       font-size: 1rem;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
 
     .avatar-upload {
-      width: 80px;
-      height: 80px;
+      width: 80px; height: 80px;
       border-radius: 50%;
       background: var(--border);
       margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; overflow: hidden;
       border: 2px dashed var(--accent-glow);
     }
 
-    .avatar-upload img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    .avatar-upload img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* NAVEGACIÓN PRINCIPAL (CHATS / ESTADOS / LLAMADAS) */
+    .main-nav {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-top: 35px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 4px;
     }
 
-    /* LISTA DE CONTACTOS */
+    .nav-tab {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #8b949e;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+
+    .nav-tab.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
     .chats-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 15px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 15px;
-      margin-top: 30px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 15px 0 10px 0;
     }
 
     .chat-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      display: flex; align-items: center; gap: 12px;
       padding: 12px;
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -210,20 +195,16 @@
     }
 
     .chat-item-avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      object-fit: cover;
+      width: 44px; height: 44px;
+      border-radius: 50%; object-fit: cover;
     }
 
-    /* VISTA DE CHAT FIX DEFINITIVO PARA ANDROID */
+    /* VISTA CHAT FIX ANDROID */
     .chat-view {
-      display: flex;
-      flex-direction: column;
+      display: flex; flex-direction: column;
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       background: var(--bg);
       z-index: 20;
     }
@@ -232,21 +213,16 @@
       background: var(--card-bg);
       border-bottom: 1px solid var(--border);
       padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 60px;
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px; flex-shrink: 0;
     }
 
     .chat-body {
       flex: 1 1 auto;
-      min-height: 0; /* Solución clave para evitar que colapse en Android */
+      min-height: 0;
       padding: 15px;
       overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      display: flex; flex-direction: column; gap: 10px;
       background: var(--bg);
     }
 
@@ -258,115 +234,121 @@
       word-break: break-word;
     }
 
-    .msg.me {
-      align-self: flex-end;
-      background: var(--bubble-me);
-      border-bottom-right-radius: 2px;
-    }
+    .msg.me { align-self: flex-end; background: var(--bubble-me); border-bottom-right-radius: 2px; }
+    .msg.other { align-self: flex-start; background: var(--bubble-other); border-bottom-left-radius: 2px; }
 
-    .msg.other {
-      align-self: flex-start;
-      background: var(--bubble-other);
-      border-bottom-left-radius: 2px;
-    }
-
-    .msg-sticker {
-      background: transparent !important;
-      padding: 0 !important;
-    }
-
-    .msg-sticker img {
-      width: 140px;
-      height: 140px;
-      object-fit: cover;
-      border-radius: 16px;
-      border: 2px solid var(--accent-glow);
+    .msg-media img, .msg-media video {
+      max-width: 100%;
+      border-radius: 12px;
+      margin-top: 5px;
     }
 
     .chat-footer {
       background: var(--card-bg);
       border-top: 1px solid var(--border);
       padding: 8px 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      height: 65px;
-      flex-shrink: 0;
-      position: relative;
-      z-index: 50;
+      display: flex; align-items: center; gap: 8px;
+      height: 65px; flex-shrink: 0;
+      position: relative; z-index: 50;
     }
 
     .icon-btn {
-      background: transparent;
-      border: none;
+      background: transparent; border: none;
       color: var(--accent-glow);
-      padding: 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      padding: 6px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
     }
 
-    /* MENÚ + Y DESPLEGABLES */
+    /* MENÚ POPUP + */
     .plus-panel {
       position: absolute;
-      bottom: 70px;
-      left: 10px;
+      bottom: 70px; left: 10px;
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      display: flex; flex-direction: column; gap: 8px;
       box-shadow: 0 5px 20px rgba(0,0,0,0.8);
-      z-index: 100;
-      width: 200px;
+      z-index: 100; width: 220px;
     }
 
     .menu-option {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px;
-      cursor: pointer;
-      border-radius: 8px;
-      font-size: 0.85rem;
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px; cursor: pointer;
+      border-radius: 8px; font-size: 0.85rem;
     }
 
     .drawer-panel {
       position: absolute;
-      bottom: 70px;
-      left: 0; right: 0;
+      bottom: 70px; left: 0; right: 0;
       background: var(--card-bg);
       border-top: 1px solid var(--border);
-      padding: 10px;
-      max-height: 140px;
+      padding: 10px; max-height: 140px;
       overflow-y: auto;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+      display: flex; flex-wrap: wrap; gap: 8px;
       z-index: 90;
     }
 
     .emoji-item { font-size: 1.4rem; cursor: pointer; padding: 4px; }
+    .sticker-thumb { width: 55px; height: 55px; border-radius: 10px; object-fit: cover; cursor: pointer; border: 1px solid var(--border); }
 
-    .sticker-thumb {
-      width: 55px; height: 55px;
-      border-radius: 10px;
-      object-fit: cover;
-      cursor: pointer;
-      border: 1px solid var(--border);
+    /* PANTALLA DE LLAMADA */
+    .call-screen {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: #050508; z-index: 300;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: space-around;
+      padding: 40px 20px;
     }
 
-    .modal {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.85);
-      z-index: 200;
+    .call-avatar {
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent-glow);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(199, 125, 255, 0.4); }
+      70% { box-shadow: 0 0 0 25px rgba(199, 125, 255, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(199, 125, 255, 0); }
+    }
+
+    .call-actions { display: flex; gap: 30px; }
+    .btn-call-action {
+      width: 60px; height: 60px;
+      border-radius: 50%; border: none;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: #fff;
+    }
+
+    /* MOSTRAR ESTADO */
+    .status-view-container {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: #000; z-index: 250;
+      display: flex; flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+    }
+
+    .status-content {
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
+    }
+
+    .status-content img, .status-content video {
+      max-width: 100%; max-height: 70vh;
+      border-radius: 12px;
+    }
+
+    .modal {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85); z-index: 200;
+      display: flex; align-items: center; justify-content: center;
       padding: 20px;
     }
   </style>
@@ -375,13 +357,13 @@
 
   <div class="app-container">
 
-    <!-- SELECTOR DE VISTA: ANDROID O PC -->
+    <!-- SELECTOR DE VISTA -->
     <div class="device-switcher">
       <button class="device-btn active" id="btnModeAndroid"><i data-lucide="smartphone" style="width:14px;"></i> Android</button>
       <button class="device-btn" id="btnModePC"><i data-lucide="monitor" style="width:14px;"></i> PC</button>
     </div>
 
-    <!-- 1. PANTALLA: CONFIGURACIÓN INICIAL DE PERFIL -->
+    <!-- 1. PERFIL INICIAL -->
     <div class="screen" id="profileScreen">
       <div class="card">
         <img src="https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg" alt="Logo" class="app-logo">
@@ -399,8 +381,9 @@
       </div>
     </div>
 
-    <!-- 2. PANTALLA: LISTA DE CHATS GUARDADOS -->
-    <div class="screen hidden" id="chatsListScreen">
+    <!-- 2. PANTALLA PRINCIPAL (CHATS / ESTADOS / LLAMADAS) -->
+    <div class="screen hidden" id="mainScreen">
+      
       <div class="chats-header">
         <div style="display: flex; align-items: center; gap: 10px;">
           <img id="mainProfileAvatar" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
@@ -409,13 +392,46 @@
         <button class="btn" id="btnNewChat" style="padding: 6px 12px; font-size: 0.8rem;"><i data-lucide="plus"></i> Nuevo Chat</button>
       </div>
 
-      <div id="chatsListContainer"></div>
+      <!-- TABS DE NAVEGACIÓN -->
+      <div class="main-nav">
+        <div class="nav-tab active" id="tabChats">Chats</div>
+        <div class="nav-tab" id="tabStatuses">Estados</div>
+        <div class="nav-tab" id="tabCalls">Llamadas</div>
+      </div>
+
+      <!-- CONTENIDO DE CHATS -->
+      <div id="sectionChats" style="margin-top: 15px;">
+        <div id="chatsListContainer"></div>
+      </div>
+
+      <!-- CONTENIDO DE ESTADOS -->
+      <div id="sectionStatuses" class="hidden" style="margin-top: 15px;">
+        <div class="chat-item" id="btnMyStatus">
+          <img id="myStatusAvatar" class="chat-item-avatar">
+          <div style="flex:1;">
+            <div style="font-weight:bold; font-size:0.9rem;">Mi Estado</div>
+            <div style="font-size:0.75rem; color:#8b949e;">Toca para subir un estado</div>
+          </div>
+          <i data-lucide="plus-circle" style="color: var(--accent-glow);"></i>
+        </div>
+
+        <h4 style="font-size:0.8rem; color:#8b949e; margin: 15px 0 10px 0;">ESTADOS RECIENTES</h4>
+        <div id="statusesListContainer"></div>
+      </div>
+
+      <!-- CONTENIDO DE LLAMADAS -->
+      <div id="sectionCalls" class="hidden" style="margin-top: 15px;">
+        <div id="callsListContainer">
+          <p style="text-align:center; color:#8b949e; margin-top:20px;">Sin llamadas recientes</p>
+        </div>
+      </div>
+
     </div>
 
-    <!-- 3. PANTALLA: GENERAR O INGRESAR CÓDIGO -->
+    <!-- 3. PANTALLA CÓDIGO CONEXIÓN -->
     <div class="screen hidden" id="connectScreen">
       <div class="card">
-        <button class="icon-btn" id="btnBackToChats" style="align-self: flex-start;"><i data-lucide="arrow-left"></i> Volver</button>
+        <button class="icon-btn" id="btnBackToMain" style="align-self: flex-start;"><i data-lucide="arrow-left"></i> Volver</button>
         <h2>Conectar Dispositivos</h2>
         <p style="font-size: 0.8rem; color: #8b949e;">Genera un código o ingresa el de otro celular</p>
         
@@ -426,7 +442,7 @@
       </div>
     </div>
 
-    <!-- 4. PANTALLA: CHAT ACTIVO -->
+    <!-- 4. PANTALLA CHAT ACTIVO -->
     <div class="chat-view hidden" id="chatView">
       <div class="chat-header">
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -439,26 +455,34 @@
             </div>
           </div>
         </div>
+
+        <!-- BOTÓN DE LLAMADA -->
+        <button class="icon-btn" id="btnStartCall"><i data-lucide="phone" style="width:22px; height:22px;"></i></button>
       </div>
 
-      <!-- ÁREA DE MENSAJES -->
       <div class="chat-body" id="chatBody"></div>
 
-      <!-- PANEL DE EMOJIS Y STICKERS -->
       <div class="drawer-panel hidden" id="emojiDrawer"></div>
       <div class="drawer-panel hidden" id="stickerDrawer"></div>
 
-      <!-- MENÚ POPUP + -->
+      <!-- MENÚ POPUP + CON TODAS LAS OPCIONES -->
       <div class="plus-panel hidden" id="plusPanel">
         <label class="menu-option">
-          <i data-lucide="image"></i> Subir Sticker
+          <i data-lucide="image"></i> Enviar Imagen
+          <input type="file" id="imageInput" accept="image/*" style="display: none;">
+        </label>
+        <label class="menu-option">
+          <i data-lucide="video"></i> Enviar Video
+          <input type="file" id="videoInput" accept="video/*" style="display: none;">
+        </label>
+        <label class="menu-option">
+          <i data-lucide="sticker"></i> Subir Sticker
           <input type="file" id="stickerInput" accept="image/*" style="display: none;">
         </label>
         <div class="menu-option" id="btnToggleEmojis"><i data-lucide="smile"></i> Emojis</div>
-        <div class="menu-option" id="btnToggleStickers"><i data-lucide="sticker"></i> Stickers Guardados</div>
+        <div class="menu-option" id="btnToggleStickers"><i data-lucide="star"></i> Stickers Guardados</div>
       </div>
 
-      <!-- BARRA DE ENTRADA DE MENSAJES -->
       <div class="chat-footer">
         <button class="icon-btn" id="btnPlus"><i data-lucide="plus-circle" style="width: 26px; height: 26px;"></i></button>
         <input type="text" id="messageInput" style="flex: 1; text-align: left;" placeholder="Escribe un mensaje...">
@@ -466,7 +490,56 @@
       </div>
     </div>
 
-    <!-- MODAL DE OPCIONES DE CONTACTO -->
+    <!-- 5. INTERFAZ DE LLAMADA DE VOZ -->
+    <div class="call-screen hidden" id="callScreen">
+      <div style="text-align: center;">
+        <img id="callAvatar" class="call-avatar">
+        <h3 id="callName" style="margin-top: 15px;">Llamando...</h3>
+        <p id="callStatus" style="font-size: 0.8rem; color: #8b949e; margin-top: 5px;">Conectando audio de extremo a extremo...</p>
+      </div>
+
+      <div class="call-actions">
+        <button class="btn-call-action" id="btnMuteCall" style="background: var(--card-bg); border: 1px solid var(--border);"><i data-lucide="mic"></i></button>
+        <button class="btn-call-action" id="btnEndCall" style="background: #da3633;"><i data-lucide="phone-off"></i></button>
+      </div>
+      <audio id="remoteAudio" autoplay></audio>
+    </div>
+
+    <!-- 6. PANTALLA PARA SUBIR ESTADO -->
+    <div class="modal hidden" id="uploadStatusModal">
+      <div class="card" style="max-width: 320px;">
+        <h3>Subir Estado</h3>
+        <input type="text" id="statusTextInput" placeholder="Texto de tu estado...">
+        <label class="btn" style="background: var(--card-bg); border: 1px solid var(--border);">
+          <i data-lucide="image"></i> Seleccionar Foto/Video
+          <input type="file" id="statusMediaInput" accept="image/*,video/*" style="display: none;">
+        </label>
+        <div id="statusMediaPreview" style="font-size: 0.75rem; color: var(--accent-glow);"></div>
+        <button class="btn" id="btnPublishStatus"><i data-lucide="upload"></i> Publicar</button>
+        <button class="btn" style="background: transparent;" id="btnCloseStatusModal">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- 7. VISUALIZADOR DE ESTADOS CON REACCIONES -->
+    <div class="status-view-container hidden" id="statusViewContainer">
+      <div style="display:flex; justify-content:space-between; align-items:center; z-index:10;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <img id="statusUserAvatar" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+          <span id="statusUserName" style="font-weight:bold; font-size:0.9rem;"></span>
+        </div>
+        <button class="icon-btn" id="btnCloseStatusView"><i data-lucide="x"></i></button>
+      </div>
+
+      <div class="status-content" id="statusContentArea"></div>
+
+      <div style="display:flex; gap:8px; align-items:center; z-index:10;">
+        <input type="text" id="statusCommentInput" placeholder="Responder a este estado..." style="flex:1;">
+        <button class="icon-btn" id="btnHeartStatus" style="color:#ff4d6d;"><i data-lucide="heart"></i></button>
+        <button class="btn" id="btnSendStatusComment" style="padding:8px 12px;"><i data-lucide="send"></i></button>
+      </div>
+    </div>
+
+    <!-- MODAL OPCIONES DE CONTACTO -->
     <div class="modal hidden" id="contactModal">
       <div class="card" style="max-width: 280px;">
         <img id="modalContactAvatar" style="width: 60px; height: 60px; border-radius: 50%; margin: 0 auto; object-fit: cover;">
@@ -482,7 +555,7 @@
   <script>
     lucide.createIcons();
 
-    // SELECTOR DE MODO ANDROID Y PC
+    // MODO ANDROID / PC
     const btnModeAndroid = document.getElementById('btnModeAndroid');
     const btnModePC = document.getElementById('btnModePC');
 
@@ -498,42 +571,42 @@
       btnModeAndroid.classList.remove('active');
     });
 
-    // SONIDOS SINTETIZADOS
+    // SONIDO DE EFECTOS
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playSound(type) {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
+      osc.connect(gain); gain.connect(audioCtx.destination);
       osc.frequency.setValueAtTime(type === 'send' ? 500 : 700, audioCtx.currentTime);
       gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
       gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
       osc.start(); osc.stop(audioCtx.currentTime + 0.1);
     }
 
-    // ESTADO DE DATOS LOCALES
+    // DATOS LOCALES
     let myProfile = JSON.parse(localStorage.getItem('user_profile') || '{"name":"","avatar":""}');
     let savedContacts = JSON.parse(localStorage.getItem('saved_contacts') || '{}');
     let savedStickers = JSON.parse(localStorage.getItem('saved_stickers') || '[]');
+    let statuses = JSON.parse(localStorage.getItem('user_statuses') || '[]');
+    
     let peer = null;
     let conn = null;
+    let currentCall = null;
+    let localStream = null;
     let currentChatId = null;
+    let activeStatusUser = null;
 
-    // PANTALLAS
+    // VISTAS
     const profileScreen = document.getElementById('profileScreen');
-    const chatsListScreen = document.getElementById('chatsListScreen');
+    const mainScreen = document.getElementById('mainScreen');
     const connectScreen = document.getElementById('connectScreen');
     const chatView = document.getElementById('chatView');
     const chatBody = document.getElementById('chatBody');
 
-    // VERIFICACIÓN INICIAL DE PERFIL
-    if (myProfile.name && myProfile.avatar) {
-      showChatsList();
-    } else {
-      profileScreen.classList.remove('hidden');
-    }
+    if (myProfile.name && myProfile.avatar) showMainScreen();
+    else profileScreen.classList.remove('hidden');
 
-    // FOTO DE PERFIL
+    // PERFIL
     document.getElementById('profilePicInput').addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -550,29 +623,54 @@
 
     document.getElementById('btnSaveProfile').addEventListener('click', () => {
       const name = document.getElementById('usernameInput').value.trim();
-      if (!name || !myProfile.avatar) return alert('Por favor sube una foto y escribe un nombre.');
+      if (!name || !myProfile.avatar) return alert('Sube una foto y escribe un nombre.');
       myProfile.name = name;
       localStorage.setItem('user_profile', JSON.stringify(myProfile));
       profileScreen.classList.add('hidden');
-      showChatsList();
+      showMainScreen();
     });
 
-    function showChatsList() {
+    function showMainScreen() {
       document.getElementById('mainProfileName').innerText = myProfile.name;
       document.getElementById('mainProfileAvatar').src = myProfile.avatar;
-      chatsListScreen.classList.remove('hidden');
+      document.getElementById('myStatusAvatar').src = myProfile.avatar;
+      mainScreen.classList.remove('hidden');
       renderContactsList();
+      renderStatusesList();
     }
 
+    // CAMBIO DE PESTAÑAS (CHATS / ESTADOS / LLAMADAS)
+    const tabChats = document.getElementById('tabChats');
+    const tabStatuses = document.getElementById('tabStatuses');
+    const tabCalls = document.getElementById('tabCalls');
+    const sectionChats = document.getElementById('sectionChats');
+    const sectionStatuses = document.getElementById('sectionStatuses');
+    const sectionCalls = document.getElementById('sectionCalls');
+
+    tabChats.onclick = () => {
+      tabChats.classList.add('active'); tabStatuses.classList.remove('active'); tabCalls.classList.remove('active');
+      sectionChats.classList.remove('hidden'); sectionStatuses.classList.add('hidden'); sectionCalls.classList.add('hidden');
+    };
+
+    tabStatuses.onclick = () => {
+      tabStatuses.classList.add('active'); tabChats.classList.remove('active'); tabCalls.classList.remove('active');
+      sectionStatuses.classList.remove('hidden'); sectionChats.classList.add('hidden'); sectionCalls.classList.add('hidden');
+    };
+
+    tabCalls.onclick = () => {
+      tabCalls.classList.add('active'); tabChats.classList.remove('active'); tabStatuses.classList.remove('active');
+      sectionCalls.classList.remove('hidden'); sectionChats.classList.add('hidden'); sectionStatuses.classList.add('hidden');
+    };
+
+    // RENDERIZAR CONTACTOS Y ESTADOS
     function renderContactsList() {
       const container = document.getElementById('chatsListContainer');
       container.innerHTML = '';
       const keys = Object.keys(savedContacts);
       if (keys.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#8b949e; margin-top:20px;">Sin chats guardados. Toca "+ Nuevo Chat"</p>';
+        container.innerHTML = '<p style="text-align:center; color:#8b949e; margin-top:20px;">Sin chats. Toca "+ Nuevo Chat"</p>';
         return;
       }
-
       keys.forEach(id => {
         const c = savedContacts[id];
         const item = document.createElement('div');
@@ -589,41 +687,157 @@
       });
     }
 
-    document.getElementById('btnNewChat').addEventListener('click', () => {
-      chatsListScreen.classList.add('hidden');
+    function renderStatusesList() {
+      const container = document.getElementById('statusesListContainer');
+      container.innerHTML = '';
+      const keys = Object.keys(savedContacts);
+      let count = 0;
+      keys.forEach(id => {
+        const c = savedContacts[id];
+        if (c.status) {
+          count++;
+          const item = document.createElement('div');
+          item.className = 'chat-item';
+          item.innerHTML = `
+            <img src="${c.avatar}" class="chat-item-avatar" style="border: 2px solid var(--accent-glow);">
+            <div style="flex:1;">
+              <div style="font-weight:bold; font-size:0.9rem;">${c.name}</div>
+              <div style="font-size:0.75rem; color:#8b949e;">Ver estado reciente</div>
+            </div>
+          `;
+          item.onclick = () => viewStatus(id, c.name, c.avatar, c.status);
+          container.appendChild(item);
+        }
+      });
+      if (count === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#8b949e;">No hay estados disponibles</p>';
+      }
+    }
+
+    document.getElementById('btnNewChat').onclick = () => {
+      mainScreen.classList.add('hidden');
       connectScreen.classList.remove('hidden');
-    });
+    };
 
-    document.getElementById('btnBackToChats').addEventListener('click', () => {
+    document.getElementById('btnBackToMain').onclick = () => {
       connectScreen.classList.add('hidden');
-      chatsListScreen.classList.remove('hidden');
-    });
+      mainScreen.classList.remove('hidden');
+    };
 
-    // PEERJS: CONEXIÓN
-    document.getElementById('btnGenCode').addEventListener('click', () => {
+    // SUBIR ESTADO
+    let tempStatusMedia = null;
+    let tempStatusType = 'text';
+
+    document.getElementById('btnMyStatus').onclick = () => {
+      document.getElementById('uploadStatusModal').classList.remove('hidden');
+    };
+
+    document.getElementById('btnCloseStatusModal').onclick = () => {
+      document.getElementById('uploadStatusModal').classList.add('hidden');
+    };
+
+    document.getElementById('statusMediaInput').onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        tempStatusType = file.type.startsWith('video') ? 'video' : 'image';
+        reader.onload = (ev) => {
+          tempStatusMedia = ev.target.result;
+          document.getElementById('statusMediaPreview').innerText = `Archivo seleccionado (${tempStatusType})`;
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    document.getElementById('btnPublishStatus').onclick = () => {
+      const text = document.getElementById('statusTextInput').value.trim();
+      const statusObj = { text, media: tempStatusMedia, type: tempStatusType };
+      
+      // Enviar estado si hay conexión activa
+      if (conn && conn.open) {
+        conn.send({ type: 'STATUS_UPDATE', status: statusObj });
+      }
+
+      alert('Estado publicado con éxito');
+      document.getElementById('uploadStatusModal').classList.add('hidden');
+    };
+
+    function viewStatus(id, name, avatar, status) {
+      activeStatusUser = id;
+      document.getElementById('statusUserName').innerText = name;
+      document.getElementById('statusUserAvatar').src = avatar;
+
+      const area = document.getElementById('statusContentArea');
+      area.innerHTML = '';
+
+      if (status.type === 'image' && status.media) {
+        area.innerHTML = `<img src="${status.media}">`;
+      } else if (status.type === 'video' && status.media) {
+        area.innerHTML = `<video src="${status.media}" controls autoplay></video>`;
+      } else {
+        area.innerHTML = `<h2 style="color:#fff; text-align:center;">${status.text}</h2>`;
+      }
+
+      document.getElementById('statusViewContainer').classList.remove('hidden');
+    }
+
+    document.getElementById('btnCloseStatusView').onclick = () => {
+      document.getElementById('statusViewContainer').classList.add('hidden');
+    };
+
+    document.getElementById('btnHeartStatus').onclick = () => {
+      if (conn && conn.open) {
+        conn.send({ type: 'TEXT', text: '❤️ Le gustó tu estado' });
+        alert('Reacción enviada');
+      }
+    };
+
+    document.getElementById('btnSendStatusComment').onclick = () => {
+      const input = document.getElementById('statusCommentInput');
+      const text = input.value.trim();
+      if (text && conn && conn.open) {
+        conn.send({ type: 'TEXT', text: `💬 Respondió a tu estado: ${text}` });
+        input.value = '';
+        alert('Comentario enviado');
+      }
+    };
+
+    // CONEXIÓN PEERJS
+    document.getElementById('btnGenCode').onclick = () => {
       const code = Math.floor(1000 + Math.random() * 9000).toString();
       setupPeer(`peer-room-${code}`, code);
-    });
+    };
 
-    document.getElementById('btnJoin').addEventListener('click', () => {
+    document.getElementById('btnJoin').onclick = () => {
       const code = document.getElementById('joinCodeInput').value.trim();
       if (code.length === 4) setupPeer(null, code);
-      else alert("Ingresa un código válido de 4 dígitos.");
-    });
+      else alert("Ingresa un código válido");
+    };
 
     function setupPeer(customId, code) {
       peer = new Peer(customId);
       peer.on('open', () => {
-        if (customId) {
-          alert(`Código generado: ${code}\nPásale este código al otro celular.`);
-        } else {
+        if (customId) alert(`Código generado: ${code}`);
+        else {
           conn = peer.connect(`peer-room-${code}`);
           bindConnEvents();
         }
       });
-      peer.on('connection', (c) => {
-        conn = c;
-        bindConnEvents();
+      peer.on('connection', (c) => { conn = c; bindConnEvents(); });
+      
+      // ESCUCHAR LLAMADAS DE VOZ ENTRANTES
+      peer.on('call', (call) => {
+        if (confirm("Llamada entrante de voz. ¿Aceptar?")) {
+          navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+            localStream = stream;
+            call.answer(stream);
+            currentCall = call;
+            showCallScreen(true);
+            call.on('stream', (remoteStream) => {
+              document.getElementById('remoteAudio').srcObject = remoteStream;
+            });
+          });
+        }
       });
     }
 
@@ -637,9 +851,16 @@
           const contactId = conn.peer;
           savedContacts[contactId] = { name: data.profile.name, avatar: data.profile.avatar, messages: savedContacts[contactId]?.messages || [] };
           localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
-          
           connectScreen.classList.add('hidden');
           openChat(contactId, data.profile.name, data.profile.avatar);
+        }
+
+        if (data.type === 'STATUS_UPDATE') {
+          if (savedContacts[conn.peer]) {
+            savedContacts[conn.peer].status = data.status;
+            localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
+            renderStatusesList();
+          }
         }
 
         if (data.type === 'TEXT') {
@@ -648,45 +869,77 @@
           playSound('receive');
         }
 
-        if (data.type === 'STICKER') {
-          appendSticker(data.imgSrc, 'other');
-          saveMessageToHistory(currentChatId, data.imgSrc, 'other', true);
+        if (data.type === 'MEDIA') {
+          appendMedia(data.src, data.mediaType, 'other');
+          saveMessageToHistory(currentChatId, data.src, 'other', false, data.mediaType);
           playSound('receive');
         }
       });
     }
 
+    // LLAMADAS DE AUDIO
+    document.getElementById('btnStartCall').onclick = () => {
+      if (!conn) return alert("Se requiere conexión para llamar");
+      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+        localStream = stream;
+        currentCall = peer.call(conn.peer, stream);
+        showCallScreen(false);
+        currentCall.on('stream', (remoteStream) => {
+          document.getElementById('remoteAudio').srcObject = remoteStream;
+        });
+      });
+    };
+
+    function showCallScreen(isIncoming) {
+      document.getElementById('callName').innerText = savedContacts[currentChatId]?.name || "Contacto";
+      document.getElementById('callAvatar').src = savedContacts[currentChatId]?.avatar || "";
+      document.getElementById('callScreen').classList.remove('hidden');
+    }
+
+    document.getElementById('btnEndCall').onclick = () => {
+      if (currentCall) currentCall.close();
+      if (localStream) localStream.getTracks().forEach(track => track.stop());
+      document.getElementById('callScreen').classList.add('hidden');
+    };
+
+    let isMuted = false;
+    document.getElementById('btnMuteCall').onclick = () => {
+      if (localStream) {
+        isMuted = !isMuted;
+        localStream.getAudioTracks()[0].enabled = !isMuted;
+        document.getElementById('btnMuteCall').style.background = isMuted ? '#da3633' : 'var(--card-bg)';
+      }
+    };
+
     function openChat(id, name, avatar) {
       currentChatId = id;
       document.getElementById('activeContactName').innerText = name;
       document.getElementById('activeContactAvatar').src = avatar;
-      chatsListScreen.classList.add('hidden');
+      mainScreen.classList.add('hidden');
       chatView.classList.remove('hidden');
 
       chatBody.innerHTML = '';
       const history = savedContacts[id]?.messages || [];
       history.forEach(m => {
-        if (m.isSticker) appendSticker(m.content, m.sender);
+        if (m.mediaType) appendMedia(m.content, m.mediaType, m.sender);
         else appendMessage(m.content, m.sender);
       });
     }
 
-    document.getElementById('btnLeaveChat').addEventListener('click', () => {
+    document.getElementById('btnLeaveChat').onclick = () => {
       chatView.classList.add('hidden');
-      showChatsList();
-    });
+      showMainScreen();
+    };
 
-    // ENVÍO DE MENSAJES Y STICKERS
-    document.getElementById('btnSend').addEventListener('click', sendText);
-    document.getElementById('messageInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendText(); });
+    // ENVÍO DE MENSAJES Y ARCHIVOS MULTIMEDIA
+    document.getElementById('btnSend').onclick = sendText;
+    document.getElementById('messageInput').onkeypress = (e) => { if(e.key === 'Enter') sendText(); };
 
     function sendText() {
       const input = document.getElementById('messageInput');
       const text = input.value.trim();
       if (!text) return;
-
       if (conn && conn.open) conn.send({ type: 'TEXT', text });
-
       appendMessage(text, 'me');
       saveMessageToHistory(currentChatId, text, 'me');
       input.value = '';
@@ -701,53 +954,47 @@
       chatBody.scrollTop = chatBody.scrollHeight;
     }
 
-    document.getElementById('btnPlus').addEventListener('click', () => {
+    document.getElementById('btnPlus').onclick = () => {
       document.getElementById('plusPanel').classList.toggle('hidden');
       document.getElementById('emojiDrawer').classList.add('hidden');
       document.getElementById('stickerDrawer').classList.add('hidden');
-    });
+    };
 
-    document.getElementById('stickerInput').addEventListener('change', (e) => {
-      const file = e.target.files[0];
+    // ENVIAR IMAGEN
+    document.getElementById('imageInput').onchange = (e) => handleMediaSend(e.target.files[0], 'image');
+    // ENVIAR VIDEO
+    document.getElementById('videoInput').onchange = (e) => handleMediaSend(e.target.files[0], 'video');
+    // ENVIAR STICKER
+    document.getElementById('stickerInput').onchange = (e) => handleMediaSend(e.target.files[0], 'image');
+
+    function handleMediaSend(file, type) {
       if (file) {
         const reader = new FileReader();
         reader.onload = (event) => {
-          const imgSrc = event.target.result;
-          if (conn && conn.open) conn.send({ type: 'STICKER', imgSrc });
-          appendSticker(imgSrc, 'me');
-          saveMessageToHistory(currentChatId, imgSrc, 'me', true);
+          const src = event.target.result;
+          if (conn && conn.open) conn.send({ type: 'MEDIA', src, mediaType: type });
+          appendMedia(src, type, 'me');
+          saveMessageToHistory(currentChatId, src, 'me', false, type);
           playSound('send');
           document.getElementById('plusPanel').classList.add('hidden');
         };
         reader.readAsDataURL(file);
       }
-    });
+    }
 
-    function appendSticker(src, sender) {
+    function appendMedia(src, type, sender) {
       const msg = document.createElement('div');
-      msg.className = `msg ${sender} msg-sticker`;
-
-      const img = document.createElement('img');
-      img.src = src;
-
-      const btnSave = document.createElement('button');
-      btnSave.style.cssText = "display:block; font-size:0.7rem; background:rgba(255,255,255,0.1); color:#fff; border:none; padding:4px; border-radius:6px; margin-top:4px; cursor:pointer;";
-      btnSave.innerText = "💾 Guardar Sticker";
-      btnSave.onclick = () => {
-        if(!savedStickers.includes(src)) {
-          savedStickers.push(src);
-          localStorage.setItem('saved_stickers', JSON.stringify(savedStickers));
-          alert('Sticker Guardado');
-        }
-      };
-
-      msg.appendChild(img);
-      msg.appendChild(btnSave);
+      msg.className = `msg ${sender} msg-media`;
+      if (type === 'image') {
+        msg.innerHTML = `<img src="${src}">`;
+      } else if (type === 'video') {
+        msg.innerHTML = `<video src="${src}" controls style="width:100%; border-radius:12px;"></video>`;
+      }
       chatBody.appendChild(msg);
       chatBody.scrollTop = chatBody.scrollHeight;
     }
 
-    document.getElementById('btnToggleEmojis').addEventListener('click', () => {
+    document.getElementById('btnToggleEmojis').onclick = () => {
       const drawer = document.getElementById('emojiDrawer');
       drawer.innerHTML = '';
       ['😀','😂','🔥','❤️','👍','🎉','😎','💩','👑','⚡'].forEach(emoji => {
@@ -759,20 +1006,20 @@
       });
       drawer.classList.remove('hidden');
       document.getElementById('plusPanel').classList.add('hidden');
-    });
+    };
 
-    document.getElementById('btnToggleStickers').addEventListener('click', () => {
+    document.getElementById('btnToggleStickers').onclick = () => {
       const drawer = document.getElementById('stickerDrawer');
       drawer.innerHTML = '';
-      if(savedStickers.length === 0) drawer.innerHTML = '<p style="font-size:0.8rem; color:#8b949e;">No tienes stickers guardados</p>';
+      if(savedStickers.length === 0) drawer.innerHTML = '<p style="font-size:0.8rem; color:#8b949e;">No hay stickers guardados</p>';
       savedStickers.forEach(src => {
         const img = document.createElement('img');
         img.className = 'sticker-thumb';
         img.src = src;
         img.onclick = () => {
-          if (conn && conn.open) conn.send({ type: 'STICKER', imgSrc: src });
-          appendSticker(src, 'me');
-          saveMessageToHistory(currentChatId, src, 'me', true);
+          if (conn && conn.open) conn.send({ type: 'MEDIA', src, mediaType: 'image' });
+          appendMedia(src, 'image', 'me');
+          saveMessageToHistory(currentChatId, src, 'me', false, 'image');
           playSound('send');
         };
         drawer.appendChild(img);
@@ -781,37 +1028,37 @@
       document.getElementById('plusPanel').classList.add('hidden');
     });
 
-    function saveMessageToHistory(contactId, content, sender, isSticker = false) {
+    function saveMessageToHistory(contactId, content, sender, isSticker = false, mediaType = null) {
       if (!savedContacts[contactId]) return;
-      savedContacts[contactId].messages.push({ content, sender, isSticker });
+      savedContacts[contactId].messages.push({ content, sender, isSticker, mediaType });
       localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
     }
 
-    // MODAL OPCIONES
-    document.getElementById('contactHeaderInfo').addEventListener('click', () => {
+    // OPCIONES DE CONTACTO
+    document.getElementById('contactHeaderInfo').onclick = () => {
       document.getElementById('modalContactName').innerText = savedContacts[currentChatId].name;
       document.getElementById('modalContactAvatar').src = savedContacts[currentChatId].avatar;
       document.getElementById('contactModal').classList.remove('hidden');
-    });
+    };
 
-    document.getElementById('btnCloseModal').addEventListener('click', () => {
+    document.getElementById('btnCloseModal').onclick = () => {
       document.getElementById('contactModal').classList.add('hidden');
-    });
+    };
 
-    document.getElementById('btnClearChatHistory').addEventListener('click', () => {
+    document.getElementById('btnClearChatHistory').onclick = () => {
       savedContacts[currentChatId].messages = [];
       localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
       chatBody.innerHTML = '';
       document.getElementById('contactModal').classList.add('hidden');
-    });
+    };
 
-    document.getElementById('btnBlockContact').addEventListener('click', () => {
+    document.getElementById('btnBlockContact').onclick = () => {
       delete savedContacts[currentChatId];
       localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
       document.getElementById('contactModal').classList.add('hidden');
       chatView.classList.add('hidden');
-      showChatsList();
-    });
+      showMainScreen();
+    };
   </script>
 </body>
 </html>
