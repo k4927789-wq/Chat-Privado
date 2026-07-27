@@ -181,7 +181,7 @@
     .nav-tab.active { background: var(--accent); color: #fff; }
 
     .chats-header {
-      display: flex; justify-space-between; align-items: center;
+      display: flex; justify-content: space-between; align-items: center;
       padding: 15px 0 10px 0;
     }
 
@@ -193,6 +193,7 @@
       border-radius: 16px;
       margin-bottom: 10px;
       cursor: pointer;
+      position: relative;
     }
 
     .chat-item-avatar {
@@ -243,6 +244,18 @@
       margin-top: 5px;
     }
 
+    /* ESTILO PEQUEÑO TIPO WHATSAPP PARA STICKERS */
+    .msg-sticker {
+      background: transparent !important;
+      padding: 0 !important;
+    }
+    .msg-sticker img {
+      width: 120px !important;
+      height: 120px !important;
+      object-fit: contain;
+      cursor: pointer;
+    }
+
     .chat-footer {
       background: var(--card-bg);
       border-top: 1px solid var(--border);
@@ -282,13 +295,14 @@
       bottom: 70px; left: 0; right: 0;
       background: var(--card-bg);
       border-top: 1px solid var(--border);
-      padding: 10px; max-height: 140px;
+      padding: 12px; max-height: 180px;
       overflow-y: auto;
-      display: flex; flex-wrap: wrap; gap: 8px;
+      display: flex; flex-wrap: wrap; gap: 10px;
       z-index: 90;
     }
 
-    .emoji-item { font-size: 1.4rem; cursor: pointer; padding: 4px; }
+    .emoji-item { font-size: 1.5rem; cursor: pointer; padding: 4px; transition: transform 0.1s; }
+    .emoji-item:hover { transform: scale(1.2); }
     .sticker-thumb { width: 55px; height: 55px; border-radius: 10px; object-fit: cover; cursor: pointer; border: 1px solid var(--border); }
 
     .call-screen {
@@ -335,11 +349,21 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      flex-direction: column;
     }
 
     .status-content img, .status-content video {
-      max-width: 100%; max-height: 70vh;
+      max-width: 100%; max-height: 65vh;
       border-radius: 12px;
+    }
+
+    .status-analytics-drawer {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      border-radius: 20px 20px 0 0;
+      padding: 15px; max-height: 250px; overflow-y: auto;
+      z-index: 260; box-shadow: 0 -5px 25px rgba(0,0,0,0.9);
     }
 
     .modal {
@@ -400,13 +424,14 @@
       </div>
 
       <div id="sectionStatuses" class="hidden" style="margin-top: 15px;">
+        <!-- CONTENEDOR MI ESTADO -->
         <div class="chat-item" id="btnMyStatus">
           <img id="myStatusAvatar" class="chat-item-avatar">
           <div style="flex:1;">
-            <div style="font-weight:bold; font-size:0.9rem;">Mi Estado</div>
-            <div style="font-size:0.75rem; color:#8b949e;">Toca para subir un estado</div>
+            <div style="font-weight:bold; font-size:0.9rem;" id="myStatusTitle">Mi Estado</div>
+            <div style="font-size:0.75rem; color:#8b949e;" id="myStatusSubtitle">Toca para subir un estado</div>
           </div>
-          <i data-lucide="plus-circle" style="color: var(--accent-glow);"></i>
+          <button class="icon-btn hidden" id="btnDeleteMyStatus" title="Eliminar Estado" style="padding: 4px 8px; color: #da3633;"><i data-lucide="more-vertical"></i></button>
         </div>
 
         <h4 style="font-size:0.8rem; color:#8b949e; margin: 15px 0 10px 0;">ESTADOS RECIENTES</h4>
@@ -451,7 +476,7 @@
 
         <div style="display: flex; gap: 8px;">
           <button class="icon-btn" id="btnReconnectChat" title="Reconectar"><i data-lucide="refresh-cw"></i></button>
-          <button class="icon-btn" id="btnStartCall"><i data-lucide="phone" style="width:22px; height:22px;"></i></button>
+          <button class="icon-btn" id="btnStartCall" title="Iniciar Llamada"><i data-lucide="phone" style="width:22px; height:22px;"></i></button>
         </div>
       </div>
 
@@ -493,8 +518,8 @@
       </div>
 
       <div class="call-actions">
-        <button class="btn-call-action" id="btnMuteCall" style="background: var(--card-bg); border: 1px solid var(--border);"><i data-lucide="mic"></i></button>
-        <button class="btn-call-action" id="btnEndCall" style="background: #da3633;"><i data-lucide="phone-off"></i></button>
+        <button class="btn-call-action" id="btnMuteCall" style="background: var(--card-bg); border: 1px solid var(--border);" title="Silenciar Micrófono"><i data-lucide="mic"></i></button>
+        <button class="btn-call-action" id="btnEndCall" style="background: #da3633;" title="Colgar Llamada"><i data-lucide="phone-off"></i></button>
       </div>
       <audio id="remoteAudio" autoplay></audio>
     </div>
@@ -526,10 +551,22 @@
 
       <div class="status-content" id="statusContentArea"></div>
 
-      <div style="display:flex; gap:8px; align-items:center; z-index:10;">
+      <!-- BOTÓN ANALÍTICAS MI ESTADO -->
+      <div id="myStatusAnalyticsBtnArea" class="hidden" style="text-align:center; z-index:10; margin-bottom: 10px;">
+        <button class="btn btn-secondary" id="btnToggleStatusAnalytics" style="padding: 6px 14px; font-size: 0.8rem; margin: 0 auto;"><i data-lucide="eye"></i> Ver Vistas y Reacciones</button>
+      </div>
+
+      <!-- PANEL DE COMENTARIOS/REACCIÓN DE OTROS -->
+      <div id="otherStatusInteractionArea" style="display:flex; gap:8px; align-items:center; z-index:10;">
         <input type="text" id="statusCommentInput" placeholder="Responder..." style="flex:1;">
         <button class="icon-btn" id="btnHeartStatus" style="color:#ff4d6d;"><i data-lucide="heart"></i></button>
         <button class="btn" id="btnSendStatusComment" style="padding:8px 12px;"><i data-lucide="send"></i></button>
+      </div>
+
+      <!-- DRAWER DE ANALÍTICAS DE MI ESTADO -->
+      <div class="status-analytics-drawer hidden" id="statusAnalyticsDrawer">
+        <h4 style="font-size:0.85rem; color:var(--accent-glow); margin-bottom:10px;">VISTAS Y REACCIONES</h4>
+        <div id="statusAnalyticsList" style="font-size:0.8rem; display:flex; flex-direction:column; gap:8px;"></div>
       </div>
     </div>
 
@@ -578,6 +615,7 @@
 
     // DATOS LOCALES
     let myProfile = JSON.parse(localStorage.getItem('user_profile') || '{"name":"","avatar":""}');
+    let myStatus = JSON.parse(localStorage.getItem('my_status') || 'null'); // Mi Estado
     let savedContacts = JSON.parse(localStorage.getItem('saved_contacts') || '{}');
     let savedStickers = JSON.parse(localStorage.getItem('saved_stickers') || '[]');
     let lastChatPeerId = localStorage.getItem('last_chat_peer_id') || '';
@@ -587,6 +625,7 @@
     let currentCall = null;
     let localStream = null;
     let currentChatId = null;
+    let currentViewingStatusPeerId = null;
 
     if (myProfile.name && myProfile.avatar) showMainScreen();
 
@@ -628,6 +667,7 @@
       document.getElementById('mainProfileAvatar').src = myProfile.avatar;
       document.getElementById('myStatusAvatar').src = myProfile.avatar;
       document.getElementById('mainScreen').classList.remove('hidden');
+      renderMyStatusCard();
       renderContactsList();
       renderStatusesList();
     }
@@ -677,6 +717,44 @@
       lucide.createIcons();
     }
 
+    // MI ESTADO: MOSTRAR CÓMO QUEDA AL SUBIR
+    function renderMyStatusCard() {
+      const avatarEl = document.getElementById('myStatusAvatar');
+      const titleEl = document.getElementById('myStatusTitle');
+      const subTitleEl = document.getElementById('myStatusSubtitle');
+      const deleteBtn = document.getElementById('btnDeleteMyStatus');
+
+      if (myStatus) {
+        avatarEl.style.border = "2px solid var(--accent-glow)";
+        titleEl.innerText = "Mi Estado";
+        subTitleEl.innerText = "Toca para ver tu estado publicado";
+        deleteBtn.classList.remove('hidden');
+
+        deleteBtn.onclick = (e) => {
+          e.stopPropagation();
+          if (confirm("¿Deseas eliminar tu estado actual?")) {
+            myStatus = null;
+            localStorage.removeItem('my_status');
+            if (conn && conn.open) conn.send({ type: 'STATUS_UPDATE', status: null });
+            renderMyStatusCard();
+          }
+        };
+
+        document.getElementById('btnMyStatus').onclick = () => {
+          viewStatus(myProfile.name, myProfile.avatar, myStatus, 'ME');
+        };
+      } else {
+        avatarEl.style.border = "none";
+        titleEl.innerText = "Mi Estado";
+        subTitleEl.innerText = "Toca para subir un estado";
+        deleteBtn.classList.add('hidden');
+
+        document.getElementById('btnMyStatus').onclick = () => {
+          document.getElementById('uploadStatusModal').classList.remove('hidden');
+        };
+      }
+    }
+
     function renderStatusesList() {
       const container = document.getElementById('statusesListContainer');
       container.innerHTML = '';
@@ -694,7 +772,13 @@
               <div style="font-size:0.75rem; color:#8b949e;">Ver estado</div>
             </div>
           `;
-          item.onclick = () => viewStatus(c.name, c.avatar, c.status);
+          item.onclick = () => {
+            currentViewingStatusPeerId = id;
+            if (conn && conn.open && conn.peer === id) {
+              conn.send({ type: 'STATUS_VIEWED', viewerName: myProfile.name });
+            }
+            viewStatus(c.name, c.avatar, c.status, id);
+          };
           container.appendChild(item);
         }
       });
@@ -732,7 +816,12 @@
     }
 
     function setupPeer(customId, codeOrPeerId, isDirectPeerId = false) {
+      if (peer) {
+        try { peer.destroy(); } catch(e) {}
+      }
+      
       peer = new Peer(customId);
+      
       peer.on('open', () => {
         if (customId) {
           alert(`Código generado: ${codeOrPeerId}\nComparte este código con la otra persona.`);
@@ -764,8 +853,10 @@
     }
 
     function bindConnEvents() {
+      if (!conn) return;
+
       conn.on('open', () => {
-        conn.send({ type: 'HANDSHAKE', profile: myProfile });
+        conn.send({ type: 'HANDSHAKE', profile: myProfile, status: myStatus });
         const targetPeerId = conn.peer;
         localStorage.setItem('last_chat_peer_id', targetPeerId);
         lastChatPeerId = targetPeerId;
@@ -778,35 +869,71 @@
       });
 
       conn.on('data', (data) => {
+        const peerId = conn.peer;
         if (data.type === 'HANDSHAKE') {
-          const contactId = conn.peer;
-          savedContacts[contactId] = { 
+          savedContacts[peerId] = { 
             name: data.profile.name, 
             avatar: data.profile.avatar, 
-            messages: savedContacts[contactId]?.messages || [] 
+            status: data.status || null,
+            messages: savedContacts[peerId]?.messages || [] 
           };
           localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
+          renderStatusesList();
           document.getElementById('connectScreen').classList.add('hidden');
-          openChat(contactId, data.profile.name, data.profile.avatar);
+          openChat(peerId, data.profile.name, data.profile.avatar);
         }
 
         if (data.type === 'STATUS_UPDATE') {
-          if (savedContacts[conn.peer]) {
-            savedContacts[conn.peer].status = data.status;
+          if (savedContacts[peerId]) {
+            savedContacts[peerId].status = data.status;
             localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
             renderStatusesList();
           }
         }
 
+        if (data.type === 'STATUS_VIEWED') {
+          if (myStatus) {
+            if (!myStatus.views) myStatus.views = [];
+            if (!myStatus.views.includes(data.viewerName)) {
+              myStatus.views.push(data.viewerName);
+              localStorage.setItem('my_status', JSON.stringify(myStatus));
+            }
+          }
+        }
+
+        if (data.type === 'STATUS_REACTION') {
+          if (myStatus) {
+            if (!myStatus.reactions) myStatus.reactions = [];
+            myStatus.reactions.push({ user: data.userName, reaction: data.reaction });
+            localStorage.setItem('my_status', JSON.stringify(myStatus));
+          }
+          const textMsg = `${data.reaction} Reaccionó a tu estado`;
+          saveMessageToHistory(peerId, textMsg, 'other');
+          if (currentChatId === peerId) appendMessage(textMsg, 'other');
+          playSound('receive');
+        }
+
+        if (data.type === 'STATUS_COMMENT') {
+          if (myStatus) {
+            if (!myStatus.comments) myStatus.comments = [];
+            myStatus.comments.push({ user: data.userName, text: data.text });
+            localStorage.setItem('my_status', JSON.stringify(myStatus));
+          }
+          const textMsg = `💬 Respuesta a tu estado: ${data.text}`;
+          saveMessageToHistory(peerId, textMsg, 'other');
+          if (currentChatId === peerId) appendMessage(textMsg, 'other');
+          playSound('receive');
+        }
+
         if (data.type === 'TEXT') {
-          appendMessage(data.text, 'other');
-          saveMessageToHistory(currentChatId || conn.peer, data.text, 'other');
+          saveMessageToHistory(peerId, data.text, 'other');
+          if (currentChatId === peerId) appendMessage(data.text, 'other');
           playSound('receive');
         }
 
         if (data.type === 'MEDIA') {
-          appendMedia(data.src, data.mediaType, 'other');
-          saveMessageToHistory(currentChatId || conn.peer, data.src, 'other', false, data.mediaType);
+          saveMessageToHistory(peerId, data.src, 'other', data.isSticker, data.mediaType);
+          if (currentChatId === peerId) appendMedia(data.src, data.mediaType, 'other', data.isSticker);
           playSound('receive');
         }
       });
@@ -828,7 +955,6 @@
     // SUBIR Y VER ESTADOS
     let tempStatusMedia = null, tempStatusType = 'text';
 
-    document.getElementById('btnMyStatus').onclick = () => document.getElementById('uploadStatusModal').classList.remove('hidden');
     document.getElementById('btnCloseStatusModal').onclick = () => document.getElementById('uploadStatusModal').classList.add('hidden');
 
     document.getElementById('statusMediaInput').onchange = (e) => {
@@ -844,13 +970,25 @@
 
     document.getElementById('btnPublishStatus').onclick = () => {
       const text = document.getElementById('statusTextInput').value.trim();
-      const statusObj = { text, media: tempStatusMedia, type: tempStatusType };
-      if (conn && conn.open) conn.send({ type: 'STATUS_UPDATE', status: statusObj });
+      myStatus = { 
+        text, 
+        media: tempStatusMedia, 
+        type: tempStatusType,
+        views: [],
+        reactions: [],
+        comments: []
+      };
+      
+      localStorage.setItem('my_status', JSON.stringify(myStatus));
+      if (conn && conn.open) conn.send({ type: 'STATUS_UPDATE', status: myStatus });
+      
       alert('Estado publicado');
       document.getElementById('uploadStatusModal').classList.add('hidden');
+      renderMyStatusCard();
+      tempStatusMedia = null;
     };
 
-    function viewStatus(name, avatar, status) {
+    function viewStatus(name, avatar, status, peerIdOwner) {
       document.getElementById('statusUserName').innerText = name;
       document.getElementById('statusUserAvatar').src = avatar;
       const area = document.getElementById('statusContentArea');
@@ -858,28 +996,73 @@
 
       if (status.type === 'image' && status.media) area.innerHTML = `<img src="${status.media}">`;
       else if (status.type === 'video' && status.media) area.innerHTML = `<video src="${status.media}" controls autoplay></video>`;
-      else area.innerHTML = `<h2 style="color:#fff;">${status.text}</h2>`;
+      else area.innerHTML = `<h2 style="color:#fff; text-align:center; padding: 20px;">${status.text || ''}</h2>`;
+
+      // CONFIGURAR VISTA DE MI ESTADO O ESTADO AJENO
+      const myAnalyticsBtn = document.getElementById('myStatusAnalyticsBtnArea');
+      const otherInteractionArea = document.getElementById('otherStatusInteractionArea');
+      const analyticsDrawer = document.getElementById('statusAnalyticsDrawer');
+
+      analyticsDrawer.classList.add('hidden');
+
+      if (peerIdOwner === 'ME') {
+        myAnalyticsBtn.classList.remove('hidden');
+        otherInteractionArea.classList.add('hidden');
+      } else {
+        myAnalyticsBtn.classList.add('hidden');
+        otherInteractionArea.classList.remove('hidden');
+      }
 
       document.getElementById('statusViewContainer').classList.remove('hidden');
     }
 
+    document.getElementById('btnToggleStatusAnalytics').onclick = () => {
+      const drawer = document.getElementById('statusAnalyticsDrawer');
+      const list = document.getElementById('statusAnalyticsList');
+      drawer.classList.toggle('hidden');
+      list.innerHTML = '';
+
+      if (myStatus) {
+        const views = myStatus.views || [];
+        const reactions = myStatus.reactions || [];
+        const comments = myStatus.comments || [];
+
+        list.innerHTML += `<div><strong>👁️ Visto por (${views.length}):</strong> ${views.join(', ') || 'Nadie aún'}</div>`;
+        
+        let reactText = reactions.map(r => `${r.user}: ${r.reaction}`).join('<br>') || 'Sin reacciones';
+        list.innerHTML += `<div><strong>❤️ Reacciones:</strong><br>${reactText}</div>`;
+
+        let commText = comments.map(c => `${c.user}: ${c.text}`).join('<br>') || 'Sin comentarios';
+        list.innerHTML += `<div><strong>💬 Comentarios:</strong><br>${commText}</div>`;
+      }
+    };
+
     document.getElementById('btnCloseStatusView').onclick = () => document.getElementById('statusViewContainer').classList.add('hidden');
 
     document.getElementById('btnHeartStatus').onclick = () => {
-      if (conn && conn.open) { conn.send({ type: 'TEXT', text: '❤️ Reaccionó a tu estado' }); alert('Reacción enviada'); }
+      if (conn && conn.open && currentViewingStatusPeerId) {
+        conn.send({ type: 'STATUS_REACTION', userName: myProfile.name, reaction: '❤️' });
+        saveMessageToHistory(currentViewingStatusPeerId, '❤️ Reaccionó a tu estado', 'me');
+        alert('Reacción enviada al chat privado');
+      }
     };
 
     document.getElementById('btnSendStatusComment').onclick = () => {
       const input = document.getElementById('statusCommentInput');
-      if (input.value.trim() && conn && conn.open) {
-        conn.send({ type: 'TEXT', text: `💬 Respuesta a tu estado: ${input.value.trim()}` });
-        input.value = ''; alert('Comentario enviado');
+      const text = input.value.trim();
+      if (text && conn && conn.open && currentViewingStatusPeerId) {
+        conn.send({ type: 'STATUS_COMMENT', userName: myProfile.name, text: text });
+        saveMessageToHistory(currentViewingStatusPeerId, `💬 Respuesta a tu estado: ${text}`, 'me');
+        input.value = '';
+        alert('Comentario enviado al chat privado');
       }
     };
 
-    // LLAMADAS
+    // LLAMADAS EN EL CHAT
     document.getElementById('btnStartCall').onclick = () => {
-      if (!conn || !conn.open) return alert("Debes reconectar el chat con tu contacto primero.");
+      if (!conn || !conn.open) {
+        return alert("Debes estar conectado con tu contacto primero. Toca el botón de reconectar.");
+      }
       navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
         localStream = stream;
         currentCall = peer.call(conn.peer, stream);
@@ -887,7 +1070,7 @@
         currentCall.on('stream', (remoteStream) => {
           document.getElementById('remoteAudio').srcObject = remoteStream;
         });
-      }).catch(() => alert("No se pudo acceder al micrófono."));
+      }).catch(() => alert("No se pudo acceder al micrófono para realizar la llamada."));
     };
 
     function showCallScreen() {
@@ -928,7 +1111,7 @@
       chatBody.innerHTML = '';
       const history = savedContacts[id]?.messages || [];
       history.forEach(m => {
-        if (m.mediaType) appendMedia(m.content, m.mediaType, m.sender);
+        if (m.mediaType) appendMedia(m.content, m.mediaType, m.sender, m.isSticker);
         else appendMessage(m.content, m.sender);
       });
     }
@@ -968,36 +1151,85 @@
       document.getElementById('stickerDrawer').classList.add('hidden');
     };
 
-    document.getElementById('imageInput').onchange = (e) => handleMediaSend(e.target.files[0], 'image');
-    document.getElementById('videoInput').onchange = (e) => handleMediaSend(e.target.files[0], 'video');
-    document.getElementById('stickerInput').onchange = (e) => handleMediaSend(e.target.files[0], 'image');
-
-    function handleMediaSend(file, type) {
+    document.getElementById('imageInput').onchange = (e) => handleMediaSend(e.target.files[0], 'image', false);
+    document.getElementById('videoInput').onchange = (e) => handleMediaSend(e.target.files[0], 'video', false);
+    
+    // SUBIR Y CONVERTIR A STICKER PEQUEÑO
+    document.getElementById('stickerInput').onchange = (e) => {
+      const file = e.target.files[0];
       if (file) {
         processFile(file, (src) => {
-          if (conn && conn.open) conn.send({ type: 'MEDIA', src, mediaType: type });
-          appendMedia(src, type, 'me');
-          saveMessageToHistory(currentChatId, src, 'me', false, type);
+          if (!savedStickers.includes(src)) {
+            savedStickers.push(src);
+            localStorage.setItem('saved_stickers', JSON.stringify(savedStickers));
+          }
+          if (conn && conn.open) conn.send({ type: 'MEDIA', src, mediaType: 'image', isSticker: true });
+          appendMedia(src, 'image', 'me', true);
+          saveMessageToHistory(currentChatId, src, 'me', true, 'image');
+          playSound('send');
+          document.getElementById('plusPanel').classList.add('hidden');
+        });
+      }
+    };
+
+    function handleMediaSend(file, type, isSticker = false) {
+      if (file) {
+        processFile(file, (src) => {
+          if (conn && conn.open) conn.send({ type: 'MEDIA', src, mediaType: type, isSticker });
+          appendMedia(src, type, 'me', isSticker);
+          saveMessageToHistory(currentChatId, src, 'me', isSticker, type);
           playSound('send');
           document.getElementById('plusPanel').classList.add('hidden');
         });
       }
     }
 
-    function appendMedia(src, type, sender) {
+    function appendMedia(src, type, sender, isSticker = false) {
       const chatBody = document.getElementById('chatBody');
       const msg = document.createElement('div');
-      msg.className = `msg ${sender} msg-media`;
-      if (type === 'image') msg.innerHTML = `<img src="${src}">`;
-      else if (type === 'video') msg.innerHTML = `<video src="${src}" controls style="width:100%; border-radius:12px;"></video>`;
+      
+      if (isSticker) {
+        msg.className = `msg ${sender} msg-sticker`;
+        const img = document.createElement('img');
+        img.src = src;
+        img.title = "Toca para guardar sticker";
+        img.onclick = () => {
+          if (confirm("¿Deseas guardar este sticker en tu colección?")) {
+            if (!savedStickers.includes(src)) {
+              savedStickers.push(src);
+              localStorage.setItem('saved_stickers', JSON.stringify(savedStickers));
+              alert("Sticker guardado exitosamente.");
+            } else {
+              alert("Este sticker ya está en tu colección.");
+            }
+          }
+        };
+        msg.appendChild(img);
+      } else {
+        msg.className = `msg ${sender} msg-media`;
+        if (type === 'image') msg.innerHTML = `<img src="${src}">`;
+        else if (type === 'video') msg.innerHTML = `<video src="${src}" controls style="width:100%; border-radius:12px;"></video>`;
+      }
+
       chatBody.appendChild(msg);
       chatBody.scrollTop = chatBody.scrollHeight;
     }
 
+    // LISTA DE EMOJIS
     document.getElementById('btnToggleEmojis').onclick = () => {
       const drawer = document.getElementById('emojiDrawer');
       drawer.innerHTML = '';
-      ['😀','😂','🔥','❤️','👍','🎉','😎','💩','👑','⚡'].forEach(emoji => {
+      const emojiList = [
+        '😀','😃','😄','😁','😆','😅','😂','🤣','🥲','🥹',
+        '😊','😇','🙂','🙃','😉','😌','😍','🥰','😘','😗',
+        '😋','😛','😜','🤪','😝','🤑','🤗','🫣','🤫','🤔',
+        '🫡','🤐','🤨','😐','😑','😶','🫥','😏','😒','🙄',
+        '😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕',
+        '🥳','🥸','😎','🤓','🧐','👺','💀','☠️','👽','👾',
+        '🤖','🔥','❤️','💥','✨','🎉','👍','👎','👏','🙌'
+      ];
+
+      emojiList.forEach(emoji => {
         const span = document.createElement('span');
         span.className = 'emoji-item';
         span.innerText = emoji;
@@ -1008,6 +1240,7 @@
       document.getElementById('plusPanel').classList.add('hidden');
     };
 
+    // VER Y MANDAR STICKERS GUARDADOS
     document.getElementById('btnToggleStickers').onclick = () => {
       const drawer = document.getElementById('stickerDrawer');
       drawer.innerHTML = '';
@@ -1017,9 +1250,9 @@
         img.className = 'sticker-thumb';
         img.src = src;
         img.onclick = () => {
-          if (conn && conn.open) conn.send({ type: 'MEDIA', src, mediaType: 'image' });
-          appendMedia(src, 'image', 'me');
-          saveMessageToHistory(currentChatId, src, 'me', false, 'image');
+          if (conn && conn.open) conn.send({ type: 'MEDIA', src, mediaType: 'image', isSticker: true });
+          appendMedia(src, 'image', 'me', true);
+          saveMessageToHistory(currentChatId, src, 'me', true, 'image');
           playSound('send');
         };
         drawer.appendChild(img);
