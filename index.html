@@ -22,9 +22,9 @@
       height: 100vh;
     }
     .app-container {
-      width: 95%;
-      max-width: 1000px;
-      height: 92vh;
+      width: 90%;
+      max-width: 900px;
+      height: 90vh;
       display: flex;
       background-color: #1e1e1e;
       border-radius: 8px;
@@ -33,7 +33,7 @@
     }
     /* Panel lateral de contactos */
     .sidebar {
-      width: 38%;
+      width: 35%;
       border-right: 1px solid #333;
       display: flex;
       flex-direction: column;
@@ -43,92 +43,40 @@
       padding: 15px;
       background-color: #252525;
       border-bottom: 1px solid #333;
-      display: flex;
-      align-items: center;
-      gap: 12px;
     }
-    .avatar-img {
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      background-color: #333;
-      object-fit: cover;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      color: #aaa;
-    }
-    .profile-info {
-      flex: 1;
-      overflow: hidden;
-    }
-    .profile-info h3 {
-      font-size: 13px;
+    .profile-header h3 {
+      font-size: 14px;
       color: #888;
     }
-    .profile-info p {
-      font-size: 16px;
+    .profile-header p {
+      font-size: 18px;
       font-weight: bold;
-      color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .profile-info span {
-      font-size: 12px;
       color: #a855f7;
     }
-    .edit-profile-btn {
-      background: none;
-      border: none;
-      color: #aaa;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .edit-profile-btn:hover { color: #fff; }
-
     .contacts-list {
       flex: 1;
       overflow-y: auto;
     }
     .contact-item {
-      padding: 12px 15px;
+      padding: 15px;
       border-bottom: 1px solid #282828;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
       transition: background 0.2s;
     }
     .contact-item:hover, .contact-item.active {
       background-color: #2a2a2a;
     }
-    .contact-details {
-      flex: 1;
-    }
     .contact-item .name {
       font-weight: bold;
       color: #fff;
-      font-size: 14px;
     }
     .contact-item .sub {
       font-size: 12px;
       color: #888;
     }
-    .edit-contact-btn {
-      background: none;
-      border: none;
-      color: #777;
-      cursor: pointer;
-      font-size: 14px;
-      padding: 5px;
-    }
-    .edit-contact-btn:hover { color: #a855f7; }
-
     /* Panel del Chat */
     .chat-area {
-      width: 62%;
+      width: 65%;
       display: flex;
       flex-direction: column;
       background-color: #121212;
@@ -138,9 +86,6 @@
       background-color: #1e1e1e;
       border-bottom: 1px solid #333;
       font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 10px;
     }
     .messages-box {
       flex: 1;
@@ -194,61 +139,16 @@
       cursor: pointer;
     }
     .input-area button:hover { background-color: #9333ea; }
-
-    /* Modal simple para editar perfil */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      justify-content: center;
-      align-items: center;
-    }
-    .modal-content {
-      background: #222;
-      padding: 20px;
-      border-radius: 8px;
-      width: 300px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      border: 1px solid #444;
-    }
-    .modal-content h3 { color: #fff; font-size: 16px; }
-    .modal-content input {
-      padding: 8px;
-      background: #111;
-      border: 1px solid #444;
-      color: #fff;
-      border-radius: 4px;
-    }
-    .modal-buttons {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-    }
-    .modal-buttons button {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .btn-save { background: #a855f7; color: #fff; }
-    .btn-cancel { background: #444; color: #fff; }
   </style>
 </head>
 <body>
 
   <div class="app-container">
-    <!-- Panel Izquierdo: Tu Perfil y Contactos -->
+    <!-- Panel Izquierdo: Tu ID y Contactos -->
     <div class="sidebar">
       <div class="profile-header">
-        <div class="avatar-img" id="my-avatar-display">👤</div>
-        <div class="profile-info">
-          <h3 id="my-name-display">Mi Nombre</h3>
-          <p id="my-number">Cargando...</p>
-        </div>
-        <button class="edit-profile-btn" onclick="openProfileModal()" title="Editar perfil">⚙️</button>
+        <h3>MI NÚMERO VIRTUAL:</h3>
+        <p id="my-number">Cargando...</p>
       </div>
       <div class="contacts-list" id="contacts-list">
         <!-- Lista dinámica de contactos -->
@@ -271,44 +171,15 @@
     </div>
   </div>
 
-  <!-- Modal para Editar Perfil -->
-  <div class="modal" id="profile-modal">
-    <div class="modal-content">
-      <h3>Editar Perfil</h3>
-      <label style="font-size: 12px; color: #aaa;">Tu Nombre:</label>
-      <input type="text" id="input-my-name" placeholder="Ej. Carlos Pérez">
-      <label style="font-size: 12px; color: #aaa;">URL de tu Foto de Perfil (Opcional):</label>
-      <input type="text" id="input-my-avatar" placeholder="https://ejemplo.com/foto.jpg">
-      <div class="modal-buttons">
-        <button class="btn-cancel" onclick="closeProfileModal()">Cancelar</button>
-        <button class="btn-save" onclick="saveProfile()">Guardar</button>
-      </div>
-    </div>
-  </div>
-
   <script>
-    // --- 1. CONFIGURACIÓN DE IDENTIDAD Y PERFIL ---
+    // --- 1. CONFIGURACIÓN DE IDENTIDAD PERSISTENTE ---
     let myNumber = localStorage.getItem('my_virtual_number');
     if (!myNumber) {
+      // Genera un número aleatorio de 6 dígitos si es la primera vez
       myNumber = Math.floor(100000 + Math.random() * 900000).toString();
       localStorage.setItem('my_virtual_number', myNumber);
     }
-
-    let myName = localStorage.getItem('my_profile_name') || `Usuario ${myNumber}`;
-    let myAvatar = localStorage.getItem('my_profile_avatar') || '';
-
-    function updateProfileUI() {
-      document.getElementById('my-number').textContent = `Nº ${myNumber}`;
-      document.getElementById('my-name-display').textContent = myName;
-      
-      const avatarDisplay = document.getElementById('my-avatar-display');
-      if (myAvatar) {
-        avatarDisplay.innerHTML = `<img src="${myAvatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-      } else {
-        avatarDisplay.innerHTML = '👤';
-      }
-    }
-    updateProfileUI();
+    document.getElementById('my-number').textContent = myNumber;
 
     // Inicializar PeerJS con el ID fijo guardado
     const peer = new Peer(myNumber);
@@ -316,74 +187,21 @@
     let activeChatNumber = null;
 
     peer.on('open', (id) => {
-      console.log('Conectado a PeerJS con número:', id);
+      console.log('Conectado a la red PeerJS con el número:', id);
     });
 
-    // --- 2. GESTIÓN DE MODAL DE PERFIL ---
-    function openProfileModal() {
-      document.getElementById('input-my-name').value = myName;
-      document.getElementById('input-my-avatar').value = myAvatar;
-      document.getElementById('profile-modal').style.display = 'flex';
-    }
-
-    function closeProfileModal() {
-      document.getElementById('profile-modal').style.display = 'none';
-    }
-
-    function saveProfile() {
-      myName = document.getElementById('input-my-name').value.trim() || `Usuario ${myNumber}`;
-      myAvatar = document.getElementById('input-my-avatar').value.trim();
-
-      localStorage.setItem('my_profile_name', myName);
-      localStorage.setItem('my_profile_avatar', myAvatar);
-
-      updateProfileUI();
-      closeProfileModal();
-      
-      // Opcional: Avisar a los contactos conectados que cambiaste tu perfil
-      broadcastProfileUpdate();
-    }
-
-    function broadcastProfileUpdate() {
-      const profileData = { type: 'PROFILE_UPDATE', name: myName, avatar: myAvatar };
-      Object.values(activeConnections).forEach(conn => {
-        if (conn.open) conn.send(profileData);
-      });
-    }
-
-    // --- 3. MANEJO DE CONTACTOS Y LOCALSTORAGE ---
+    // --- 2. MANEJO DE CONTACTOS Y MENSAJES EN LOCALSTORAGE ---
     function getContacts() {
       return JSON.parse(localStorage.getItem('chat_contacts')) || [];
     }
 
-    function saveContactAuto(number, name = `Contacto ${number}`, avatar = '') {
+    function saveContactAuto(number) {
       let contacts = getContacts();
-      const index = contacts.findIndex(c => c.number === number);
-
-      if (index === -1) {
-        contacts.push({ number: number, name: name, avatar: avatar });
-      } else {
-        // Actualizar nombre o avatar si vienen datos nuevos
-        if (name && name !== `Contacto ${number}`) contacts[index].name = name;
-        if (avatar) contacts[index].avatar = avatar;
-      }
-      localStorage.setItem('chat_contacts', JSON.stringify(contacts));
-      renderContactsList();
-    }
-
-    function editContactName(event, number) {
-      event.stopPropagation();
-      const currentName = getContacts().find(c => c.number === number)?.name || '';
-      const newName = prompt("Nuevo nombre para el contacto:", currentName);
-      if (newName && newName.trim()) {
-        let contacts = getContacts();
-        const contact = contacts.find(c => c.number === number);
-        if (contact) {
-          contact.name = newName.trim();
-          localStorage.setItem('chat_contacts', JSON.stringify(contacts));
-          renderContactsList();
-          if (activeChatNumber === number) selectContact(number);
-        }
+      const exists = contacts.some(c => c.number === number);
+      if (!exists) {
+        contacts.push({ number: number, name: `Contacto ${number}` });
+        localStorage.setItem('chat_contacts', JSON.stringify(contacts));
+        renderContactsList();
       }
     }
 
@@ -394,12 +212,14 @@
 
     function saveMessageHistory(targetNumber, messageObj) {
       let chats = JSON.parse(localStorage.getItem('chat_history')) || {};
-      if (!chats[targetNumber]) chats[targetNumber] = [];
+      if (!chats[targetNumber]) {
+        chats[targetNumber] = [];
+      }
       chats[targetNumber].push(messageObj);
       localStorage.setItem('chat_history', JSON.stringify(chats));
     }
 
-    // --- 4. RENDERIZAR INTERFAZ ---
+    // --- 3. MANEJO DE LA INTERFAZ (UI) ---
     function renderContactsList() {
       const listContainer = document.getElementById('contacts-list');
       listContainer.innerHTML = '';
@@ -408,16 +228,9 @@
       contacts.forEach(c => {
         const item = document.createElement('div');
         item.className = `contact-item ${activeChatNumber === c.number ? 'active' : ''}`;
-        
-        let avatarHTML = c.avatar ? `<img src="${c.avatar}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">` : `<div class="avatar-img" style="width:40px; height:40px; font-size:16px;">👤</div>`;
-
         item.innerHTML = `
-          ${avatarHTML}
-          <div class="contact-details">
-            <div class="name">${c.name}</div>
-            <div class="sub">Nº ${c.number}</div>
-          </div>
-          <button class="edit-contact-btn" onclick="editContactName(event, '${c.number}')" title="Editar nombre">✏️</button>
+          <div class="name">${c.name}</div>
+          <div class="sub">Nº ${c.number}</div>
         `;
         item.onclick = () => selectContact(c.number);
         listContainer.appendChild(item);
@@ -427,12 +240,7 @@
     function selectContact(number) {
       activeChatNumber = number;
       document.getElementById('target-number').value = number;
-      
-      const contacts = getContacts();
-      const contact = contacts.find(c => c.number === number);
-      const displayName = contact ? contact.name : number;
-      
-      document.getElementById('chat-header').innerHTML = `Chat con ${displayName} (${number})`;
+      document.getElementById('chat-header').textContent = `Chat con ${number}`;
       renderContactsList();
       renderMessages();
     }
@@ -440,6 +248,7 @@
     function renderMessages() {
       const box = document.getElementById('messages-box');
       box.innerHTML = '';
+
       if (!activeChatNumber) return;
 
       const history = getHistory(activeChatNumber);
@@ -452,26 +261,28 @@
       box.scrollTop = box.scrollHeight;
     }
 
-    // --- 5. RECEPCIÓN DE CONEXIONES Y MENSAJES ---
+    // --- 4. RECEPCIÓN DE CONEXIONES Y MENSAJES ENTRANTES ---
     peer.on('connection', (conn) => {
       const senderNumber = conn.peer;
+      
+      // Auto-guardar el contacto que se acaba de conectar
+      saveContactAuto(senderNumber);
+
+      // Guardar referencia de conexión activa
       activeConnections[senderNumber] = conn;
 
       conn.on('data', (data) => {
-        if (data.type === 'PROFILE_UPDATE') {
-          // Actualizar datos del perfil del contacto remoto
-          saveContactAuto(senderNumber, data.name, data.avatar);
-          if (activeChatNumber === senderNumber) selectContact(senderNumber);
-        } else {
-          // Mensaje normal de chat
-          saveContactAuto(senderNumber);
-          saveMessageHistory(senderNumber, { sender: senderNumber, text: data.text });
-          if (activeChatNumber === senderNumber) renderMessages();
+        // Guardar mensaje recibido en historial local
+        saveMessageHistory(senderNumber, { sender: senderNumber, text: data.text });
+
+        // Si el chat abierto es el de esa persona, refrescar mensajes
+        if (activeChatNumber === senderNumber) {
+          renderMessages();
         }
       });
     });
 
-    // --- 6. ENVÍO DE MENSAJES ---
+    // --- 5. ENVÍO DE MENSAJES ---
     document.getElementById('send-btn').onclick = () => {
       const targetInput = document.getElementById('target-number');
       const messageInput = document.getElementById('message-text');
@@ -481,41 +292,43 @@
 
       if (!targetNumber || !text) return;
 
+      // Descartar si intenta enviarse un mensaje a sí mismo
       if (targetNumber === myNumber) {
         alert("No puedes enviarte mensajes a tu propio número.");
         return;
       }
 
+      // Auto-guardar el número en la lista de contactos
       saveContactAuto(targetNumber);
       selectContact(targetNumber);
 
+      // Guardar el mensaje localmente
       const msgObj = { sender: 'me', text: text };
       saveMessageHistory(targetNumber, msgObj);
       renderMessages();
 
       messageInput.value = '';
 
-      const payload = { type: 'MESSAGE', text: text, senderName: myName };
-
+      // Verificar si ya existe una conexión Peer activa
       if (activeConnections[targetNumber] && activeConnections[targetNumber].open) {
-        activeConnections[targetNumber].send(payload);
+        activeConnections[targetNumber].send({ text: text });
       } else {
+        // Establecer nueva conexión
         const conn = peer.connect(targetNumber);
-        activeConnections[targetNumber] = conn;
 
         conn.on('open', () => {
-          // Enviar también el perfil actual al conectar por primera vez
-          conn.send({ type: 'PROFILE_UPDATE', name: myName, avatar: myAvatar });
-          conn.send(payload);
+          activeConnections[targetNumber] = conn;
+          conn.send({ text: text });
         });
 
         conn.on('error', (err) => {
-          console.error("Error al enviar:", err);
-          alert("No se pudo conectar con el usuario. Asegúrate de que esté en línea.");
+          console.error("No se pudo enviar el mensaje:", err);
+          alert("No se pudo conectar con el usuario. Es posible que esté fuera de línea.");
         });
       }
     };
 
+    // Cargar la interfaz inicial al abrir la página
     renderContactsList();
   </script>
 </body>
