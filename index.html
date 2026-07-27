@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Mando Bluetooth & Touchpad</title>
+  <style>
+    :root {
+      --bg-color: #121214;
+      --card-bg: #1e1e24;
+      --accent: #00e676;
+      --btn-bg: #2a2a35;
+      --text: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 15px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .status-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #ff5252;
+    }
+
+    .status-dot.online {
+      background-color: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    .btn-action-primary {
+      background-color: #2979ff;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-action-primary:active {
+      opacity: 0.8;
+    }
+
+    /* MANDO CONTENEDOR */
+    .gamepad {
+      background: var(--card-bg);
+      border: 2px solid #33333d;
+      border-radius: 30px;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      width: 100%;
+      max-width: 800px;
+    }
+
+    @media (min-width: 650px) {
+      .gamepad {
+        grid-template-columns: 1fr 1.2fr 1fr;
+      }
+    }
+
+    /* CRUCETA (D-PAD) */
+    .dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 50px);
+      gap: 5px;
+      max-width: 180px;
+      margin: 0 auto;
+    }
+
+    .btn-ctrl {
+      background: var(--btn-bg);
+      border: 1px solid #444;
+      color: var(--text);
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+    }
+
+    .btn-ctrl:active {
+      background: var(--accent);
+      color: #000;
+    }
+
+    /* TOUCHPAD / RATÓN INTEGRADO */
+    .mouse-area {
+      background: #141419;
+      border: 2px dashed var(--accent);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      gap: 10px;
+    }
+
+    .touchpad {
+      width: 100%;
+      height: 150px;
+      background: #0d0d11;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #777;
+      font-size: 0.85rem;
+      text-align: center;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .mouse-btns {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-mouse {
+      flex: 1;
+      padding: 10px;
+      background: var(--btn-bg);
+      border: 1px solid #444;
+      color: var(--text);
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-mouse:active {
+      background: #444;
+    }
+
+    /* BOTONES DE ACCIÓN (A, B, X, Y) */
+    .action-btns {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 50px);
+      gap: 5px;
+      max-width: 180px;
+      margin: 0 auto;
+    }
+
+    .btn-act {
+      border-radius: 50%;
+    }
+
+    .btn-a { background: #4caf50; }
+    .btn-b { background: #f44336; }
+    .btn-x { background: #2196f3; }
+    .btn-y { background: #ffeb3b; color: #000; }
+
+    /* CONSOLA DE EVENTOS */
+    .console-log {
+      margin-top: 15px;
+      background: #09090b;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 10px;
+      width: 100%;
+      max-width: 800px;
+      height: 70px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Control Web Gamepad + Mouse</h1>
+    <p style="font-size: 0.85rem; color: #aaa;">Optimizado para GitHub Pages (HTTPS)</p>
+  </header>
+
+  <div class="status-container">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText" style="font-size: 0.9rem;">Desconectado</span>
+    <button class="btn-action-primary" id="connectBt">Conectar Bluetooth</button>
+  </div>
+
+  <main class="gamepad">
+    
+    <!-- CRUCETA -->
+    <div class="dpad">
+      <div></div>
+      <button class="btn-ctrl" data-cmd="UP">▲</button>
+      <div></div>
+      <button class="btn-ctrl" data-cmd="LEFT">◄</button>
+      <div></div>
+      <button class="btn-ctrl" data-cmd="RIGHT">►</button>
+      <div></div>
+      <button class="btn-ctrl" data-cmd="DOWN">▼</button>
+      <div></div>
+    </div>
+
+    <!-- TOUCHPAD RATÓN -->
+    <div class="mouse-area">
+      <div class="touchpad" id="touchpad">
+        Arrastra el dedo aquí para mover el Ratón
+      </div>
+      <div class="mouse-btns">
+        <button class="btn-mouse" data-cmd="CLICK_LEFT">Izq.</button>
+        <button class="btn-mouse" data-cmd="CLICK_RIGHT">Der.</button>
+      </div>
+    </div>
+
+    <!-- BOTONES ACCIÓN -->
+    <div class="action-btns">
+      <div></div>
+      <button class="btn-ctrl btn-act btn-y" data-cmd="Y">Y</button>
+      <div></div>
+      <button class="btn-ctrl btn-act btn-x" data-cmd="X">X</button>
+      <div></div>
+      <button class="btn-ctrl btn-act btn-b" data-cmd="B">B</button>
+      <div></div>
+      <button class="btn-ctrl btn-act btn-a" data-cmd="A">A</button>
+      <div></div>
+    </div>
+
+  </main>
+
+  <div class="console-log" id="logBox">
+    > Listo en GitHub Pages.
+  </div>
+
+  <script>
+    let btDevice;
+    const connectBt = document.getElementById('connectBt');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const logBox = document.getElementById('logBox');
+    const touchpad = document.getElementById('touchpad');
+
+    function printLog(msg) {
+      logBox.innerHTML += `<br>> ${msg}`;
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    // --- CONEXIÓN BLUETOOTH (Web Bluetooth) ---
+    connectBt.addEventListener('click', async () => {
+      if (!navigator.bluetooth) {
+        printLog("Tu navegador no admite Web Bluetooth API.");
+        alert("Navegador no compatible. Abre este enlace con Chrome o Edge.");
+        return;
+      }
+
+      try {
+        printLog("Iniciando búsqueda Bluetooth...");
+        btDevice = await navigator.bluetooth.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: ['generic_access']
+        });
+
+        statusText.innerText = "Conectando...";
+        await btDevice.gatt.connect();
+
+        statusDot.classList.add('online');
+        statusText.innerText = `Conectado: ${btDevice.name || 'Dispositivo'}`;
+        printLog(`¡Vinculado a ${btDevice.name || 'Dispositivo'}!`);
+
+      } catch (err) {
+        printLog(`Error: ${err.message}`);
+        statusDot.classList.remove('online');
+        statusText.innerText = "Desconectado";
+      }
+    });
+
+    // --- TRANSMISIÓN DE COMANDOS ---
+    function sendSignal(type, data) {
+      const payload = JSON.stringify({ type, ...data });
+      printLog(`Acción: ${payload}`);
+      
+      // Vibración de respuesta hápitca si el celular la admite
+      if (navigator.vibrate) {
+        navigator.vibrate(20);
+      }
+    }
+
+    // Eventos de botones
+    document.querySelectorAll('[data-cmd]').forEach(element => {
+      element.addEventListener('pointerdown', (e) => {
+        const cmd = element.getAttribute('data-cmd');
+        sendSignal('BTN_PRESS', { key: cmd });
+      });
+    });
+
+    // --- EVENTOS DEL TOUCHPAD (RATÓN) ---
+    let startX = 0;
+    let startY = 0;
+    let activeTouch = false;
+
+    touchpad.addEventListener('pointerdown', (e) => {
+      activeTouch = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      touchpad.setPointerCapture(e.pointerId);
+    });
+
+    touchpad.addEventListener('pointermove', (e) => {
+      if (!activeTouch) return;
+
+      const diffX = Math.round(e.clientX - startX);
+      const diffY = Math.round(e.clientY - startY);
+
+      if (diffX !== 0 || diffY !== 0) {
+        sendSignal('MOUSE_MOVE', { dx: diffX, dy: diffY });
+        startX = e.clientX;
+        startY = e.clientY;
+      }
+    });
+
+    touchpad.addEventListener('pointerup', (e) => {
+      activeTouch = false;
+      touchpad.releasePointerCapture(e.pointerId);
+    });
+  </script>
+</body>
+</html>
