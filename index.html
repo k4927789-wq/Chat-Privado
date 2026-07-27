@@ -140,6 +140,12 @@
       display: flex; align-items: center; justify-content: center; gap: 8px;
     }
 
+    .btn-secondary {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
     .avatar-upload {
       width: 80px; height: 80px;
       border-radius: 50%;
@@ -175,7 +181,7 @@
     .nav-tab.active { background: var(--accent); color: #fff; }
 
     .chats-header {
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex; justify-space-between; align-items: center;
       padding: 15px 0 10px 0;
     }
 
@@ -289,7 +295,7 @@
       position: absolute; top: 0; left: 0; right: 0; bottom: 0;
       background: #050508; z-index: 300;
       display: flex; flex-direction: column;
-      align-items: center; justify-content: space-around;
+      align-items: center; justify-around: space-around;
       padding: 40px 20px;
     }
 
@@ -368,6 +374,7 @@
 
         <input type="text" id="usernameInput" placeholder="Nombre de Usuario" maxlength="15">
         <button class="btn" id="btnSaveProfile"><i data-lucide="check"></i> Continuar</button>
+        <button class="btn btn-secondary" id="btnQuickReconnect"><i data-lucide="refresh-cw"></i> Reconectar Último Chat</button>
       </div>
     </div>
 
@@ -419,12 +426,12 @@
       <div class="card">
         <button class="icon-btn" id="btnBackToMain" style="align-self: flex-start;"><i data-lucide="arrow-left"></i> Volver</button>
         <h2>Conectar Dispositivos</h2>
-        <p style="font-size: 0.8rem; color: #8b949e;">Genera un código o ingresa el de otro celular</p>
+        <p style="font-size: 0.8rem; color: #8b949e;">Genera un código o ingresa el del otro dispositivo</p>
         
         <button class="btn" id="btnGenCode"><i data-lucide="qr-code"></i> Generar Código</button>
         <hr style="border-color: var(--border);">
-        <input type="text" id="joinCodeInput" placeholder="Código (Ej: 5821)" maxlength="4">
-        <button class="btn" id="btnJoin" style="background: var(--card-bg); border: 1px solid var(--border);"><i data-lucide="link"></i> Conectar</button>
+        <input type="text" id="joinCodeInput" placeholder="Código (Ej: 5821)" maxlength="10">
+        <button class="btn btn-secondary" id="btnJoin"><i data-lucide="link"></i> Conectar / Reconectar Chat</button>
       </div>
     </div>
 
@@ -437,12 +444,15 @@
             <img id="activeContactAvatar" class="chat-item-avatar">
             <div>
               <span id="activeContactName" style="font-weight: bold; font-size: 0.9rem;">Contacto</span>
-              <p style="font-size: 0.7rem; color: #2ea043;">Conectado</p>
+              <p id="activeContactStatus" style="font-size: 0.7rem; color: #2ea043;">Conectado</p>
             </div>
           </div>
         </div>
 
-        <button class="icon-btn" id="btnStartCall"><i data-lucide="phone" style="width:22px; height:22px;"></i></button>
+        <div style="display: flex; gap: 8px;">
+          <button class="icon-btn" id="btnReconnectChat" title="Reconectar"><i data-lucide="refresh-cw"></i></button>
+          <button class="icon-btn" id="btnStartCall"><i data-lucide="phone" style="width:22px; height:22px;"></i></button>
+        </div>
       </div>
 
       <div class="chat-body" id="chatBody"></div>
@@ -570,6 +580,7 @@
     let myProfile = JSON.parse(localStorage.getItem('user_profile') || '{"name":"","avatar":""}');
     let savedContacts = JSON.parse(localStorage.getItem('saved_contacts') || '{}');
     let savedStickers = JSON.parse(localStorage.getItem('saved_stickers') || '[]');
+    let lastChatPeerId = localStorage.getItem('last_chat_peer_id') || '';
     
     let peer = null;
     let conn = null;
@@ -579,7 +590,6 @@
 
     if (myProfile.name && myProfile.avatar) showMainScreen();
 
-    // COMPRIMIR Y LEER IMÁGENES/VIDEOS (Solución a fallos de envío)
     function processFile(file, callback) {
       const reader = new FileReader();
       reader.onload = (e) => callback(e.target.result);
@@ -606,6 +616,11 @@
       localStorage.setItem('user_profile', JSON.stringify(myProfile));
       document.getElementById('profileScreen').classList.add('hidden');
       showMainScreen();
+    };
+
+    document.getElementById('btnQuickReconnect').onclick = () => {
+      if (!lastChatPeerId) return alert('No hay ningún chat guardado para reconectar.');
+      reconnectToPeer(lastChatPeerId);
     };
 
     function showMainScreen() {
@@ -647,12 +662,19 @@
           <img src="${c.avatar}" class="chat-item-avatar">
           <div style="flex:1;">
             <div style="font-weight:bold; font-size:0.9rem;">${c.name}</div>
-            <div style="font-size:0.75rem; color:#8b949e;">Abrir conversación</div>
+            <div style="font-size:0.75rem; color:#8b949e;">Abrir historial o reconectar</div>
           </div>
+          <button class="btn btn-secondary" style="padding:6px 10px; font-size:0.75rem;"><i data-lucide="refresh-cw"></i> Reconectar</button>
         `;
-        item.onclick = () => openChat(id, c.name, c.avatar);
+        item.onclick = (e) => {
+          openChat(id, c.name, c.avatar);
+          if (e.target.closest('button')) {
+            reconnectToPeer(id);
+          }
+        };
         container.appendChild(item);
       });
+      lucide.createIcons();
     }
 
     function renderStatusesList() {
@@ -689,7 +711,7 @@
       document.getElementById('mainScreen').classList.remove('hidden');
     };
 
-    // CONEXIÓN PEERJS
+    // CONEXIÓN Y RECONEXIÓN PEERJS
     document.getElementById('btnGenCode').onclick = () => {
       const code = Math.floor(1000 + Math.random() * 9000).toString();
       setupPeer(`peer-room-${code}`, code);
@@ -697,20 +719,34 @@
 
     document.getElementById('btnJoin').onclick = () => {
       const code = document.getElementById('joinCodeInput').value.trim();
-      if (code.length === 4) setupPeer(null, code);
-      else alert("Ingresa un código de 4 dígitos");
+      if (!code) return alert("Ingresa el código del chat o el ID guardado.");
+      
+      const targetId = code.startsWith('peer-room-') ? code : `peer-room-${code}`;
+      reconnectToPeer(targetId);
     };
 
-    function setupPeer(customId, code) {
+    function reconnectToPeer(peerId) {
+      localStorage.setItem('last_chat_peer_id', peerId);
+      lastChatPeerId = peerId;
+      setupPeer(null, peerId, true);
+    }
+
+    function setupPeer(customId, codeOrPeerId, isDirectPeerId = false) {
       peer = new Peer(customId);
       peer.on('open', () => {
-        if (customId) alert(`Código generado: ${code}`);
-        else {
-          conn = peer.connect(`peer-room-${code}`);
+        if (customId) {
+          alert(`Código generado: ${codeOrPeerId}\nComparte este código con la otra persona.`);
+        } else {
+          const target = isDirectPeerId ? codeOrPeerId : `peer-room-${codeOrPeerId}`;
+          conn = peer.connect(target);
           bindConnEvents();
         }
       });
-      peer.on('connection', (c) => { conn = c; bindConnEvents(); });
+
+      peer.on('connection', (c) => { 
+        conn = c; 
+        bindConnEvents(); 
+      });
 
       peer.on('call', (call) => {
         if (confirm("Llamada entrante. ¿Deseas contestar?")) {
@@ -730,12 +766,25 @@
     function bindConnEvents() {
       conn.on('open', () => {
         conn.send({ type: 'HANDSHAKE', profile: myProfile });
+        const targetPeerId = conn.peer;
+        localStorage.setItem('last_chat_peer_id', targetPeerId);
+        lastChatPeerId = targetPeerId;
+
+        const statusEl = document.getElementById('activeContactStatus');
+        if (statusEl) {
+          statusEl.innerText = 'Conectado';
+          statusEl.style.color = '#2ea043';
+        }
       });
 
       conn.on('data', (data) => {
         if (data.type === 'HANDSHAKE') {
           const contactId = conn.peer;
-          savedContacts[contactId] = { name: data.profile.name, avatar: data.profile.avatar, messages: savedContacts[contactId]?.messages || [] };
+          savedContacts[contactId] = { 
+            name: data.profile.name, 
+            avatar: data.profile.avatar, 
+            messages: savedContacts[contactId]?.messages || [] 
+          };
           localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
           document.getElementById('connectScreen').classList.add('hidden');
           openChat(contactId, data.profile.name, data.profile.avatar);
@@ -751,17 +800,30 @@
 
         if (data.type === 'TEXT') {
           appendMessage(data.text, 'other');
-          saveMessageToHistory(currentChatId, data.text, 'other');
+          saveMessageToHistory(currentChatId || conn.peer, data.text, 'other');
           playSound('receive');
         }
 
         if (data.type === 'MEDIA') {
           appendMedia(data.src, data.mediaType, 'other');
-          saveMessageToHistory(currentChatId, data.src, 'other', false, data.mediaType);
+          saveMessageToHistory(currentChatId || conn.peer, data.src, 'other', false, data.mediaType);
           playSound('receive');
         }
       });
+
+      conn.on('close', () => {
+        const statusEl = document.getElementById('activeContactStatus');
+        if (statusEl) {
+          statusEl.innerText = 'Desconectado';
+          statusEl.style.color = '#da3633';
+        }
+      });
     }
+
+    document.getElementById('btnReconnectChat').onclick = () => {
+      if (currentChatId) reconnectToPeer(currentChatId);
+      else alert('No hay un chat activo seleccionado');
+    };
 
     // SUBIR Y VER ESTADOS
     let tempStatusMedia = null, tempStatusType = 'text';
@@ -817,7 +879,7 @@
 
     // LLAMADAS
     document.getElementById('btnStartCall').onclick = () => {
-      if (!conn || !conn.open) return alert("Debes estar conectado con tu contacto");
+      if (!conn || !conn.open) return alert("Debes reconectar el chat con tu contacto primero.");
       navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
         localStream = stream;
         currentCall = peer.call(conn.peer, stream);
@@ -853,9 +915,16 @@
       currentChatId = id;
       document.getElementById('activeContactName').innerText = name;
       document.getElementById('activeContactAvatar').src = avatar;
+      
+      const isConnected = conn && conn.open && conn.peer === id;
+      const statusEl = document.getElementById('activeContactStatus');
+      statusEl.innerText = isConnected ? 'Conectado' : 'Desconectado (Toca reconectar)';
+      statusEl.style.color = isConnected ? '#2ea043' : '#da3633';
+
       document.getElementById('mainScreen').classList.add('hidden');
       document.getElementById('chatView').classList.remove('hidden');
 
+      const chatBody = document.getElementById('chatBody');
       chatBody.innerHTML = '';
       const history = savedContacts[id]?.messages || [];
       history.forEach(m => {
@@ -885,6 +954,7 @@
     }
 
     function appendMessage(text, sender) {
+      const chatBody = document.getElementById('chatBody');
       const msg = document.createElement('div');
       msg.className = `msg ${sender}`;
       msg.innerText = text;
@@ -915,6 +985,7 @@
     }
 
     function appendMedia(src, type, sender) {
+      const chatBody = document.getElementById('chatBody');
       const msg = document.createElement('div');
       msg.className = `msg ${sender} msg-media`;
       if (type === 'image') msg.innerHTML = `<img src="${src}">`;
@@ -958,13 +1029,17 @@
     };
 
     function saveMessageToHistory(contactId, content, sender, isSticker = false, mediaType = null) {
-      if (!savedContacts[contactId]) return;
+      if (!contactId) return;
+      if (!savedContacts[contactId]) {
+        savedContacts[contactId] = { name: "Contacto Guardado", avatar: "https://i.ibb.co/m5L87vX2/1977e3da90e44615439d8c0f8b5d4294-1.jpg", messages: [] };
+      }
       savedContacts[contactId].messages.push({ content, sender, isSticker, mediaType });
       localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
     }
 
     // OPCIONES DE CONTACTO
     document.getElementById('contactHeaderInfo').onclick = () => {
+      if (!currentChatId || !savedContacts[currentChatId]) return;
       document.getElementById('modalContactName').innerText = savedContacts[currentChatId].name;
       document.getElementById('modalContactAvatar').src = savedContacts[currentChatId].avatar;
       document.getElementById('contactModal').classList.remove('hidden');
@@ -973,9 +1048,11 @@
     document.getElementById('btnCloseModal').onclick = () => document.getElementById('contactModal').classList.add('hidden');
 
     document.getElementById('btnClearChatHistory').onclick = () => {
-      savedContacts[currentChatId].messages = [];
-      localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
-      chatBody.innerHTML = '';
+      if (savedContacts[currentChatId]) {
+        savedContacts[currentChatId].messages = [];
+        localStorage.setItem('saved_contacts', JSON.stringify(savedContacts));
+      }
+      document.getElementById('chatBody').innerHTML = '';
       document.getElementById('contactModal').classList.add('hidden');
     };
 
